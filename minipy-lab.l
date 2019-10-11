@@ -21,17 +21,17 @@ real     {number}'.'{number}?|{number}?'.'{number}
 
 %%
 [ \t]+      {/*do nothing , just skip */}
-{number}    {
+{number}    { 
               return INT;
             }
 {real}      {
               return REAL;
             }
 {id}        {
-              return ID;
+              return ID; 
             }
 \"(\\.|[^\\"])*\"	{
-             return(STRING_LITERAL);
+             return(STRING_LITERAL); 
                   }
 .|\n        { return yylval = yytext[0];}
 %%
