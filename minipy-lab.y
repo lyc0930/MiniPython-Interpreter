@@ -1,14 +1,14 @@
 %{
-   /* definition */
+    /* definition */
    #include <stdio.h>
    #include <ctype.h>
-   using namespace std;
    #include <iostream>
    #include <string>
    #include <map>
 
    #include "lex.yy.c"
 
+   using namespace std;
    void yyerror(char *s);
 %}
 %token ID,INT,REAL,STRING_LITERAL
