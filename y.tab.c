@@ -64,16 +64,16 @@
 /* Copy the first part of user declarations.  */
 #line 1 "minipy-lab.y" /* yacc.c:339  */
 
-   /* definition */
+    /* definition */
    #include <stdio.h>
    #include <ctype.h>
-   using namespace std;
    #include <iostream>
    #include <string>
    #include <map>
 
    #include "lex.yy.c"
 
+   using namespace std;
    void yyerror(char *s);
 
 #line 80 "y.tab.c" /* yacc.c:339  */
