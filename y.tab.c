@@ -65,16 +65,16 @@
 #line 1 "minipy-lab.y" /* yacc.c:339  */
 
     /* definition */
-   #include <stdio.h>
-   #include <ctype.h>
-   #include <iostream>
-   #include <string>
-   #include <map>
+	#include <stdio.h>
+	#include <ctype.h>
+	#include <iostream>
+	#include <string>
+	#include <map>
 
-   #include "lex.yy.c"
+	#include "lex.yy.c"
 
-   using namespace std;
-   void yyerror(char *s);
+	using namespace std;
+	void yyerror(char *s);
 
 #line 80 "y.tab.c" /* yacc.c:339  */
 
@@ -437,11 +437,11 @@ static const yytype_uint8 yytranslate[] =
   /* YYRLINE[YYN] -- Source line where rule number YYN was defined.  */
 static const yytype_uint8 yyrline[] =
 {
-       0,    18,    18,    20,    21,    22,    23,    25,    27,    30,
-      31,    33,    34,    36,    37,    38,    40,    41,    42,    43,
-      45,    46,    48,    49,    51,    52,    53,    54,    55,    56,
-      58,    59,    62,    63,    65,    66,    69,    70,    72,    73,
-      74,    76,    77,    78,    79
+       0,    19,    19,    23,    24,    24,    26,    30,    34,    38,
+      39,    43,    44,    48,    49,    50,    54,    55,    56,    57,
+      60,    62,    65,    67,    71,    72,    73,    74,    75,    76,
+      80,    81,    87,    88,    91,    93,    97,    98,   102,   103,
+     104,   108,   109,   110,   111
 };
 #endif
 
@@ -1257,13 +1257,13 @@ yyreduce:
   switch (yyn)
     {
         case 6:
-#line 23 "minipy-lab.y" /* yacc.c:1646  */
-    {yyerrok;}
+#line 26 "minipy-lab.y" /* yacc.c:1646  */
+    { yyerrok; }
 #line 1263 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 7:
-#line 25 "minipy-lab.y" /* yacc.c:1646  */
+#line 30 "minipy-lab.y" /* yacc.c:1646  */
     {cout << "miniPy> ";}
 #line 1269 "y.tab.c" /* yacc.c:1646  */
     break;
@@ -1497,18 +1497,20 @@ yyreturn:
 #endif
   return yyresult;
 }
-#line 82 "minipy-lab.y" /* yacc.c:1906  */
+#line 114 "minipy-lab.y" /* yacc.c:1906  */
 
 
 int main()
 {
-   return yyparse();
+	return yyparse();
 }
 
 void yyerror(char *s)
 {
-   cout << s << endl<<"miniPy> ";
+	cout << s << endl << "miniPy> ";
 }
 
 int yywrap()
-{ return 1; }
+{
+	return 1;
+}
