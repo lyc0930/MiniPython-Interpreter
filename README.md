@@ -1,18 +1,24 @@
 # MiniPython-Interpreter
+Compiler Lab 1
 
-## Compiler Lab 1
-
-### Deadline
+## Deadline
 - 10月底：完成相关数据结构（属性）的设计并提交备查
 - 11月底：检查实验
 
-### Members
+## Members
 - 嵇帆
 - 罗晏宸
 - 牛辛汉
 
 ***
-
+## How to Build & Run
+```shell
+yacc -d minipy-lab.y
+lex minipy-lab.l
+g++ y.tab.c
+./a.out
+```
+## About Git
 ### Commit Form
 ```
 Type<scope>:Title
@@ -32,7 +38,7 @@ Type<scope>:Title
 ### Tags
 在完成相关数据结构（属性）的设计后，也即10月底前，项目tag应迭代至0.5.0以上，完整功能的项目tag不低于1.0.0
 
-### Reference
+## Reference
 - [CPython](https://github.com/python/cpython/)
     - [Grammer](https://github.com/python/cpython/tree/master/Grammer)
     - [Parser](https://github.com/python/cpython/tree/master/Parser)
