@@ -738,49 +738,41 @@ do_action:	/* This label is used only to access EOF actions. */
 case 1:
 YY_RULE_SETUP
 #line 23 "minipy-lab.l"
-{/*do nothing , just skip */}
+{ /*do nothing , just skip */ }
 	YY_BREAK
 case 2:
 YY_RULE_SETUP
 #line 24 "minipy-lab.l"
-{ 
-              return INT;
-            }
+{ return INT; }
 	YY_BREAK
 case 3:
 YY_RULE_SETUP
-#line 27 "minipy-lab.l"
-{
-              return REAL;
-            }
+#line 25 "minipy-lab.l"
+{ return REAL; }
 	YY_BREAK
 case 4:
 YY_RULE_SETUP
-#line 30 "minipy-lab.l"
-{
-              return ID; 
-            }
+#line 26 "minipy-lab.l"
+{ return ID; }
 	YY_BREAK
 case 5:
 /* rule 5 can match eol */
 YY_RULE_SETUP
-#line 33 "minipy-lab.l"
-{
-             return(STRING_LITERAL); 
-                  }
+#line 27 "minipy-lab.l"
+{ return STRING_LITERAL; }
 	YY_BREAK
 case 6:
 /* rule 6 can match eol */
 YY_RULE_SETUP
-#line 36 "minipy-lab.l"
-{ return yylval = yytext[0];}
+#line 28 "minipy-lab.l"
+{ return yylval = yytext[0]; }
 	YY_BREAK
 case 7:
 YY_RULE_SETUP
-#line 37 "minipy-lab.l"
+#line 29 "minipy-lab.l"
 ECHO;
 	YY_BREAK
-#line 784 "lex.yy.c"
+#line 776 "lex.yy.c"
 case YY_STATE_EOF(INITIAL):
 	yyterminate();
 
@@ -1785,6 +1777,6 @@ void yyfree (void * ptr )
 
 #define YYTABLES_NAME "yytables"
 
-#line 37 "minipy-lab.l"
+#line 29 "minipy-lab.l"
 
 

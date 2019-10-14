@@ -11,8 +11,8 @@
 	using namespace std;
 	void yyerror(char *s);
 %}
-%token ID,INT,REAL,STRING_LITERAL
 
+%token ID INT REAL STRING_LITERAL
 
 %%
 Start:
@@ -23,11 +23,12 @@ Lines:
     Lines  stat '\n' prompt |
     Lines  '\n' prompt |
     /*  empty production */ |
-    error '\n' { yyerrok; }
+    error '\n'
+        { yyerrok; }
 ;
 
 prompt:
-	{cout << "miniPy> ";}
+	{ cout << "miniPy> "; }
 ;
 
 stat:
@@ -79,8 +80,6 @@ atom_expr:
 arglist:
     add_expr |
     arglist ',' add_expr
-;
-
 ;
 
 List:

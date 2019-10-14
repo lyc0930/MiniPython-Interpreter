@@ -437,11 +437,11 @@ static const yytype_uint8 yytranslate[] =
   /* YYRLINE[YYN] -- Source line where rule number YYN was defined.  */
 static const yytype_uint8 yyrline[] =
 {
-       0,    19,    19,    23,    24,    24,    26,    30,    34,    38,
-      39,    43,    44,    48,    49,    50,    54,    55,    56,    57,
-      60,    62,    65,    67,    71,    72,    73,    74,    75,    76,
-      80,    81,    87,    88,    91,    93,    97,    98,   102,   103,
-     104,   108,   109,   110,   111
+       0,    19,    19,    23,    24,    24,    26,    31,    35,    39,
+      40,    44,    45,    49,    50,    51,    55,    56,    57,    58,
+      61,    63,    66,    68,    72,    73,    74,    75,    76,    77,
+      81,    82,    86,    87,    90,    92,    96,    97,   101,   102,
+     103,   107,   108,   109,   110
 };
 #endif
 
@@ -1257,14 +1257,14 @@ yyreduce:
   switch (yyn)
     {
         case 6:
-#line 26 "minipy-lab.y" /* yacc.c:1646  */
+#line 27 "minipy-lab.y" /* yacc.c:1646  */
     { yyerrok; }
 #line 1263 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 7:
-#line 30 "minipy-lab.y" /* yacc.c:1646  */
-    {cout << "miniPy> ";}
+#line 31 "minipy-lab.y" /* yacc.c:1646  */
+    { cout << "miniPy> "; }
 #line 1269 "y.tab.c" /* yacc.c:1646  */
     break;
 
@@ -1497,7 +1497,7 @@ yyreturn:
 #endif
   return yyresult;
 }
-#line 114 "minipy-lab.y" /* yacc.c:1906  */
+#line 113 "minipy-lab.y" /* yacc.c:1906  */
 
 
 int main()
