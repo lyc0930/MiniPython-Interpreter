@@ -84,7 +84,7 @@ arglist:
 
 List:
     '[' ']' |
-    '[' List_items opt_comma ']'
+    '[' List_items opt_comma ']' /* [1, 2, 3, ] == [1, 2, 3] */
 ;
 
 opt_comma:
