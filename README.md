@@ -25,8 +25,6 @@ Type<scope>:Title
     - `REFACTOR`：局部功能代码重构，未新增任何功能和修复任何bug
     - `STYLE`：仅仅修改了空格、缩进等，或因为编辑器自动排版产生的修改，不改变代码逻辑
     - `REVERT`：回滚到上一个版本
-
-
 - `scope`：用于说明本次commit的影响范围，例如<minipython-lab.y>
 - `Title`：本次commit的简要标题，尽量简短，例如“修改了算术运算符的产生式”
 - `Body`：详细描述本次commit，多行
