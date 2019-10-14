@@ -36,3 +36,6 @@ Type<scope>:Title
 - [CPython](https://github.com/python/cpython/)
     - [Grammer](https://github.com/python/cpython/tree/master/Grammer)
     - [Parser](https://github.com/python/cpython/tree/master/Parser)
+
+- [Python Docs](https://docs.python.org/3/)
+    - [Literals](https://docs.python.org/3/reference/lexical_analysis.html#literals)
