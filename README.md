@@ -18,6 +18,14 @@ lex minipy-lab.l
 g++ y.tab.c
 ./a.out
 ```
+or use Make:
+```shell
+make all
+```
+To make clean:
+```shell
+make clean
+```
 ## About Git
 ### Commit Form
 ```
