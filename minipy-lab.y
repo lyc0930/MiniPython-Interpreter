@@ -20,7 +20,7 @@ Start:
 ;
 
 Lines:
-    Lines  stat '\n' prompt |
+    Lines  stat '\n' { cout << $2 << endl; } prompt |
     Lines  '\n' prompt |
     /*  empty production */ |
     error '\n'
@@ -32,12 +32,12 @@ prompt:
 ;
 
 stat:
-	assignExpr
+	assignExpr { $$ = $1; }
 ;
 
 assignExpr:
     atom_expr '=' assignExpr |
-    add_expr
+    add_expr { $$ = $1; }
 ;
 
 number:
@@ -98,16 +98,16 @@ List_items:
 ;
 
 add_expr:
-    add_expr '+' mul_expr |
-    add_expr '-' mul_expr |
-    mul_expr
+    add_expr '+' mul_expr { $$ = $1 + $3; }|
+    add_expr '-' mul_expr { $$ = $1 - $3; }|
+    mul_expr { $$ = $1; }
 ;
 
 mul_expr:
     mul_expr '*' factor |
     mul_expr '/' factor |
     mul_expr '%' factor |
-    factor
+    factor { $$ = $1; }
 ;
 
 %%

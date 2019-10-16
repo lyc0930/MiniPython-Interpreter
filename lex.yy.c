@@ -743,36 +743,39 @@ YY_RULE_SETUP
 case 2:
 YY_RULE_SETUP
 #line 24 "minipy-lab.l"
-{ return INT; }
+{
+                        yylval = atoi(yytext);
+                        return INT;
+                    }
 	YY_BREAK
 case 3:
 YY_RULE_SETUP
-#line 25 "minipy-lab.l"
+#line 28 "minipy-lab.l"
 { return REAL; }
 	YY_BREAK
 case 4:
 YY_RULE_SETUP
-#line 26 "minipy-lab.l"
+#line 29 "minipy-lab.l"
 { return ID; }
 	YY_BREAK
 case 5:
 /* rule 5 can match eol */
 YY_RULE_SETUP
-#line 27 "minipy-lab.l"
+#line 30 "minipy-lab.l"
 { return STRING_LITERAL; }
 	YY_BREAK
 case 6:
 /* rule 6 can match eol */
 YY_RULE_SETUP
-#line 28 "minipy-lab.l"
+#line 31 "minipy-lab.l"
 { return yylval = yytext[0]; }
 	YY_BREAK
 case 7:
 YY_RULE_SETUP
-#line 29 "minipy-lab.l"
+#line 32 "minipy-lab.l"
 ECHO;
 	YY_BREAK
-#line 776 "lex.yy.c"
+#line 779 "lex.yy.c"
 case YY_STATE_EOF(INITIAL):
 	yyterminate();
 
@@ -1777,6 +1780,6 @@ void yyfree (void * ptr )
 
 #define YYTABLES_NAME "yytables"
 
-#line 29 "minipy-lab.l"
+#line 32 "minipy-lab.l"
 
 
