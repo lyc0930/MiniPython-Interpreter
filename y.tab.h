@@ -45,17 +45,19 @@ extern int yydebug;
 # define YYTOKENTYPE
   enum yytokentype
   {
-    ID = 258,
-    INT = 259,
-    REAL = 260,
-    STRING_LITERAL = 261
+    INT = 258,
+    REAL = 259,
+    ID = 260,
+    STRING_LITERAL = 261,
+    UMINUS = 262
   };
 #endif
 /* Tokens.  */
-#define ID 258
-#define INT 259
-#define REAL 260
+#define INT 258
+#define REAL 259
+#define ID 260
 #define STRING_LITERAL 261
+#define UMINUS 262
 
 /* Value type.  */
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED

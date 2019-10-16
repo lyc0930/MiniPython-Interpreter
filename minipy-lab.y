@@ -1,18 +1,40 @@
+%token INT REAL
+%token ID STRING_LITERAL
+%right UMINUS
 %{
     /* definition */
-	#include <stdio.h>
-	#include <ctype.h>
-	#include <iostream>
-	#include <string>
-	#include <map>
-
-	#include "lex.yy.c"
-
-	using namespace std;
-	void yyerror(char *s);
+    #include <stdio.h>
+    #include <ctype.h>
+    #include <cmath>
+    #include <iostream>
+    #include <string>
+    #include <map>
+    #include "minipy-lab.h"
+    typedef struct
+    {
+        int type;
+        union
+        {
+            int i;    /* value for int type */
+            double d; /* value for float type */
+        };
+    } Val;
+    #define YYSTYPE Val
+    #include "lex.yy.c"
+    using namespace std;
+    void yyerror(char*);
+    int yylex(void);
 %}
 
-%token ID INT REAL STRING_LITERAL
+// %union
+// {
+//     int integer_value;
+//     double real_value;
+// }
+
+// %token <integer_value> INT
+// %token <real_value> REAL
+
 
 %%
 Start:
@@ -20,7 +42,14 @@ Start:
 ;
 
 Lines:
-    Lines  stat '\n' { cout << $2 << endl; } prompt |
+    Lines  stat '\n'
+        {
+            if ($2.type == INTEGER)
+                cout << $2.i << endl;
+            else if ($2.type == DOUBLE)
+                cout << $2.d << endl;
+        }
+    prompt |
     Lines  '\n' prompt |
     /*  empty production */ |
     error '\n'
@@ -32,30 +61,42 @@ prompt:
 ;
 
 stat:
-	assignExpr { $$ = $1; }
+	assignExpr
+        { $$ = $1; }
 ;
 
 assignExpr:
-    atom_expr '=' assignExpr |
-    add_expr { $$ = $1; }
+    atom_expr '=' assignExpr
+        { $$ = $1; } |
+    add_expr
+        { $$ = $1; }
 ;
 
 number:
-    INT |
-    REAL
+    REAL { $$ = $1; } |
+    INT { $$ = $1; }
 ;
 
 factor:
-    '+' factor |
-    '-' factor |
+    '+' factor
+        { $$ = $2; } |
+    '-' factor %prec UMINUS
+        {
+            $$.type == $2.type;
+            if ($2.type == INTEGER)
+                $$.i == -$2.i;
+            else if ($2.type == DOUBLE)
+                $$.d == -$2.d;
+        } |
     atom_expr
+        { $$ = $1; }
 ;
 
 atom:
     ID |
     STRING_LITERAL |
     List |
-    number
+    number { $$ = $1; }
 ;
 
 slice_op:
@@ -69,7 +110,7 @@ sub_expr:
 ;
 
 atom_expr:
-    atom |
+    atom { $$ = $1; } |
     atom_expr  '[' sub_expr  ':' sub_expr  slice_op ']' |
     atom_expr  '[' add_expr ']' |
     atom_expr  '.' ID |
@@ -98,15 +139,96 @@ List_items:
 ;
 
 add_expr:
-    add_expr '+' mul_expr { $$ = $1 + $3; }|
-    add_expr '-' mul_expr { $$ = $1 - $3; }|
+    add_expr '+' mul_expr
+        {
+            if (($1.type == INTEGER) && ( $3.type == INTEGER ))
+            {
+			    $$.type = INTEGER;
+                $$.i = $1.i + $3.i;
+            }
+            else
+            {
+		        $$.type = DOUBLE;
+                if ( $1.type == INTEGER )
+                    $1.d = (double) $1.i;
+                if ( $3.type == INTEGER )
+                    $3.d = (double) $3.i;
+                $$.d = $1.d + $3.d;
+            }
+        }|
+    add_expr '-' mul_expr
+        {
+            if (($1.type == INTEGER) && ( $3.type == INTEGER ))
+            {
+			    $$.type = INTEGER;
+                $$.i = $1.i - $3.i;
+            }
+            else
+            {
+		        $$.type = DOUBLE;
+                if ( $1.type == INTEGER )
+                    $1.d = (double) $1.i;
+                if ( $3.type == INTEGER )
+                    $3.d = (double) $3.i;
+                $$.d = $1.d - $3.d;
+            }
+        }|
     mul_expr { $$ = $1; }
 ;
 
 mul_expr:
-    mul_expr '*' factor |
-    mul_expr '/' factor |
-    mul_expr '%' factor |
+    mul_expr '*' factor
+        {
+            if (($1.type == INTEGER) && ( $3.type == INTEGER ))
+            {
+			    $$.type = INTEGER;
+                $$.i = $1.i * $3.i;
+            }
+            else
+            {
+		        $$.type = DOUBLE;
+                if ( $1.type == INTEGER )
+                    $1.d = (double) $1.i;
+                if ( $3.type == INTEGER )
+                    $3.d = (double) $3.i;
+                $$.d = $1.d * $3.d;
+            }
+        }|
+    mul_expr '/' factor
+        {
+            if (($1.type == INTEGER) && ( $3.type == INTEGER ))
+            {
+			    $$.type = INTEGER;
+                $$.i = $1.i / $3.i;
+            }
+            else
+            {
+		        $$.type = DOUBLE;
+                if ( $1.type == INTEGER )
+                    $1.d = (double) $1.i;
+                if ( $3.type == INTEGER )
+                    $3.d = (double) $3.i;
+                $$.d = $1.d / $3.d;
+            }
+        }|
+    mul_expr '%' factor
+        {
+            if (($1.type == INTEGER) && ( $3.type == INTEGER ))
+            {
+			    $$.type = INTEGER;
+                $$.i = $1.i % $3.i;
+            }
+            else
+            {
+		        $$.type = DOUBLE;
+                if ( $1.type == INTEGER )
+                    $1.d = (double) $1.i;
+                if ( $3.type == INTEGER )
+                    $3.d = (double) $3.i;
+                int temp = (int)($1.d / $3.d);
+                $$.d = $1.d - ($3.d * temp);
+            }
+        }|
     factor { $$ = $1; }
 ;
 

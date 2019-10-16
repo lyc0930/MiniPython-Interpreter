@@ -1,10 +1,11 @@
 %{
 #include <stdlib.h>
 #include <stdio.h>
-
+#include <iostream>
+#include "minipy-lab.h"
+using namespace std;
+void yyerror(char*);
 #include "y.tab.h"
-
-extern int yylval;
 
 /*  any C declaration  */
 %}
@@ -22,11 +23,19 @@ real     {number}'.'{number}?|{number}?'.'{number}
 %%
 [ \t]+              { /*do nothing , just skip */ }
 {number}            {
-                        yylval = atoi(yytext);
-                        return INT;
+                        yylval.type = INTEGER;
+                        yylval.i = atoi( yytext );
+	                    return INT;
                     }
-{real}              { return REAL; }
+{real}              {
+                        yylval.type = DOUBLE;
+                        yylval.d = atof( yytext );
+                        return REAL;
+                    }
 {id}                { return ID; }
 \"(\\.|[^\\"])*\"   { return STRING_LITERAL; }
-.|\n                { return yylval = yytext[0]; }
+.|\n                {
+                        yylval.type = INT;
+                        return yylval.i = yytext[0];
+                    }
 %%

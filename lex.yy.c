@@ -452,14 +452,15 @@ char *yytext;
 #line 2 "minipy-lab.l"
 #include <stdlib.h>
 #include <stdio.h>
-
+#include <iostream>
+#include "minipy-lab.h"
+using namespace std;
+void yyerror(char*);
 #include "y.tab.h"
 
-extern int yylval;
-
 /*  any C declaration  */
-#line 462 "lex.yy.c"
 #line 463 "lex.yy.c"
+#line 464 "lex.yy.c"
 
 #define INITIAL 0
 
@@ -676,9 +677,9 @@ YY_DECL
 		}
 
 	{
-#line 22 "minipy-lab.l"
+#line 23 "minipy-lab.l"
 
-#line 682 "lex.yy.c"
+#line 683 "lex.yy.c"
 
 	while ( /*CONSTCOND*/1 )		/* loops until end-of-file is reached */
 		{
@@ -737,45 +738,53 @@ do_action:	/* This label is used only to access EOF actions. */
 
 case 1:
 YY_RULE_SETUP
-#line 23 "minipy-lab.l"
+#line 24 "minipy-lab.l"
 { /*do nothing , just skip */ }
 	YY_BREAK
 case 2:
 YY_RULE_SETUP
-#line 24 "minipy-lab.l"
+#line 25 "minipy-lab.l"
 {
-                        yylval = atoi(yytext);
-                        return INT;
+                        yylval.type = INTEGER;
+                        yylval.i = atoi( yytext );
+	                    return INT;
                     }
 	YY_BREAK
 case 3:
 YY_RULE_SETUP
-#line 28 "minipy-lab.l"
-{ return REAL; }
+#line 30 "minipy-lab.l"
+{
+                        yylval.type = DOUBLE;
+                        yylval.d = atof( yytext );
+                        return REAL;
+                    }
 	YY_BREAK
 case 4:
 YY_RULE_SETUP
-#line 29 "minipy-lab.l"
+#line 35 "minipy-lab.l"
 { return ID; }
 	YY_BREAK
 case 5:
 /* rule 5 can match eol */
 YY_RULE_SETUP
-#line 30 "minipy-lab.l"
+#line 36 "minipy-lab.l"
 { return STRING_LITERAL; }
 	YY_BREAK
 case 6:
 /* rule 6 can match eol */
 YY_RULE_SETUP
-#line 31 "minipy-lab.l"
-{ return yylval = yytext[0]; }
+#line 37 "minipy-lab.l"
+{
+                        yylval.type = INT;
+                        return yylval.i = yytext[0];
+                    }
 	YY_BREAK
 case 7:
 YY_RULE_SETUP
-#line 32 "minipy-lab.l"
+#line 41 "minipy-lab.l"
 ECHO;
 	YY_BREAK
-#line 779 "lex.yy.c"
+#line 788 "lex.yy.c"
 case YY_STATE_EOF(INITIAL):
 	yyterminate();
 
@@ -1780,6 +1789,6 @@ void yyfree (void * ptr )
 
 #define YYTABLES_NAME "yytables"
 
-#line 32 "minipy-lab.l"
+#line 41 "minipy-lab.l"
 
 
