@@ -1,6 +1,18 @@
 # MiniPython-Interpreter
 Compiler Lab 1
 
+## Function
+1. 包含：
+    - 数值(`INT`和`REAL`)
+    - 串(`STRING_LITERAL`)
+    - 列表(`List`)
+    - ……
+    
+   等数据类型
+2. 包含加减乘除等基本运算
+3. 支持取列表元素、取列表片段等操作
+4. 支持列表的方法（至少实现`append()`方法）和内置函数（`range()`, `print()`, `len()`, `list()`等）调用
+
 ## Deadline
 - 10月底：完成相关数据结构（属性）的设计并提交备查
 - 11月底：检查实验
