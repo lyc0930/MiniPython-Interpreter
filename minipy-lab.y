@@ -1,6 +1,3 @@
-%token INT REAL
-%token ID STRING_LITERAL
-%right UMINUS
 %{
     /* definition */
     #include <stdio.h>
@@ -23,18 +20,14 @@
     #include "lex.yy.c"
     using namespace std;
     void yyerror(char*);
-    int yylex(void);
+    // int yylex(void);
 %}
 
-// %union
-// {
-//     int integer_value;
-//     double real_value;
-// }
-
-// %token <integer_value> INT
-// %token <real_value> REAL
-
+%token ID INT REAL STRING_LITERAL
+%token DIV
+%left  '+' '-'
+%left  '*' '/'
+%right UMINUS
 
 %%
 Start:
@@ -42,7 +35,7 @@ Start:
 ;
 
 Lines:
-    Lines  stat '\n'
+    Lines stat '\n'
         {
             if ($2.type == INTEGER)
                 cout << $2.i << endl;
@@ -50,7 +43,7 @@ Lines:
                 cout << $2.d << endl;
         }
     prompt |
-    Lines  '\n' prompt |
+    Lines '\n' prompt |
     /*  empty production */ |
     error '\n'
         { yyerrok; }
@@ -73,8 +66,8 @@ assignExpr:
 ;
 
 number:
-    REAL { $$ = $1; } |
-    INT { $$ = $1; }
+    INT { $$ = $1; cout <<"INT!"<<endl;} |
+    REAL { $$ = $1; cout <<"REAL!"<<endl;}
 ;
 
 factor:
@@ -82,11 +75,11 @@ factor:
         { $$ = $2; } |
     '-' factor %prec UMINUS
         {
-            $$.type == $2.type;
+            $$.type = $2.type;
             if ($2.type == INTEGER)
-                $$.i == -$2.i;
+                $$.i = -$2.i;
             else if ($2.type == DOUBLE)
-                $$.d == -$2.d;
+                $$.d = -$2.d;
         } |
     atom_expr
         { $$ = $1; }
@@ -96,7 +89,7 @@ atom:
     ID |
     STRING_LITERAL |
     List |
-    number { $$ = $1; }
+    number { $$ = $1;}
 ;
 
 slice_op:
@@ -196,20 +189,22 @@ mul_expr:
         }|
     mul_expr '/' factor
         {
-            if (($1.type == INTEGER) && ( $3.type == INTEGER ))
-            {
-			    $$.type = INTEGER;
-                $$.i = $1.i / $3.i;
-            }
-            else
-            {
-		        $$.type = DOUBLE;
-                if ( $1.type == INTEGER )
-                    $1.d = (double) $1.i;
-                if ( $3.type == INTEGER )
-                    $3.d = (double) $3.i;
-                $$.d = $1.d / $3.d;
-            }
+            $$.type = DOUBLE;
+            if ( $1.type == INTEGER )
+                $1.d = (double) $1.i;
+            if ( $3.type == INTEGER )
+                $3.d = (double) $3.i;
+            $$.d = $1.d / $3.d;
+        }|
+    mul_expr DIV factor
+        {
+            // 整除
+            if ( $1.type == DOUBLE )
+                $1.i = round($1.d);
+            if ( $3.type == DOUBLE )
+                $3.i = round($3.d);
+            $$.type = INTEGER;
+            $$.i = $1.i / $3.i;
         }|
     mul_expr '%' factor
         {
@@ -217,6 +212,8 @@ mul_expr:
             {
 			    $$.type = INTEGER;
                 $$.i = $1.i % $3.i;
+                if ($1.i * $3.i < 0)
+                    $$.i += $3.i;
             }
             else
             {
@@ -227,6 +224,8 @@ mul_expr:
                     $3.d = (double) $3.i;
                 int temp = (int)($1.d / $3.d);
                 $$.d = $1.d - ($3.d * temp);
+                if ($1.d * $3.d < 0)
+                    $$.d += $3.d;
             }
         }|
     factor { $$ = $1; }

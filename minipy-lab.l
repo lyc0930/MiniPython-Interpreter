@@ -4,7 +4,7 @@
 #include <iostream>
 #include "minipy-lab.h"
 using namespace std;
-void yyerror(char*);
+// void yyerror(char*);
 #include "y.tab.h"
 
 /*  any C declaration  */
@@ -18,7 +18,7 @@ number   {digit}+
 
 id       {letter}({letter}|{digit})*
 
-real     {number}'.'{number}?|{number}?'.'{number}
+real     {number}"."{number}?|{number}?"."{number}
 
 %%
 [ \t]+              { /*do nothing , just skip */ }
@@ -35,7 +35,10 @@ real     {number}'.'{number}?|{number}?'.'{number}
 {id}                { return ID; }
 \"(\\.|[^\\"])*\"   { return STRING_LITERAL; }
 .|\n                {
-                        yylval.type = INT;
+                        yylval.type = INTEGER;
                         return yylval.i = yytext[0];
+                    }
+\/\/                  {
+                        return DIV;
                     }
 %%
