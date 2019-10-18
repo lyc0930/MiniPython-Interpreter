@@ -176,7 +176,7 @@ add_expr:
 ;
 
 mul_expr:
-    mul_expr '*' factor
+    mul_expr '*' mul_expr
         {
             if (($1.type == INTEGER) && ( $3.type == INTEGER ))
             {
@@ -193,7 +193,7 @@ mul_expr:
                 $$.d = $1.d * $3.d;
             }
         }|
-    mul_expr '/' factor
+    mul_expr '/' mul_expr
         {
             $$.type = DOUBLE;
             if ( $1.type == INTEGER )
@@ -202,7 +202,7 @@ mul_expr:
                 $3.d = (double) $3.i;
             $$.d = $1.d / $3.d;
         }|
-    mul_expr DIV factor
+    mul_expr DIV mul_expr
         {
             // 整除
             if ( $1.type == DOUBLE )
@@ -212,7 +212,7 @@ mul_expr:
             $$.type = INTEGER;
             $$.i = $1.i / $3.i;
         }|
-    mul_expr '%' factor
+    mul_expr '%' mul_expr
         {
             if (($1.type == INTEGER) && ( $3.type == INTEGER ))
             {
@@ -234,6 +234,8 @@ mul_expr:
                     $$.d += $3.d;
             }
         }|
+    '(' add_expr ')' { $$ = $2; } |
+    '(' mul_expr ')' { $$ = $2; } |
     factor { $$ = $1; }
 ;
 
