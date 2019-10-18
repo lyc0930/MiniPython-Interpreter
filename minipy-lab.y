@@ -4,6 +4,7 @@
     #include <ctype.h>
     #include <cmath>
     #include <iostream>
+    #include <iomanip>
     #include <string>
     #include <map>
     #include "minipy-lab.h"
@@ -44,7 +45,7 @@ Lines:
                 if ($2.d - floor($2.d) == 0)
                     cout << $2.d <<".0"<< endl;
                 else
-                    cout << $2.d <<endl;
+                    cout << setprecision(15)<<$2.d <<endl;
             }
         }
     prompt |
