@@ -4,6 +4,7 @@
     #include <ctype.h>
     #include <cmath>
     #include <iostream>
+    #include <iomanip>
     #include <string>
     #include <map>
     #include "minipy-lab.h"
@@ -40,7 +41,12 @@ Lines:
             if ($2.type == INTEGER)
                 cout << $2.i << endl;
             else if ($2.type == DOUBLE)
-                cout << $2.d << endl;
+            {
+                if ($2.d - floor($2.d) == 0)
+                    cout << $2.d <<".0"<< endl;
+                else
+                    cout << setprecision(15)<<$2.d <<endl;
+            }
         }
     prompt |
     Lines '\n' prompt |
@@ -66,8 +72,8 @@ assignExpr:
 ;
 
 number:
-    INT { $$ = $1; cout <<"INT!"<<endl;} |
-    REAL { $$ = $1; cout <<"REAL!"<<endl;}
+    INT { $$ = $1;} |
+    REAL { $$ = $1;}
 ;
 
 factor:
@@ -170,7 +176,7 @@ add_expr:
 ;
 
 mul_expr:
-    mul_expr '*' factor
+    mul_expr '*' mul_expr
         {
             if (($1.type == INTEGER) && ( $3.type == INTEGER ))
             {
@@ -187,7 +193,7 @@ mul_expr:
                 $$.d = $1.d * $3.d;
             }
         }|
-    mul_expr '/' factor
+    mul_expr '/' mul_expr
         {
             $$.type = DOUBLE;
             if ( $1.type == INTEGER )
@@ -196,7 +202,7 @@ mul_expr:
                 $3.d = (double) $3.i;
             $$.d = $1.d / $3.d;
         }|
-    mul_expr DIV factor
+    mul_expr DIV mul_expr
         {
             // 整除
             if ( $1.type == DOUBLE )
@@ -206,7 +212,7 @@ mul_expr:
             $$.type = INTEGER;
             $$.i = $1.i / $3.i;
         }|
-    mul_expr '%' factor
+    mul_expr '%' mul_expr
         {
             if (($1.type == INTEGER) && ( $3.type == INTEGER ))
             {
@@ -228,6 +234,8 @@ mul_expr:
                     $$.d += $3.d;
             }
         }|
+    '(' add_expr ')' { $$ = $2; } |
+    '(' mul_expr ')' { $$ = $2; } |
     factor { $$ = $1; }
 ;
 
