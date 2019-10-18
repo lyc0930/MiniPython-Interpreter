@@ -40,7 +40,12 @@ Lines:
             if ($2.type == INTEGER)
                 cout << $2.i << endl;
             else if ($2.type == DOUBLE)
-                cout << $2.d << endl;
+            {
+                if ($2.d - floor($2.d) == 0)
+                    cout << $2.d <<".0"<< endl;
+                else
+                    cout << $2.d <<endl;
+            }
         }
     prompt |
     Lines '\n' prompt |
