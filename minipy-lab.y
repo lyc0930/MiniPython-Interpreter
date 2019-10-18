@@ -66,8 +66,8 @@ assignExpr:
 ;
 
 number:
-    INT { $$ = $1; cout <<"INT!"<<endl;} |
-    REAL { $$ = $1; cout <<"REAL!"<<endl;}
+    INT { $$ = $1;} |
+    REAL { $$ = $1;}
 ;
 
 factor:
