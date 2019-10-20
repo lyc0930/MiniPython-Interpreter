@@ -1480,7 +1480,7 @@ yyreduce:
             {
 			    (yyval).type = INTEGER;
                 (yyval).i = (yyvsp[-2]).i % (yyvsp[0]).i;
-                if ((yyvsp[-2]).i * (yyvsp[0]).i < 0)
+                if ((yyvsp[-2]).i * (yyvsp[0]).i < 0) // 取余的符号问题
                     (yyval).i += (yyvsp[0]).i;
             }
             else
@@ -1490,7 +1490,7 @@ yyreduce:
                     (yyvsp[-2]).d = (double) (yyvsp[-2]).i;
                 if ( (yyvsp[0]).type == INTEGER )
                     (yyvsp[0]).d = (double) (yyvsp[0]).i;
-                int temp = (int)((yyvsp[-2]).d / (yyvsp[0]).d);
+                int temp = (int)((yyvsp[-2]).d / (yyvsp[0]).d); // 手动实现实数取余
                 (yyval).d = (yyvsp[-2]).d - ((yyvsp[0]).d * temp);
                 if ((yyvsp[-2]).d * (yyvsp[0]).d < 0)
                     (yyval).d += (yyvsp[0]).d;

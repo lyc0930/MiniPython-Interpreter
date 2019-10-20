@@ -218,7 +218,7 @@ mul_expr:
             {
 			    $$.type = INTEGER;
                 $$.i = $1.i % $3.i;
-                if ($1.i * $3.i < 0)
+                if ($1.i * $3.i < 0) // 取余的符号问题
                     $$.i += $3.i;
             }
             else
@@ -228,7 +228,7 @@ mul_expr:
                     $1.d = (double) $1.i;
                 if ( $3.type == INTEGER )
                     $3.d = (double) $3.i;
-                int temp = (int)($1.d / $3.d);
+                int temp = (int)($1.d / $3.d); // 手动实现实数取余
                 $$.d = $1.d - ($3.d * temp);
                 if ($1.d * $3.d < 0)
                     $$.d += $3.d;
