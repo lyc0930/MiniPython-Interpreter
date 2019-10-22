@@ -5,21 +5,22 @@
     #include <cmath>
     #include <iostream>
     #include <iomanip>
-    #include <string>
     #include <map>
+    #include <string>
+    #include <vector>
     #include "minipy-lab.h"
-    typedef struct
-    {
-        int type;
-        union
-        {
-            int i;    /* value for int type */
-            double d; /* value for float type */
-        };
-    } Val;
-    #define YYSTYPE Val
-    #include "lex.yy.c"
     using namespace std;
+    typedef struct value
+    {
+        Type type;
+        int integerValue;     /* value for int type */
+        double realValue;     /* value for real type */
+        string stringValue;
+        vector<struct value> listValue;
+    } Value;
+
+    #define YYSTYPE Value
+    #include "lex.yy.c"
     void yyerror(char*);
     // int yylex(void);
 %}
@@ -38,14 +39,14 @@ Start:
 Lines:
     Lines stat '\n'
         {
-            if ($2.type == INTEGER)
-                cout << $2.i << endl;
-            else if ($2.type == DOUBLE)
+            if ($2.type == Integer)
+                cout << $2.integerValue << endl;
+            else if ($2.type == Real)
             {
-                if ($2.d - floor($2.d) == 0)
-                    cout << $2.d <<".0"<< endl;
+                if ($2.realValue - floor($2.realValue) == 0)
+                    cout << $2.realValue <<".0"<< endl;
                 else
-                    cout << setprecision(15)<<$2.d <<endl;
+                    cout << setprecision(15)<< $2.realValue <<endl;
             }
         }
     prompt |
@@ -82,10 +83,10 @@ factor:
     '-' factor %prec UMINUS
         {
             $$.type = $2.type;
-            if ($2.type == INTEGER)
-                $$.i = -$2.i;
-            else if ($2.type == DOUBLE)
-                $$.d = -$2.d;
+            if ($2.type == Integer)
+                $$.integerValue = -$2.integerValue;
+            else if ($2.type == Real)
+                $$.realValue = -$2.realValue;
         } |
     atom_expr
         { $$ = $1; }
@@ -140,36 +141,36 @@ List_items:
 add_expr:
     add_expr '+' mul_expr
         {
-            if (($1.type == INTEGER) && ( $3.type == INTEGER ))
+            if (($1.type == Integer) && ( $3.type == Integer ))
             {
-			    $$.type = INTEGER;
-                $$.i = $1.i + $3.i;
+			    $$.type = Integer;
+                $$.integerValue = $1.integerValue + $3.integerValue;
             }
             else
             {
-		        $$.type = DOUBLE;
-                if ( $1.type == INTEGER )
-                    $1.d = (double) $1.i;
-                if ( $3.type == INTEGER )
-                    $3.d = (double) $3.i;
-                $$.d = $1.d + $3.d;
+		        $$.type = Real;
+                if ( $1.type == Integer )
+                    $1.realValue = (double) $1.integerValue;
+                if ( $3.type == Integer )
+                    $3.realValue = (double) $3.integerValue;
+                $$.realValue = $1.realValue + $3.realValue;
             }
         }|
     add_expr '-' mul_expr
         {
-            if (($1.type == INTEGER) && ( $3.type == INTEGER ))
+            if (($1.type == Integer) && ( $3.type == Integer ))
             {
-			    $$.type = INTEGER;
-                $$.i = $1.i - $3.i;
+			    $$.type = Integer;
+                $$.integerValue = $1.integerValue - $3.integerValue;
             }
             else
             {
-		        $$.type = DOUBLE;
-                if ( $1.type == INTEGER )
-                    $1.d = (double) $1.i;
-                if ( $3.type == INTEGER )
-                    $3.d = (double) $3.i;
-                $$.d = $1.d - $3.d;
+		        $$.type = Real;
+                if ( $1.type == Integer )
+                    $1.realValue = (double) $1.integerValue;
+                if ( $3.type == Integer )
+                    $3.realValue = (double) $3.integerValue;
+                $$.realValue = $1.realValue - $3.realValue;
             }
         }|
     mul_expr { $$ = $1; }
@@ -178,60 +179,60 @@ add_expr:
 mul_expr:
     mul_expr '*' mul_expr
         {
-            if (($1.type == INTEGER) && ( $3.type == INTEGER ))
+            if (($1.type == Integer) && ( $3.type == Integer ))
             {
-			    $$.type = INTEGER;
-                $$.i = $1.i * $3.i;
+			    $$.type = Integer;
+                $$.integerValue = $1.integerValue * $3.integerValue;
             }
             else
             {
-		        $$.type = DOUBLE;
-                if ( $1.type == INTEGER )
-                    $1.d = (double) $1.i;
-                if ( $3.type == INTEGER )
-                    $3.d = (double) $3.i;
-                $$.d = $1.d * $3.d;
+		        $$.type = Real;
+                if ( $1.type == Integer )
+                    $1.realValue = (double) $1.integerValue;
+                if ( $3.type == Integer )
+                    $3.realValue = (double) $3.integerValue;
+                $$.realValue = $1.realValue * $3.realValue;
             }
         }|
     mul_expr '/' mul_expr
         {
-            $$.type = DOUBLE;
-            if ( $1.type == INTEGER )
-                $1.d = (double) $1.i;
-            if ( $3.type == INTEGER )
-                $3.d = (double) $3.i;
-            $$.d = $1.d / $3.d;
+            $$.type = Real;
+            if ( $1.type == Integer )
+                $1.realValue = (double) $1.integerValue;
+            if ( $3.type == Integer )
+                $3.realValue = (double) $3.integerValue;
+            $$.realValue = $1.realValue / $3.realValue;
         }|
     mul_expr DIV mul_expr
         {
             // 整除
-            if ( $1.type == DOUBLE )
-                $1.i = round($1.d);
-            if ( $3.type == DOUBLE )
-                $3.i = round($3.d);
-            $$.type = INTEGER;
-            $$.i = $1.i / $3.i;
+            if ( $1.type == Real )
+                $1.integerValue = round($1.realValue);
+            if ( $3.type == Real )
+                $3.integerValue = round($3.realValue);
+            $$.type = Integer;
+            $$.integerValue = $1.integerValue / $3.integerValue;
         }|
     mul_expr '%' mul_expr
         {
-            if (($1.type == INTEGER) && ( $3.type == INTEGER ))
+            if (($1.type == Integer) && ( $3.type == Integer ))
             {
-			    $$.type = INTEGER;
-                $$.i = $1.i % $3.i;
-                if ($1.i * $3.i < 0) // 取余的符号问题
-                    $$.i += $3.i;
+			    $$.type = Integer;
+                $$.integerValue = $1.integerValue % $3.integerValue;
+                if ($1.integerValue * $3.integerValue < 0) // 取余的符号问题
+                    $$.integerValue += $3.integerValue;
             }
             else
             {
-		        $$.type = DOUBLE;
-                if ( $1.type == INTEGER )
-                    $1.d = (double) $1.i;
-                if ( $3.type == INTEGER )
-                    $3.d = (double) $3.i;
-                int temp = (int)($1.d / $3.d); // 手动实现实数取余
-                $$.d = $1.d - ($3.d * temp);
-                if ($1.d * $3.d < 0)
-                    $$.d += $3.d;
+		        $$.type = Real;
+                if ( $1.type == Integer )
+                    $1.realValue = (double) $1.integerValue;
+                if ( $3.type == Integer )
+                    $3.realValue = (double) $3.integerValue;
+                int temp = (int)($1.realValue / $3.realValue); // 手动实现实数取余
+                $$.realValue = $1.realValue - ($3.realValue * temp);
+                if ($1.realValue * $3.realValue < 0)
+                    $$.realValue += $3.realValue;
             }
         }|
     '(' add_expr ')' { $$ = $2; } |

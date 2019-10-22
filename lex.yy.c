@@ -453,7 +453,7 @@ char *yytext;
 #include <stdlib.h>
 #include <stdio.h>
 #include <iostream>
-#include "minipy-lab.h"
+// #include "minipy-lab.h"
 using namespace std;
 // void yyerror(char*);
 #include "y.tab.h"
@@ -745,8 +745,8 @@ case 2:
 YY_RULE_SETUP
 #line 25 "minipy-lab.l"
 {
-                        yylval.type = INTEGER;
-                        yylval.i = atoi( yytext );
+                        yylval.type = Integer;
+                        yylval.integerValue = atoi( yytext );
 	                    return INT;
                     }
 	YY_BREAK
@@ -754,8 +754,8 @@ case 3:
 YY_RULE_SETUP
 #line 30 "minipy-lab.l"
 {
-                        yylval.type = DOUBLE;
-                        yylval.d = atof( yytext );
+                        yylval.type = Real;
+                        yylval.realValue = atof( yytext );
                         return REAL;
                     }
 	YY_BREAK
@@ -775,8 +775,8 @@ case 6:
 YY_RULE_SETUP
 #line 37 "minipy-lab.l"
 {
-                        yylval.type = INTEGER;
-                        return yylval.i = yytext[0];
+                        yylval.type = Integer;
+                        return yylval.integerValue = yytext[0];
                     }
 	YY_BREAK
 case 7:
