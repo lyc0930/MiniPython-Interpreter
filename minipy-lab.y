@@ -28,7 +28,7 @@
 %token ID INT REAL STRING_LITERAL
 %token DIV
 %left  '+' '-'
-%left  '*' '/'
+%left  '*' '/' '%' DIV
 %right UMINUS
 
 %%
@@ -62,14 +62,14 @@ prompt:
 
 stat:
 	assignExpr
-        { $$ = $1; }
+    
 ;
 
 assignExpr:
     atom_expr '=' assignExpr
-        { $$ = $1; } |
+     |
     add_expr
-        { $$ = $1; }
+    
 ;
 
 number:
@@ -89,7 +89,7 @@ factor:
                 $$.realValue = -$2.realValue;
         } |
     atom_expr
-        { $$ = $1; }
+    
 ;
 
 atom:
@@ -110,7 +110,7 @@ sub_expr:
 ;
 
 atom_expr:
-    atom { $$ = $1; } |
+    atom |
     atom_expr  '[' sub_expr  ':' sub_expr  slice_op ']' |
     atom_expr  '[' add_expr ']' |
     atom_expr  '.' ID |
@@ -173,7 +173,7 @@ add_expr:
                 $$.realValue = $1.realValue - $3.realValue;
             }
         }|
-    mul_expr { $$ = $1; }
+    mul_expr
 ;
 
 mul_expr:
@@ -237,7 +237,7 @@ mul_expr:
         }|
     '(' add_expr ')' { $$ = $2; } |
     '(' mul_expr ')' { $$ = $2; } |
-    factor { $$ = $1; }
+    factor
 ;
 
 %%
