@@ -18,7 +18,7 @@
         string stringValue;
         vector<struct value> listValue;
     } Value;
-
+    vector<Value> Symbol;
     #define YYSTYPE Value
     #include "lex.yy.c"
     void yyerror(char*);
@@ -62,18 +62,18 @@ prompt:
 
 stat:
 	assignExpr
-    
 ;
 
 assignExpr:
     atom_expr '=' assignExpr
-     |
+    {
+        Symbol[(int)$1.d] = $3.d;
+    }|
     add_expr
-    
 ;
 
 number:
-    INT { $$ = $1;} |
+INT { $$ = $1;} |
     REAL { $$ = $1;}
 ;
 
@@ -89,7 +89,6 @@ factor:
                 $$.realValue = -$2.realValue;
         } |
     atom_expr
-    
 ;
 
 atom:
