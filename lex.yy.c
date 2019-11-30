@@ -762,18 +762,28 @@ YY_RULE_SETUP
 case 4:
 YY_RULE_SETUP
 #line 35 "minipy-lab.l"
-{ return ID; }
+{
+                        yylval.type = Variable;
+                        yylval.variableName.assign(yytext);
+                        return ID;
+                    }
 	YY_BREAK
 case 5:
 /* rule 5 can match eol */
 YY_RULE_SETUP
-#line 36 "minipy-lab.l"
-{ return STRING_LITERAL; }
+#line 40 "minipy-lab.l"
+{
+                        yylval.type = String;
+                        string temp;
+                        temp.assign(yytext);
+                        yylval.stringValue = temp.substr(1, temp.length() - 2); /* 删除“” */
+                        return STRING_LITERAL;
+                    }
 	YY_BREAK
 case 6:
 /* rule 6 can match eol */
 YY_RULE_SETUP
-#line 37 "minipy-lab.l"
+#line 47 "minipy-lab.l"
 {
                         yylval.type = Integer;
                         return yylval.integerValue = yytext[0];
@@ -781,17 +791,17 @@ YY_RULE_SETUP
 	YY_BREAK
 case 7:
 YY_RULE_SETUP
-#line 41 "minipy-lab.l"
+#line 51 "minipy-lab.l"
 {
                         return DIV;
                     }
 	YY_BREAK
 case 8:
 YY_RULE_SETUP
-#line 44 "minipy-lab.l"
+#line 54 "minipy-lab.l"
 ECHO;
 	YY_BREAK
-#line 795 "lex.yy.c"
+#line 805 "lex.yy.c"
 case YY_STATE_EOF(INITIAL):
 	yyterminate();
 
@@ -1796,5 +1806,5 @@ void yyfree (void * ptr )
 
 #define YYTABLES_NAME "yytables"
 
-#line 44 "minipy-lab.l"
+#line 54 "minipy-lab.l"
 

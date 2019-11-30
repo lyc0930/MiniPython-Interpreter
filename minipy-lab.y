@@ -13,12 +13,19 @@
     typedef struct value
     {
         Type type;
-        int integerValue;     /* value for int type */
-        double realValue;     /* value for real type */
-        string stringValue;
-        vector<struct value> listValue;
+        int integerValue;               /* value for int type */
+        double realValue;               /* value for real type */
+        string stringValue;             /* value for string type */
+        vector<struct value> listValue; /* value for list type */
+        string variableName;            /* name of the Variable */
     } Value;
-    vector<Value> Symbol;
+
+    /*
+        符号表 Symbol Table
+        variableName(string) -> Value(not Variable)
+    */
+    map<string, Value> Symbol;
+
     #define YYSTYPE Value
     #include "lex.yy.c"
     void yyerror(char*);
@@ -39,14 +46,26 @@ Start:
 Lines:
     Lines stat '\n'
         {
-            if ($2.type == Integer)
-                cout << $2.integerValue << endl;
-            else if ($2.type == Real)
+            Value temp;
+            if ($2.type == Variable) /* 单独的变量 */
+                temp = Symbol[$2.variableName];
+            else
+                temp = $2;
+            /* temp 是变量的内容或者是直接内容 */
+            switch(temp.type)
             {
-                if ($2.realValue - floor($2.realValue) == 0)
-                    cout << $2.realValue <<".0"<< endl;
-                else
-                    cout << setprecision(15)<< $2.realValue <<endl;
+                case Integer:
+                    cout << temp.integerValue << endl;
+                    break;
+                case Real:
+                    if (temp.realValue - floor(temp.realValue) == 0)
+                        cout << temp.realValue <<".0"<< endl;
+                    else
+                        cout << setprecision(15) << temp.realValue << endl;
+                    break;
+                case String:
+                    cout << '\'' << temp.stringValue << '\'' << endl;
+                    break;
             }
         }
     prompt |
@@ -67,13 +86,17 @@ stat:
 assignExpr:
     atom_expr '=' assignExpr
     {
-        Symbol[(int)$1.d] = $3.d;
+        if ($1.type == Variable)
+        {
+            Symbol[$1.variableName] = $3; /* 加入符号表 */
+        }
+        $$.type = LeftValueChanged;
     }|
     add_expr
 ;
 
 number:
-INT { $$ = $1;} |
+    INT { $$ = $1;} |
     REAL { $$ = $1;}
 ;
 
@@ -89,13 +112,23 @@ factor:
                 $$.realValue = -$2.realValue;
         } |
     atom_expr
+        {
+            if ($1.type == Variable) // atom 是变量
+                $$ = Symbol[$1.variableName]; // 取变量内容
+            else
+                $$ = $1;
+        }
 ;
 
 atom:
-    ID |
+    ID
+    {
+
+    }|
     STRING_LITERAL |
     List |
-    number { $$ = $1;}
+    number
+        { $$ = $1;}
 ;
 
 slice_op:
@@ -124,7 +157,7 @@ arglist:
 
 List:
     '[' ']' |
-    '[' List_items opt_comma ']' /* [1, 2, 3, ] == [1, 2, 3] */
+    '[' List_items opt_comma ']' /* 注意 [1, 2, 3, ] == [1, 2, 3] */
 ;
 
 opt_comma:
