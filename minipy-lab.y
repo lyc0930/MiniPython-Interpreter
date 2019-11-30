@@ -90,7 +90,7 @@ assignExpr:
         {
             Symbol[$1.variableName] = $3; /* 加入符号表 */
         }
-        $$.type = LeftValueChanged;
+        $$.type = None;
     }|
     add_expr
 ;
@@ -114,21 +114,26 @@ factor:
     atom_expr
         {
             if ($1.type == Variable) // atom 是变量
-                $$ = Symbol[$1.variableName]; // 取变量内容
+            {
+                if (Symbol.count($1.variableName) == 1) // 已在变量表内
+                    $$ = Symbol.at($1.variableName); // 取变量内容，使用下标检查
+                else
+                {
+                    $$.type = None; // 不输出变量内容，也确实没有可以输出的
+                    // TODO @NXH 把这里的错误信息处理好，注意string到char*的转换
+                    // yyerror("Traceback (most recent call last):\n\tFile \"<stdin>\", line 1, in <module>\nNameError: name "+ $1.variableName +" is not defined  ");
+                }
+            }
             else
                 $$ = $1;
         }
 ;
 
 atom:
-    ID
-    {
-
-    }|
+    ID |
     STRING_LITERAL |
     List |
     number
-        { $$ = $1;}
 ;
 
 slice_op:

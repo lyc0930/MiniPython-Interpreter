@@ -7,5 +7,5 @@ enum Type
     String,
     List,
     Variable,
-    LeftValueChanged // 赋值语句、append()在python里没有输出
+    None // 赋值语句、append()在python里没有输出
 };
