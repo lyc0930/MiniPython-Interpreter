@@ -29,7 +29,10 @@
     #define YYSTYPE Value
     #include "lex.yy.c"
     void yyerror(char*);
-    // int yylex(void);
+
+    // 变量值的输出函数
+    void Print(Value);
+
 %}
 
 %token ID INT REAL STRING_LITERAL
@@ -47,25 +50,13 @@ Lines:
     Lines stat '\n'
         {
             Value temp;
-            if ($2.type == Variable) /* 单独的变量 */
-                temp = Symbol[$2.variableName];
-            else
-                temp = $2;
-            /* temp 是变量的内容或者是直接内容 */
-            switch(temp.type)
+            if ($2.type != None)
             {
-                case Integer:
-                    cout << temp.integerValue << endl;
-                    break;
-                case Real:
-                    if (temp.realValue - floor(temp.realValue) == 0)
-                        cout << temp.realValue <<".0"<< endl;
-                    else
-                        cout << setprecision(15) << temp.realValue << endl;
-                    break;
-                case String:
-                    cout << '\'' << temp.stringValue << '\'' << endl;
-                    break;
+                if ($2.type == Variable) /* 单独的变量 */
+                    Print(Symbol[$2.variableName]);
+                else
+                    Print($2);
+                cout << endl;
             }
         }
     prompt |
@@ -161,8 +152,16 @@ arglist:
 ;
 
 List:
-    '[' ']' |
+    '[' ']'
+    {
+        $$.type = List;
+        $$.listValue = vector<struct value>();
+    }|
     '[' List_items opt_comma ']' /* 注意 [1, 2, 3, ] == [1, 2, 3] */
+    {
+        $$.type = List;
+        $$.listValue = vector<struct value>($2.listValue);
+    }
 ;
 
 opt_comma:
@@ -171,8 +170,17 @@ opt_comma:
 ;
 
 List_items:
-    add_expr |
+    add_expr
+    {
+        $$.type = List;
+        $$.listValue = vector<struct value>(1, $1); // 用列表“框柱”变量
+    }|
     List_items ',' add_expr
+    {
+        $$.type = List;
+        $1.listValue.push_back($3);
+        $$.listValue = vector<struct value>($1.listValue);
+    }
 ;
 
 add_expr:
@@ -292,4 +300,33 @@ void yyerror(char *s)
 int yywrap()
 {
 	return 1;
+}
+
+void Print(Value x)
+{
+    switch(x.type)
+    {
+        case Integer:
+            cout << x.integerValue;
+            break;
+        case Real:
+            if (x.realValue - floor(x.realValue) == 0)
+                cout << x.realValue <<".0";
+            else
+                cout << setprecision(15) << x.realValue;
+            break;
+        case String:
+            cout << '\'' << x.stringValue << '\'';
+            break;
+        case List:
+            cout << "[";
+            for (vector<struct value>::iterator i = x.listValue.begin(); i != x.listValue.end(); i++)
+            {
+                Print(*i);
+                if (i != x.listValue.end() - 1)
+                    cout << ", ";
+            }
+            cout << "]";
+            break;
+    }
 }

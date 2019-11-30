@@ -94,9 +94,12 @@
     #define YYSTYPE Value
     #include "lex.yy.c"
     void yyerror(char*);
-    // int yylex(void);
 
-#line 100 "y.tab.c" /* yacc.c:339  */
+    // 变量值的输出函数
+    void Print(Value);
+
+
+#line 103 "y.tab.c" /* yacc.c:339  */
 
 # ifndef YY_NULLPTR
 #  if defined __cplusplus && 201103L <= __cplusplus
@@ -163,7 +166,7 @@ int yyparse (void);
 
 /* Copy the second part of user declarations.  */
 
-#line 167 "y.tab.c" /* yacc.c:358  */
+#line 170 "y.tab.c" /* yacc.c:358  */
 
 #ifdef short
 # undef short
@@ -461,11 +464,11 @@ static const yytype_uint8 yytranslate[] =
   /* YYRLINE[YYN] -- Source line where rule number YYN was defined.  */
 static const yytype_uint16 yyrline[] =
 {
-       0,    43,    43,    48,    47,    72,    72,    74,    79,    83,
-      87,    95,    99,   100,   104,   106,   114,   133,   134,   135,
-     136,   139,   141,   144,   146,   150,   151,   152,   153,   154,
-     155,   159,   160,   164,   165,   168,   170,   174,   175,   179,
-     196,   213,   217,   234,   243,   253,   275,   276,   277
+       0,    46,    46,    51,    50,    63,    63,    65,    70,    74,
+      78,    86,    90,    91,    95,    97,   105,   124,   125,   126,
+     127,   130,   132,   135,   137,   141,   142,   143,   144,   145,
+     146,   150,   151,   155,   160,   167,   169,   173,   178,   187,
+     204,   221,   225,   242,   251,   261,   283,   284,   285
 };
 #endif
 
@@ -1290,47 +1293,35 @@ yyreduce:
   switch (yyn)
     {
         case 3:
-#line 48 "minipy-lab.y" /* yacc.c:1646  */
+#line 51 "minipy-lab.y" /* yacc.c:1646  */
     {
             Value temp;
-            if ((yyvsp[-1]).type == Variable) /* 单独的变量 */
-                temp = Symbol[(yyvsp[-1]).variableName];
-            else
-                temp = (yyvsp[-1]);
-            /* temp 是变量的内容或者是直接内容 */
-            switch(temp.type)
+            if ((yyvsp[-1]).type != None)
             {
-                case Integer:
-                    cout << temp.integerValue << endl;
-                    break;
-                case Real:
-                    if (temp.realValue - floor(temp.realValue) == 0)
-                        cout << temp.realValue <<".0"<< endl;
-                    else
-                        cout << setprecision(15) << temp.realValue << endl;
-                    break;
-                case String:
-                    cout << '\'' << temp.stringValue << '\'' << endl;
-                    break;
+                if ((yyvsp[-1]).type == Variable) /* 单独的变量 */
+                    Print(Symbol[(yyvsp[-1]).variableName]);
+                else
+                    Print((yyvsp[-1]));
+                cout << endl;
             }
         }
-#line 1318 "y.tab.c" /* yacc.c:1646  */
+#line 1309 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 7:
-#line 75 "minipy-lab.y" /* yacc.c:1646  */
+#line 66 "minipy-lab.y" /* yacc.c:1646  */
     { yyerrok; }
-#line 1324 "y.tab.c" /* yacc.c:1646  */
+#line 1315 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 8:
-#line 79 "minipy-lab.y" /* yacc.c:1646  */
+#line 70 "minipy-lab.y" /* yacc.c:1646  */
     { cout << "miniPy> "; }
-#line 1330 "y.tab.c" /* yacc.c:1646  */
+#line 1321 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 10:
-#line 88 "minipy-lab.y" /* yacc.c:1646  */
+#line 79 "minipy-lab.y" /* yacc.c:1646  */
     {
         if ((yyvsp[-2]).type == Variable)
         {
@@ -1338,29 +1329,29 @@ yyreduce:
         }
         (yyval).type = None;
     }
-#line 1342 "y.tab.c" /* yacc.c:1646  */
+#line 1333 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 12:
-#line 99 "minipy-lab.y" /* yacc.c:1646  */
+#line 90 "minipy-lab.y" /* yacc.c:1646  */
     { (yyval) = (yyvsp[0]);}
-#line 1348 "y.tab.c" /* yacc.c:1646  */
+#line 1339 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 13:
-#line 100 "minipy-lab.y" /* yacc.c:1646  */
+#line 91 "minipy-lab.y" /* yacc.c:1646  */
     { (yyval) = (yyvsp[0]);}
-#line 1354 "y.tab.c" /* yacc.c:1646  */
+#line 1345 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 14:
-#line 105 "minipy-lab.y" /* yacc.c:1646  */
+#line 96 "minipy-lab.y" /* yacc.c:1646  */
     { (yyval) = (yyvsp[0]); }
-#line 1360 "y.tab.c" /* yacc.c:1646  */
+#line 1351 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 15:
-#line 107 "minipy-lab.y" /* yacc.c:1646  */
+#line 98 "minipy-lab.y" /* yacc.c:1646  */
     {
             (yyval).type = (yyvsp[0]).type;
             if ((yyvsp[0]).type == Integer)
@@ -1368,11 +1359,11 @@ yyreduce:
             else if ((yyvsp[0]).type == Real)
                 (yyval).realValue = -(yyvsp[0]).realValue;
         }
-#line 1372 "y.tab.c" /* yacc.c:1646  */
+#line 1363 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 16:
-#line 115 "minipy-lab.y" /* yacc.c:1646  */
+#line 106 "minipy-lab.y" /* yacc.c:1646  */
     {
             if ((yyvsp[0]).type == Variable) // atom 是变量
             {
@@ -1388,11 +1379,48 @@ yyreduce:
             else
                 (yyval) = (yyvsp[0]);
         }
+#line 1383 "y.tab.c" /* yacc.c:1646  */
+    break;
+
+  case 33:
+#line 156 "minipy-lab.y" /* yacc.c:1646  */
+    {
+        (yyval).type = List;
+        (yyval).listValue = vector<struct value>();
+    }
 #line 1392 "y.tab.c" /* yacc.c:1646  */
     break;
 
+  case 34:
+#line 161 "minipy-lab.y" /* yacc.c:1646  */
+    {
+        (yyval).type = List;
+        (yyval).listValue = vector<struct value>((yyvsp[-2]).listValue);
+    }
+#line 1401 "y.tab.c" /* yacc.c:1646  */
+    break;
+
+  case 37:
+#line 174 "minipy-lab.y" /* yacc.c:1646  */
+    {
+        (yyval).type = List;
+        (yyval).listValue = vector<struct value>(1, (yyvsp[0])); // 用列表“框柱”变量
+    }
+#line 1410 "y.tab.c" /* yacc.c:1646  */
+    break;
+
+  case 38:
+#line 179 "minipy-lab.y" /* yacc.c:1646  */
+    {
+        (yyval).type = List;
+        (yyvsp[-2]).listValue.push_back((yyvsp[0]));
+        (yyval).listValue = vector<struct value>((yyvsp[-2]).listValue);
+    }
+#line 1420 "y.tab.c" /* yacc.c:1646  */
+    break;
+
   case 39:
-#line 180 "minipy-lab.y" /* yacc.c:1646  */
+#line 188 "minipy-lab.y" /* yacc.c:1646  */
     {
             if (((yyvsp[-2]).type == Integer) && ( (yyvsp[0]).type == Integer ))
             {
@@ -1409,11 +1437,11 @@ yyreduce:
                 (yyval).realValue = (yyvsp[-2]).realValue + (yyvsp[0]).realValue;
             }
         }
-#line 1413 "y.tab.c" /* yacc.c:1646  */
+#line 1441 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 40:
-#line 197 "minipy-lab.y" /* yacc.c:1646  */
+#line 205 "minipy-lab.y" /* yacc.c:1646  */
     {
             if (((yyvsp[-2]).type == Integer) && ( (yyvsp[0]).type == Integer ))
             {
@@ -1430,11 +1458,11 @@ yyreduce:
                 (yyval).realValue = (yyvsp[-2]).realValue - (yyvsp[0]).realValue;
             }
         }
-#line 1434 "y.tab.c" /* yacc.c:1646  */
+#line 1462 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 42:
-#line 218 "minipy-lab.y" /* yacc.c:1646  */
+#line 226 "minipy-lab.y" /* yacc.c:1646  */
     {
             if (((yyvsp[-2]).type == Integer) && ( (yyvsp[0]).type == Integer ))
             {
@@ -1451,11 +1479,11 @@ yyreduce:
                 (yyval).realValue = (yyvsp[-2]).realValue * (yyvsp[0]).realValue;
             }
         }
-#line 1455 "y.tab.c" /* yacc.c:1646  */
+#line 1483 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 43:
-#line 235 "minipy-lab.y" /* yacc.c:1646  */
+#line 243 "minipy-lab.y" /* yacc.c:1646  */
     {
             (yyval).type = Real;
             if ( (yyvsp[-2]).type == Integer )
@@ -1464,11 +1492,11 @@ yyreduce:
                 (yyvsp[0]).realValue = (double) (yyvsp[0]).integerValue;
             (yyval).realValue = (yyvsp[-2]).realValue / (yyvsp[0]).realValue;
         }
-#line 1468 "y.tab.c" /* yacc.c:1646  */
+#line 1496 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 44:
-#line 244 "minipy-lab.y" /* yacc.c:1646  */
+#line 252 "minipy-lab.y" /* yacc.c:1646  */
     {
             // 整除
             if ( (yyvsp[-2]).type == Real )
@@ -1478,11 +1506,11 @@ yyreduce:
             (yyval).type = Integer;
             (yyval).integerValue = (yyvsp[-2]).integerValue / (yyvsp[0]).integerValue;
         }
-#line 1482 "y.tab.c" /* yacc.c:1646  */
+#line 1510 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 45:
-#line 254 "minipy-lab.y" /* yacc.c:1646  */
+#line 262 "minipy-lab.y" /* yacc.c:1646  */
     {
             if (((yyvsp[-2]).type == Integer) && ( (yyvsp[0]).type == Integer ))
             {
@@ -1504,23 +1532,23 @@ yyreduce:
                     (yyval).realValue += (yyvsp[0]).realValue;
             }
         }
-#line 1508 "y.tab.c" /* yacc.c:1646  */
+#line 1536 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 46:
-#line 275 "minipy-lab.y" /* yacc.c:1646  */
+#line 283 "minipy-lab.y" /* yacc.c:1646  */
     { (yyval) = (yyvsp[-1]); }
-#line 1514 "y.tab.c" /* yacc.c:1646  */
+#line 1542 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 47:
-#line 276 "minipy-lab.y" /* yacc.c:1646  */
+#line 284 "minipy-lab.y" /* yacc.c:1646  */
     { (yyval) = (yyvsp[-1]); }
-#line 1520 "y.tab.c" /* yacc.c:1646  */
+#line 1548 "y.tab.c" /* yacc.c:1646  */
     break;
 
 
-#line 1524 "y.tab.c" /* yacc.c:1646  */
+#line 1552 "y.tab.c" /* yacc.c:1646  */
       default: break;
     }
   /* User semantic actions sometimes alter yychar, and that requires
@@ -1748,7 +1776,7 @@ yyreturn:
 #endif
   return yyresult;
 }
-#line 280 "minipy-lab.y" /* yacc.c:1906  */
+#line 288 "minipy-lab.y" /* yacc.c:1906  */
 
 
 int main()
@@ -1764,4 +1792,33 @@ void yyerror(char *s)
 int yywrap()
 {
 	return 1;
+}
+
+void Print(Value x)
+{
+    switch(x.type)
+    {
+        case Integer:
+            cout << x.integerValue;
+            break;
+        case Real:
+            if (x.realValue - floor(x.realValue) == 0)
+                cout << x.realValue <<".0";
+            else
+                cout << setprecision(15) << x.realValue;
+            break;
+        case String:
+            cout << '\'' << x.stringValue << '\'';
+            break;
+        case List:
+            cout << "[";
+            for (vector<struct value>::iterator i = x.listValue.begin(); i != x.listValue.end(); i++)
+            {
+                Print(*i);
+                if (i != x.listValue.end() - 1)
+                    cout << ", ";
+            }
+            cout << "]";
+            break;
+    }
 }
