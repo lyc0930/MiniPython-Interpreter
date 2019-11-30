@@ -186,36 +186,119 @@ List_items:
 add_expr:
     add_expr '+' mul_expr
         {
-            if (($1.type == Integer) && ( $3.type == Integer ))
+            switch($1.type)
             {
-			    $$.type = Integer;
-                $$.integerValue = $1.integerValue + $3.integerValue;
-            }
-            else
-            {
-		        $$.type = Real;
-                if ( $1.type == Integer )
-                    $1.realValue = (double) $1.integerValue;
-                if ( $3.type == Integer )
-                    $3.realValue = (double) $3.integerValue;
-                $$.realValue = $1.realValue + $3.realValue;
+                case Integer:
+                    switch($3.type)
+                    {
+                        case Integer:
+                            $$.type = Integer;
+                            $$.integerValue = $1.integerValue + $3.integerValue;
+                            break;
+                        case Real:
+                            $$.type = Real;
+                            $1.realValue = (double) $1.integerValue;
+                            $$.realValue = $1.realValue + $3.realValue;
+                            break;
+                        case List:
+                            $$.type = List;
+                            $$.listValue = vector<struct value>($3.listValue);
+                            $$.listValue.insert($$.listValue.begin(), $1); // 在头部插入
+                            break;
+                        // default: yyerror(); // TODO @NXH
+                    }
+                    break;
+                case Real:
+                    switch($3.type)
+                    {
+                        case Integer:
+                            $$.type = Real;
+                            $3.realValue = (double) $3.integerValue;
+                            $$.realValue = $1.realValue + $3.realValue;
+                            break;
+                        case Real:
+                            $$.type = Real;
+                            $$.realValue = $1.realValue + $3.realValue;
+                            break;
+                        case List:
+                            $$.type = List;
+                            $$.listValue = vector<struct value>($3.listValue);
+                            $$.listValue.insert($$.listValue.begin(), $1); // 在头部插入
+                            break;
+                        // default: yyerror(); // TODO @NXH
+                    }
+                    break;
+                case String:
+                    switch($3.type)
+                    {
+                        case String:
+                            $$.type = String;
+                            $$.stringValue = $1.stringValue + $3.stringValue;
+                            break;
+                        case List:
+                            $$.type = List;
+                            $$.listValue = vector<struct value>($3.listValue);
+                            $$.listValue.insert($$.listValue.begin(), $1); // 在头部插入
+                            break;
+                        // default: yyerror(); // TODO @NXH
+                    }
+                    break;
+                case List:
+                    $$.type = List;
+                    $$.listValue = vector<struct value>($1.listValue);
+                    switch($3.type)
+                    {
+                        case Integer:
+                            $$.listValue.insert($$.listValue.end(), $3); // 在尾部插入
+                            break;
+                        case Real:
+                            $$.listValue.insert($$.listValue.end(), $3); // 在尾部插入
+                            break;
+                        case String:
+                            $$.listValue.insert($$.listValue.end(), $3); // 在尾部插入
+                            break;
+                        case List:
+                            $$.listValue.insert($$.listValue.end(), $3.listValue.begin(), $3.listValue.end()); // 在尾部插入
+                            break;
+                        // default: yyerror(); // TODO @NXH
+                    }
+                // default: yyerror(); // TODO @NXH
             }
         }|
     add_expr '-' mul_expr
         {
-            if (($1.type == Integer) && ( $3.type == Integer ))
+            switch($1.type)
             {
-			    $$.type = Integer;
-                $$.integerValue = $1.integerValue - $3.integerValue;
-            }
-            else
-            {
-		        $$.type = Real;
-                if ( $1.type == Integer )
-                    $1.realValue = (double) $1.integerValue;
-                if ( $3.type == Integer )
-                    $3.realValue = (double) $3.integerValue;
-                $$.realValue = $1.realValue - $3.realValue;
+                case Integer:
+                    switch($3.type)
+                    {
+                        case Integer:
+                            $$.type = Integer;
+                            $$.integerValue = $1.integerValue - $3.integerValue;
+                            break;
+                        case Real:
+                            $$.type = Real;
+                            $1.realValue = (double) $1.integerValue;
+                            $$.realValue = $1.realValue - $3.realValue;
+                            break;
+                        // default: yyerror(); // TODO @NXH
+                    }
+                    break;
+                case Real:
+                    switch($3.type)
+                    {
+                        case Integer:
+                            $$.type = Real;
+                            $3.realValue = (double) $3.integerValue;
+                            $$.realValue = $1.realValue - $3.realValue;
+                            break;
+                        case Real:
+                            $$.type = Real;
+                            $$.realValue = $1.realValue - $3.realValue;
+                            break;
+                        // default: yyerror(); // TODO @NXH
+                    }
+                    break;
             }
         }|
     mul_expr
@@ -224,19 +307,68 @@ add_expr:
 mul_expr:
     mul_expr '*' mul_expr
         {
-            if (($1.type == Integer) && ( $3.type == Integer ))
+            switch($1.type)
             {
-			    $$.type = Integer;
-                $$.integerValue = $1.integerValue * $3.integerValue;
-            }
-            else
-            {
-		        $$.type = Real;
-                if ( $1.type == Integer )
-                    $1.realValue = (double) $1.integerValue;
-                if ( $3.type == Integer )
-                    $3.realValue = (double) $3.integerValue;
-                $$.realValue = $1.realValue * $3.realValue;
+                case Integer:
+                    switch($3.type)
+                    {
+                        case Integer:
+                            $$.type = Integer;
+                            $$.integerValue = $1.integerValue * $3.integerValue;
+                            break;
+                        case Real:
+                            $$.type = Real;
+                            $1.realValue = (double) $1.integerValue;
+                            $$.realValue = $1.realValue * $3.realValue;
+                            break;
+                        case List:
+                            $$.type = List;
+                            $$.listValue = vector<struct value>($3.listValue);
+                            for (int i = 1; i < $1.integerValue; i++)
+                                $$.listValue.insert($$.listValue.end(), $3.listValue.begin(), $3.listValue.end()); // 循环插入
+                            break;
+                        // default: yyerror(); // TODO @NXH
+                    }
+                    break;
+                case Real:
+                    switch($3.type)
+                    {
+                        case Integer:
+                            $$.type = Real;
+                            $3.realValue = (double) $3.integerValue;
+                            $$.realValue = $1.realValue * $3.realValue;
+                            break;
+                        case Real:
+                            $$.type = Real;
+                            $$.realValue = $1.realValue * $3.realValue;
+                            break;
+                        // default: yyerror(); // TODO @NXH
+                    }
+                    break;
+                case String:
+                    switch($3.type)
+                    {
+                        case Integer:
+                            $$.type = String;
+                            $$.stringValue = $1.stringValue;
+                            for (int i = 1; i < $3.integerValue; i++)
+                                $$.stringValue += $1.stringValue;
+                            break;
+                        // default: yyerror(); // TODO @NXH
+                    }
+                    break;
+                case List:
+                    switch($3.type)
+                    {
+                        case Integer:
+                            $$.type = List;
+                            $$.listValue = vector<struct value>($1.listValue);
+                            for (int i = 1; i < $3.integerValue; i++)
+                                $$.listValue.insert($$.listValue.end(), $1.listValue.begin(), $1.listValue.end()); // 循环插入
+                            break;
+                        // default: yyerror(); // TODO @NXH
+                    }
+                // default: yyerror(); // TODO @NXH
             }
         }|
     mul_expr '/' mul_expr
@@ -247,6 +379,7 @@ mul_expr:
             if ( $3.type == Integer )
                 $3.realValue = (double) $3.integerValue;
             $$.realValue = $1.realValue / $3.realValue;
+            // default: yyerror(); // TODO @NXH
         }|
     mul_expr DIV mul_expr
         {
@@ -257,6 +390,7 @@ mul_expr:
                 $3.integerValue = round($3.realValue);
             $$.type = Integer;
             $$.integerValue = $1.integerValue / $3.integerValue;
+            // default: yyerror(); // TODO @NXH
         }|
     mul_expr '%' mul_expr
         {
@@ -279,6 +413,7 @@ mul_expr:
                 if ($1.realValue * $3.realValue < 0)
                     $$.realValue += $3.realValue;
             }
+            // default: yyerror(); // TODO @NXH
         }|
     '(' add_expr ')' { $$ = $2; } |
     '(' mul_expr ')' { $$ = $2; } |
