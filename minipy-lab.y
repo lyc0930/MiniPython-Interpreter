@@ -5,29 +5,40 @@
     #include <cmath>
     #include <iostream>
     #include <iomanip>
-    #include <string>
     #include <map>
+    #include <string>
+    #include <vector>
     #include "minipy-lab.h"
-    typedef struct
-    {
-        int type;
-        union
-        {
-            int i;    /* value for int type */
-            double d; /* value for float type */
-        };
-    } Val;
-    #define YYSTYPE Val
-    #include "lex.yy.c"
     using namespace std;
+    typedef struct value
+    {
+        Type type;
+        int integerValue;               /* value for int type */
+        double realValue;               /* value for real type */
+        string stringValue;             /* value for string type */
+        vector<struct value> listValue; /* value for list type */
+        string variableName;            /* name of the Variable */
+    } Value;
+
+    /*
+        符号表 Symbol Table
+        variableName(string) -> Value(not Variable)
+    */
+    map<string, Value> Symbol;
+
+    #define YYSTYPE Value
+    #include "lex.yy.c"
     void yyerror(char*);
-    // int yylex(void);
+
+    // 变量值的输出函数
+    void Print(Value);
+
 %}
 
 %token ID INT REAL STRING_LITERAL
 %token DIV
 %left  '+' '-'
-%left  '*' '/'
+%left  '*' '/' '%' DIV
 %right UMINUS
 
 %%
@@ -38,14 +49,14 @@ Start:
 Lines:
     Lines stat '\n'
         {
-            if ($2.type == INTEGER)
-                cout << $2.i << endl;
-            else if ($2.type == DOUBLE)
+            Value temp;
+            if ($2.type != None)
             {
-                if ($2.d - floor($2.d) == 0)
-                    cout << $2.d <<".0"<< endl;
+                if ($2.type == Variable) /* 单独的变量 */
+                    Print(Symbol[$2.variableName]);
                 else
-                    cout << setprecision(15)<<$2.d <<endl;
+                    Print($2);
+                cout << endl;
             }
         }
     prompt |
@@ -61,14 +72,18 @@ prompt:
 
 stat:
 	assignExpr
-        { $$ = $1; }
 ;
 
 assignExpr:
     atom_expr '=' assignExpr
-        { $$ = $1; } |
+    {
+        if ($1.type == Variable)
+        {
+            Symbol[$1.variableName] = $3; /* 加入符号表 */
+        }
+        $$.type = None;
+    }|
     add_expr
-        { $$ = $1; }
 ;
 
 number:
@@ -82,20 +97,34 @@ factor:
     '-' factor %prec UMINUS
         {
             $$.type = $2.type;
-            if ($2.type == INTEGER)
-                $$.i = -$2.i;
-            else if ($2.type == DOUBLE)
-                $$.d = -$2.d;
+            if ($2.type == Integer)
+                $$.integerValue = -$2.integerValue;
+            else if ($2.type == Real)
+                $$.realValue = -$2.realValue;
         } |
     atom_expr
-        { $$ = $1; }
+        {
+            if ($1.type == Variable) // atom 是变量
+            {
+                if (Symbol.count($1.variableName) == 1) // 已在变量表内
+                    $$ = Symbol.at($1.variableName); // 取变量内容，使用下标检查
+                else
+                {
+                    $$.type = None; // 不输出变量内容，也确实没有可以输出的
+                    // TODO @NXH 把这里的错误信息处理好，注意string到char*的转换
+                    // yyerror("Traceback (most recent call last):\n\tFile \"<stdin>\", line 1, in <module>\nNameError: name "+ $1.variableName +" is not defined  ");
+                }
+            }
+            else
+                $$ = $1;
+        }
 ;
 
 atom:
     ID |
     STRING_LITERAL |
     List |
-    number { $$ = $1;}
+    number
 ;
 
 slice_op:
@@ -109,7 +138,7 @@ sub_expr:
 ;
 
 atom_expr:
-    atom { $$ = $1; } |
+    atom |
     atom_expr  '[' sub_expr  ':' sub_expr  slice_op ']' |
     atom_expr  '[' add_expr ']' |
     atom_expr  '.' ID |
@@ -123,8 +152,16 @@ arglist:
 ;
 
 List:
-    '[' ']' |
-    '[' List_items opt_comma ']' /* [1, 2, 3, ] == [1, 2, 3] */
+    '[' ']'
+    {
+        $$.type = List;
+        $$.listValue = vector<struct value>();
+    }|
+    '[' List_items opt_comma ']' /* 注意 [1, 2, 3, ] == [1, 2, 3] */
+    {
+        $$.type = List;
+        $$.listValue = vector<struct value>($2.listValue);
+    }
 ;
 
 opt_comma:
@@ -133,110 +170,254 @@ opt_comma:
 ;
 
 List_items:
-    add_expr |
+    add_expr
+    {
+        $$.type = List;
+        $$.listValue = vector<struct value>(1, $1); // 用列表“框柱”变量
+    }|
     List_items ',' add_expr
+    {
+        $$.type = List;
+        $1.listValue.push_back($3);
+        $$.listValue = vector<struct value>($1.listValue);
+    }
 ;
 
 add_expr:
     add_expr '+' mul_expr
         {
-            if (($1.type == INTEGER) && ( $3.type == INTEGER ))
+            switch($1.type)
             {
-			    $$.type = INTEGER;
-                $$.i = $1.i + $3.i;
-            }
-            else
-            {
-		        $$.type = DOUBLE;
-                if ( $1.type == INTEGER )
-                    $1.d = (double) $1.i;
-                if ( $3.type == INTEGER )
-                    $3.d = (double) $3.i;
-                $$.d = $1.d + $3.d;
+                case Integer:
+                    switch($3.type)
+                    {
+                        case Integer:
+                            $$.type = Integer;
+                            $$.integerValue = $1.integerValue + $3.integerValue;
+                            break;
+                        case Real:
+                            $$.type = Real;
+                            $1.realValue = (double) $1.integerValue;
+                            $$.realValue = $1.realValue + $3.realValue;
+                            break;
+                        case List:
+                            $$.type = List;
+                            $$.listValue = vector<struct value>($3.listValue);
+                            $$.listValue.insert($$.listValue.begin(), $1); // 在头部插入
+                            break;
+                        // default: yyerror(); // TODO @NXH
+                    }
+                    break;
+                case Real:
+                    switch($3.type)
+                    {
+                        case Integer:
+                            $$.type = Real;
+                            $3.realValue = (double) $3.integerValue;
+                            $$.realValue = $1.realValue + $3.realValue;
+                            break;
+                        case Real:
+                            $$.type = Real;
+                            $$.realValue = $1.realValue + $3.realValue;
+                            break;
+                        case List:
+                            $$.type = List;
+                            $$.listValue = vector<struct value>($3.listValue);
+                            $$.listValue.insert($$.listValue.begin(), $1); // 在头部插入
+                            break;
+                        // default: yyerror(); // TODO @NXH
+                    }
+                    break;
+                case String:
+                    switch($3.type)
+                    {
+                        case String:
+                            $$.type = String;
+                            $$.stringValue = $1.stringValue + $3.stringValue;
+                            break;
+                        case List:
+                            $$.type = List;
+                            $$.listValue = vector<struct value>($3.listValue);
+                            $$.listValue.insert($$.listValue.begin(), $1); // 在头部插入
+                            break;
+                        // default: yyerror(); // TODO @NXH
+                    }
+                    break;
+                case List:
+                    $$.type = List;
+                    $$.listValue = vector<struct value>($1.listValue);
+                    switch($3.type)
+                    {
+                        case Integer:
+                            $$.listValue.insert($$.listValue.end(), $3); // 在尾部插入
+                            break;
+                        case Real:
+                            $$.listValue.insert($$.listValue.end(), $3); // 在尾部插入
+                            break;
+                        case String:
+                            $$.listValue.insert($$.listValue.end(), $3); // 在尾部插入
+                            break;
+                        case List:
+                            $$.listValue.insert($$.listValue.end(), $3.listValue.begin(), $3.listValue.end()); // 在尾部插入
+                            break;
+                        // default: yyerror(); // TODO @NXH
+                    }
+                // default: yyerror(); // TODO @NXH
             }
         }|
     add_expr '-' mul_expr
         {
-            if (($1.type == INTEGER) && ( $3.type == INTEGER ))
+            switch($1.type)
             {
-			    $$.type = INTEGER;
-                $$.i = $1.i - $3.i;
-            }
-            else
-            {
-		        $$.type = DOUBLE;
-                if ( $1.type == INTEGER )
-                    $1.d = (double) $1.i;
-                if ( $3.type == INTEGER )
-                    $3.d = (double) $3.i;
-                $$.d = $1.d - $3.d;
+                case Integer:
+                    switch($3.type)
+                    {
+                        case Integer:
+                            $$.type = Integer;
+                            $$.integerValue = $1.integerValue - $3.integerValue;
+                            break;
+                        case Real:
+                            $$.type = Real;
+                            $1.realValue = (double) $1.integerValue;
+                            $$.realValue = $1.realValue - $3.realValue;
+                            break;
+                        // default: yyerror(); // TODO @NXH
+                    }
+                    break;
+                case Real:
+                    switch($3.type)
+                    {
+                        case Integer:
+                            $$.type = Real;
+                            $3.realValue = (double) $3.integerValue;
+                            $$.realValue = $1.realValue - $3.realValue;
+                            break;
+                        case Real:
+                            $$.type = Real;
+                            $$.realValue = $1.realValue - $3.realValue;
+                            break;
+                        // default: yyerror(); // TODO @NXH
+                    }
+                    break;
             }
         }|
-    mul_expr { $$ = $1; }
+    mul_expr
 ;
 
 mul_expr:
     mul_expr '*' mul_expr
         {
-            if (($1.type == INTEGER) && ( $3.type == INTEGER ))
+            switch($1.type)
             {
-			    $$.type = INTEGER;
-                $$.i = $1.i * $3.i;
-            }
-            else
-            {
-		        $$.type = DOUBLE;
-                if ( $1.type == INTEGER )
-                    $1.d = (double) $1.i;
-                if ( $3.type == INTEGER )
-                    $3.d = (double) $3.i;
-                $$.d = $1.d * $3.d;
+                case Integer:
+                    switch($3.type)
+                    {
+                        case Integer:
+                            $$.type = Integer;
+                            $$.integerValue = $1.integerValue * $3.integerValue;
+                            break;
+                        case Real:
+                            $$.type = Real;
+                            $1.realValue = (double) $1.integerValue;
+                            $$.realValue = $1.realValue * $3.realValue;
+                            break;
+                        case List:
+                            $$.type = List;
+                            $$.listValue = vector<struct value>($3.listValue);
+                            for (int i = 1; i < $1.integerValue; i++)
+                                $$.listValue.insert($$.listValue.end(), $3.listValue.begin(), $3.listValue.end()); // 循环插入
+                            break;
+                        // default: yyerror(); // TODO @NXH
+                    }
+                    break;
+                case Real:
+                    switch($3.type)
+                    {
+                        case Integer:
+                            $$.type = Real;
+                            $3.realValue = (double) $3.integerValue;
+                            $$.realValue = $1.realValue * $3.realValue;
+                            break;
+                        case Real:
+                            $$.type = Real;
+                            $$.realValue = $1.realValue * $3.realValue;
+                            break;
+                        // default: yyerror(); // TODO @NXH
+                    }
+                    break;
+                case String:
+                    switch($3.type)
+                    {
+                        case Integer:
+                            $$.type = String;
+                            $$.stringValue = $1.stringValue;
+                            for (int i = 1; i < $3.integerValue; i++)
+                                $$.stringValue += $1.stringValue;
+                            break;
+                        // default: yyerror(); // TODO @NXH
+                    }
+                    break;
+                case List:
+                    switch($3.type)
+                    {
+                        case Integer:
+                            $$.type = List;
+                            $$.listValue = vector<struct value>($1.listValue);
+                            for (int i = 1; i < $3.integerValue; i++)
+                                $$.listValue.insert($$.listValue.end(), $1.listValue.begin(), $1.listValue.end()); // 循环插入
+                            break;
+                        // default: yyerror(); // TODO @NXH
+                    }
+                // default: yyerror(); // TODO @NXH
             }
         }|
     mul_expr '/' mul_expr
         {
-            $$.type = DOUBLE;
-            if ( $1.type == INTEGER )
-                $1.d = (double) $1.i;
-            if ( $3.type == INTEGER )
-                $3.d = (double) $3.i;
-            $$.d = $1.d / $3.d;
+            $$.type = Real;
+            if ( $1.type == Integer )
+                $1.realValue = (double) $1.integerValue;
+            if ( $3.type == Integer )
+                $3.realValue = (double) $3.integerValue;
+            $$.realValue = $1.realValue / $3.realValue;
+            // default: yyerror(); // TODO @NXH
         }|
     mul_expr DIV mul_expr
         {
             // 整除
-            if ( $1.type == DOUBLE )
-                $1.i = round($1.d);
-            if ( $3.type == DOUBLE )
-                $3.i = round($3.d);
-            $$.type = INTEGER;
-            $$.i = $1.i / $3.i;
+            if ( $1.type == Real )
+                $1.integerValue = round($1.realValue);
+            if ( $3.type == Real )
+                $3.integerValue = round($3.realValue);
+            $$.type = Integer;
+            $$.integerValue = $1.integerValue / $3.integerValue;
+            // default: yyerror(); // TODO @NXH
         }|
     mul_expr '%' mul_expr
         {
-            if (($1.type == INTEGER) && ( $3.type == INTEGER ))
+            if (($1.type == Integer) && ( $3.type == Integer ))
             {
-			    $$.type = INTEGER;
-                $$.i = $1.i % $3.i;
-                if ($1.i * $3.i < 0) // 取余的符号问题
-                    $$.i += $3.i;
+			    $$.type = Integer;
+                $$.integerValue = $1.integerValue % $3.integerValue;
+                if ($1.integerValue * $3.integerValue < 0) // 取余的符号问题
+                    $$.integerValue += $3.integerValue;
             }
             else
             {
-		        $$.type = DOUBLE;
-                if ( $1.type == INTEGER )
-                    $1.d = (double) $1.i;
-                if ( $3.type == INTEGER )
-                    $3.d = (double) $3.i;
-                int temp = (int)($1.d / $3.d); // 手动实现实数取余
-                $$.d = $1.d - ($3.d * temp);
-                if ($1.d * $3.d < 0)
-                    $$.d += $3.d;
+		        $$.type = Real;
+                if ( $1.type == Integer )
+                    $1.realValue = (double) $1.integerValue;
+                if ( $3.type == Integer )
+                    $3.realValue = (double) $3.integerValue;
+                int temp = (int)($1.realValue / $3.realValue); // 手动实现实数取余
+                $$.realValue = $1.realValue - ($3.realValue * temp);
+                if ($1.realValue * $3.realValue < 0)
+                    $$.realValue += $3.realValue;
             }
+            // default: yyerror(); // TODO @NXH
         }|
     '(' add_expr ')' { $$ = $2; } |
     '(' mul_expr ')' { $$ = $2; } |
-    factor { $$ = $1; }
+    factor
 ;
 
 %%
@@ -254,4 +435,33 @@ void yyerror(char *s)
 int yywrap()
 {
 	return 1;
+}
+
+void Print(Value x)
+{
+    switch(x.type)
+    {
+        case Integer:
+            cout << x.integerValue;
+            break;
+        case Real:
+            if (x.realValue - floor(x.realValue) == 0)
+                cout << x.realValue <<".0";
+            else
+                cout << setprecision(15) << x.realValue;
+            break;
+        case String:
+            cout << '\'' << x.stringValue << '\'';
+            break;
+        case List:
+            cout << "[";
+            for (vector<struct value>::iterator i = x.listValue.begin(); i != x.listValue.end(); i++)
+            {
+                Print(*i);
+                if (i != x.listValue.end() - 1)
+                    cout << ", ";
+            }
+            cout << "]";
+            break;
+    }
 }
