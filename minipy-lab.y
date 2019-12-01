@@ -33,15 +33,13 @@
 
     #define YYSTYPE Value
     #include "lex.yy.c"
-    void yyerror(char*);
+    void yyerror(string);
 
     // 变量值的输出函数
     void Print(Value);
 
 %}
 
-%token APPEND
-%token PRINT RANGE LEN LIST
 %token ID INT REAL STRING_LITERAL
 %token DIV
 %left  '+' '-'
@@ -144,7 +142,7 @@ factor:
                     else
                     {
                         $$.type = None; // 不输出变量内容，也确实没有可以输出的
-                        // TODO @NXH 把这里的错误信息处理好，注意string到char*的转换
+                        // TODO @NXH 把这里的错误信息处理好
                         // yyerror("Traceback (most recent call last):\n\tFile \"<stdin>\", line 1, in <module>\nNameError: name "+ $1.variableName +" is not defined  ");
                     }
                     break;
@@ -464,7 +462,7 @@ atom_expr:
     }|
     atom_expr '(' arglist opt_comma ')'
     {
-        if ($1.stringValue == "append")
+        if ($1.stringValue == "append") // append方法
         {
             $$.type = None;
             if (Symbol.at($1.variableName).type == List)
@@ -474,6 +472,21 @@ atom_expr:
                     Symbol.at($1.variableName).listValue.push_back(*$3.listValue.begin());
                 }
             }
+        }
+        else if ($1.variableName == "print") // print函数
+        {
+            $$.type = None;
+            cout << "print" <<endl;
+            for (vector<struct value>::iterator i = $3.listValue.begin(); i != $3.listValue.end(); i++)
+            {
+                if ((*i).type == None)
+                    cout << "None";
+                else
+                    Print(*i);
+                if (i != $3.listValue.end() - 1)
+                    cout << ' ';
+            }
+            cout << endl;
         }
     } |
     atom_expr '.' ID
@@ -775,7 +788,7 @@ int main()
 	return yyparse();
 }
 
-void yyerror(char *s)
+void yyerror(string s)
 {
 	cout << s << endl << "miniPy> ";
 }

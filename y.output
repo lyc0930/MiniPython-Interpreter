@@ -42,8 +42,8 @@ Grammar
    24 atom_expr: atom
    25          | atom_expr '[' sub_expr ':' sub_expr slice_op ']'
    26          | atom_expr '[' add_expr ']'
-   27          | atom_expr '.' ID
-   28          | atom_expr '(' arglist opt_comma ')'
+   27          | atom_expr '(' arglist opt_comma ')'
+   28          | atom_expr '.' ID
    29          | atom_expr '(' ')'
 
    30 arglist: add_expr
@@ -76,20 +76,20 @@ Terminals, with rules where they appear
 $end (0) 0
 '\n' (10) 3 4 6
 '%' (37) 44
-'(' (40) 28 29 45 46
-')' (41) 28 29 45 46
+'(' (40) 27 29 45 46
+')' (41) 27 29 45 46
 '*' (42) 41
 '+' (43) 13 38
 ',' (44) 31 35 37
 '-' (45) 14 39
-'.' (46) 27
+'.' (46) 28
 '/' (47) 42
 ':' (58) 21 25
 '=' (61) 9
 '[' (91) 25 26 32 33
 ']' (93) 25 26 32 33
 error (256) 6
-ID (258) 16 27
+ID (258) 16 28
 INT (259) 11
 REAL (260) 12
 STRING_LITERAL (261) 17
@@ -126,11 +126,11 @@ sub_expr (34)
 atom_expr (35)
     on left: 24 25 26 27 28 29, on right: 9 15 25 26 27 28 29
 arglist (36)
-    on left: 30 31, on right: 28 31
+    on left: 30 31, on right: 27 31
 List (37)
     on left: 32 33, on right: 18
 opt_comma (38)
-    on left: 34 35, on right: 28 33
+    on left: 34 35, on right: 27 33
 List_items (39)
     on left: 36 37, on right: 33 37
 add_expr (40)
@@ -390,14 +390,14 @@ State 21
    15 factor: atom_expr .
    25 atom_expr: atom_expr . '[' sub_expr ':' sub_expr slice_op ']'
    26          | atom_expr . '[' add_expr ']'
-   27          | atom_expr . '.' ID
-   28          | atom_expr . '(' arglist opt_comma ')'
+   27          | atom_expr . '(' arglist opt_comma ')'
+   28          | atom_expr . '.' ID
    29          | atom_expr . '(' ')'
 
     '='  shift, and go to state 35
     '['  shift, and go to state 36
-    '.'  shift, and go to state 37
-    '('  shift, and go to state 38
+    '('  shift, and go to state 37
+    '.'  shift, and go to state 38
 
     $default  reduce using rule 15 (factor)
 
@@ -449,13 +449,13 @@ State 26
    15 factor: atom_expr .
    25 atom_expr: atom_expr . '[' sub_expr ':' sub_expr slice_op ']'
    26          | atom_expr . '[' add_expr ']'
-   27          | atom_expr . '.' ID
-   28          | atom_expr . '(' arglist opt_comma ')'
+   27          | atom_expr . '(' arglist opt_comma ')'
+   28          | atom_expr . '.' ID
    29          | atom_expr . '(' ')'
 
     '['  shift, and go to state 36
-    '.'  shift, and go to state 37
-    '('  shift, and go to state 38
+    '('  shift, and go to state 37
+    '.'  shift, and go to state 38
 
     $default  reduce using rule 15 (factor)
 
@@ -595,14 +595,7 @@ State 36
 
 State 37
 
-   27 atom_expr: atom_expr '.' . ID
-
-    ID  shift, and go to state 53
-
-
-State 38
-
-   28 atom_expr: atom_expr '(' . arglist opt_comma ')'
+   27 atom_expr: atom_expr '(' . arglist opt_comma ')'
    29          | atom_expr '(' . ')'
 
     ID              shift, and go to state 7
@@ -613,16 +606,23 @@ State 38
     '-'             shift, and go to state 12
     '['             shift, and go to state 14
     '('             shift, and go to state 15
-    ')'             shift, and go to state 54
+    ')'             shift, and go to state 53
 
     number     go to state 18
     factor     go to state 19
     atom       go to state 20
     atom_expr  go to state 26
-    arglist    go to state 55
+    arglist    go to state 54
     List       go to state 22
-    add_expr   go to state 56
+    add_expr   go to state 55
     mul_expr   go to state 24
+
+
+State 38
+
+   28 atom_expr: atom_expr '.' . ID
+
+    ID  shift, and go to state 56
 
 
 State 39
@@ -836,21 +836,14 @@ State 52
 
 State 53
 
-   27 atom_expr: atom_expr '.' ID .
-
-    $default  reduce using rule 27 (atom_expr)
-
-
-State 54
-
    29 atom_expr: atom_expr '(' ')' .
 
     $default  reduce using rule 29 (atom_expr)
 
 
-State 55
+State 54
 
-   28 atom_expr: atom_expr '(' arglist . opt_comma ')'
+   27 atom_expr: atom_expr '(' arglist . opt_comma ')'
    31 arglist: arglist . ',' add_expr
 
     ','  shift, and go to state 68
@@ -860,7 +853,7 @@ State 55
     opt_comma  go to state 69
 
 
-State 56
+State 55
 
    30 arglist: add_expr .
    38 add_expr: add_expr . '+' mul_expr
@@ -870,6 +863,13 @@ State 56
     '-'  shift, and go to state 40
 
     $default  reduce using rule 30 (arglist)
+
+
+State 56
+
+   28 atom_expr: atom_expr '.' ID .
+
+    $default  reduce using rule 28 (atom_expr)
 
 
 State 57
@@ -1033,7 +1033,7 @@ State 68
 
 State 69
 
-   28 atom_expr: atom_expr '(' arglist opt_comma . ')'
+   27 atom_expr: atom_expr '(' arglist opt_comma . ')'
 
     ')'  shift, and go to state 73
 
@@ -1075,9 +1075,9 @@ State 72
 
 State 73
 
-   28 atom_expr: atom_expr '(' arglist opt_comma ')' .
+   27 atom_expr: atom_expr '(' arglist opt_comma ')' .
 
-    $default  reduce using rule 28 (atom_expr)
+    $default  reduce using rule 27 (atom_expr)
 
 
 State 74
