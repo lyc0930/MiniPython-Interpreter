@@ -536,6 +536,10 @@ atom_expr:
             $$.stringValue = $3.variableName; // 属性或方法名
         } |
     atom_expr  '('  ')'
+        {
+            if ($1.variableName == "quit") // quit函数
+                exit(0);
+        }
 ;
 
 arglist:
