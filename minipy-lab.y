@@ -91,6 +91,20 @@ assignExpr:
             case ListItem:
                 *$1.begin = $3;
                 break;
+            case ListSlice:
+                switch ($3.type)
+                {
+                    case List:
+                        Symbol[$1.variableName].listValue.erase($1.begin, $1.end);
+                        Symbol[$1.variableName].listValue.insert($1.begin + 1, $3.listValue.begin(), $3.listValue.end()); // 插入
+                        break;
+                    case ListSlice:
+                        Symbol[$1.variableName].listValue.erase($1.begin, $1.end);
+                        Symbol[$1.variableName].listValue.insert($1.begin + 1, $3.begin, $3.end); // 插入
+                        break;
+                     // default: yyerror(); // TODO @NXH ，只能给切片赋切片或者列表
+                }
+                break;
             // default: yyerror(); // TODO @NXH ， only subscriptable type here
         }
     }|
@@ -98,8 +112,8 @@ assignExpr:
 ;
 
 number:
-    INT { $$ = $1;} |
-    REAL { $$ = $1;}
+    INT |
+    REAL
 ;
 
 factor:
@@ -148,12 +162,24 @@ atom:
 ;
 
 slice_op:
-    /*  empty production */ |
+    /*  empty production */
+    {
+        $$.type = None;
+    }|
     ':' add_expr
+    {
+        $$.type = Integer;
+        if ($2.type == Integer)
+            $$.integerValue = $2.integerValue;
+        // yyerror(); // TODO @NXH ， int
+    }
 ;
 
 sub_expr:
-    /*  empty production */ |
+    /*  empty production */
+    {
+        $$.type = None;
+    }|
     add_expr
 ;
 
@@ -161,6 +187,235 @@ atom_expr:
     atom |
     atom_expr  '[' sub_expr  ':' sub_expr  slice_op ']'
     {
+        int begin, end, step;
+
+        if ($6.type == None) // 默认步长
+            step = 1;
+        else if ($6.type == Integer)
+            step = $6.integerValue;
+        else
+        {
+            // yyerror(); // TODO @NXH ， int or none
+        }
+
+        switch ($1.type)
+        {
+            case String:
+                $$.type = String;
+                $$.stringValue = "";
+
+                if (step > 0)
+                {
+                    if ($3.type == None) // 默认起始
+                        begin = 0;
+                    else if ($3.type == Integer)
+                        begin = $3.integerValue;
+                    else
+                    {
+                        // yyerror(); // TODO @NXH ， int or none
+                    }
+
+                    if ($5.type == None) // 默认结束
+                        end = $1.stringValue.length();
+                    else if ($5.type == Integer)
+                        end = $5.integerValue;
+                    else
+                    {
+                        // yyerror(); // TODO @NXH ， int or none
+                    }
+
+                    for (int i = begin; i < end; i += step)
+                        $$.stringValue += $1.stringValue[i]; // 逐个取子串
+                }
+                else if (step < 0) // 负步长
+                {
+                    if ($3.type == None) // 默认起始
+                        begin = $1.stringValue.length() - 1;
+                    else if ($3.type == Integer)
+                        begin = $3.integerValue;
+                    else
+                    {
+                        // yyerror(); // TODO @NXH ， int or none
+                    }
+
+                    if ($5.type == None) // 默认结束
+                        end = -1;
+                    else if ($5.type == Integer)
+                        end = $5.integerValue;
+                    else
+                    {
+                        // yyerror(); // TODO @NXH ， int or none
+                    }
+
+                    for (int i = begin; i > end; i += step)
+                        $$.stringValue += $1.stringValue[i]; // 逐个取子串
+                }
+                break;
+            case List:
+                $$.type = List; // 列表元素类型
+                $$.listValue = vector<struct value>();
+                if (step > 0)
+                {
+                    if ($3.type == None) // 默认起始
+                        begin = 0;
+                    else if ($3.type == Integer)
+                        begin = $3.integerValue;
+                    else
+                    {
+                        // yyerror(); // TODO @NXH ， int or none
+                    }
+
+                    if ($5.type == None) // 默认结束
+                        end = $1.listValue.size();
+                    else if ($5.type == Integer)
+                        end = $5.integerValue;
+                    else
+                    {
+                        // yyerror(); // TODO @NXH ， int or none
+                    }
+
+                    for (vector<struct value>::iterator i = $1.listValue.begin() + begin; i != $1.listValue.begin() + end; i += step)
+                        $$.listValue.push_back(*i); // 逐个取子串
+                }
+                else if (step < 0)
+                {
+                    if ($3.type == None) // 默认起始
+                        begin = $1.listValue.size() - 1;
+                    else if ($3.type == Integer)
+                        begin = $3.integerValue;
+                    else
+                    {
+                        // yyerror(); // TODO @NXH ， int or none
+                    }
+
+                    if ($5.type == None) // 默认结束
+                        end = -1;
+                    else if ($5.type == Integer)
+                        end = $5.integerValue;
+                    else
+                    {
+                        // yyerror(); // TODO @NXH ， int or none
+                    }
+
+                    for (vector<struct value>::iterator i = $1.listValue.begin() + begin; i != $1.listValue.begin() + end; i += step)
+                        $$.listValue.push_back(*i); // 逐个取子串
+                }
+                break;
+            case Variable:
+                if ((Symbol.count($1.variableName) == 1)) // 已在变量表内
+                {
+                    switch (Symbol.at($1.variableName).type)
+                    {
+                        case String:
+                            $$.type = String;
+                            $$.stringValue = "";
+
+                            if (step > 0)
+                            {
+                                if ($3.type == None) // 默认起始
+                                    begin = 0;
+                                else if ($3.type == Integer)
+                                    begin = $3.integerValue;
+                                else
+                                {
+                                    // yyerror(); // TODO @NXH ， int or none
+                                }
+
+                                if ($5.type == None) // 默认结束
+                                    end = Symbol.at($1.variableName).stringValue.length();
+                                else if ($5.type == Integer)
+                                    end = $5.integerValue;
+                                else
+                                {
+                                    // yyerror(); // TODO @NXH ， int or none
+                                }
+                                for (int i = begin; i < end; i += step)
+                                    $$.stringValue += Symbol.at($1.variableName).stringValue[i]; // 逐个取子串
+                            }
+                            else if (step < 0) // 负步长
+                            {
+                                if ($3.type == None) // 默认起始
+                                    begin = Symbol.at($1.variableName).stringValue.length() - 1;
+                                else if ($3.type == Integer)
+                                    begin = $3.integerValue;
+                                else
+                                {
+                                    // yyerror(); // TODO @NXH ， int or none
+                                }
+
+                                if ($5.type == None) // 默认结束
+                                    end = -1;
+                                else if ($5.type == Integer)
+                                    end = $5.integerValue;
+                                else
+                                {
+                                    // yyerror(); // TODO @NXH ， int or none
+                                }
+
+                                for (int i = begin; i > end; i += step)
+                                    $$.stringValue += Symbol.at($1.variableName).stringValue[i]; // 逐个取子串
+                            }
+                            break;
+                        case List:
+                            $$.type = ListSlice; // 列表元素类型
+                            $$.variableName = $1.variableName;
+                            $$.listValue = vector<struct value>();
+                            if (step > 0)
+                            {
+                                if ($3.type == None) // 默认起始
+                                    $$.begin = Symbol.at($1.variableName).listValue.begin();
+                                else if ($3.type == Integer)
+                                    $$.begin = Symbol.at($1.variableName).listValue.begin() + $3.integerValue;
+                                else
+                                {
+                                    // yyerror(); // TODO @NXH ， int or none
+                                }
+
+                                if ($5.type == None) // 默认结束
+                                    $$.end = Symbol.at($1.variableName).listValue.end();
+                                else if ($5.type == Integer)
+                                    $$.end = Symbol.at($1.variableName).listValue.begin() + $5.integerValue;
+                                else
+                                {
+                                    // yyerror(); // TODO @NXH ， int or none
+                                }
+                                for (vector<struct value>::iterator i = $$.begin; i != $$.end; i += step)
+                                    $$.listValue.push_back(*i); // 逐个取子串
+                            }
+                            else if (step < 0)
+                            {
+                                if ($3.type == None) // 默认起始
+                                    $$.begin = Symbol.at($1.variableName).listValue.end() - 1;
+                                else if ($3.type == Integer)
+                                    $$.begin = Symbol.at($1.variableName).listValue.begin() + $3.integerValue;
+                                else
+                                {
+                                    // yyerror(); // TODO @NXH ， int or none
+                                }
+
+                                if ($5.type == None) // 默认结束
+                                    $$.end = Symbol.at($1.variableName).listValue.begin() - 1;
+                                else if ($5.type == Integer)
+                                    $$.end = Symbol.at($1.variableName).listValue.begin() + $5.integerValue;
+                                else
+                                {
+                                    // yyerror(); // TODO @NXH ， int or none
+                                }
+
+                                for (vector<struct value>::iterator i = $$.begin; i != $$.end; i += step)
+                                    $$.listValue.push_back(*i); // 逐个取子串
+                            }
+                            break;
+                        // default: yyerror(); // TODO @NXH ， only subscriptable type here
+                    }
+                }
+                else
+                {
+                    // yyerror(); // TODO @NXH ， only subscriptable type here
+                }
+                break;
+            // default: yyerror(); // TODO @NXH ， only subscriptable type here
+        }
     }|
     atom_expr  '[' add_expr ']'
     {
