@@ -18,6 +18,11 @@
         string stringValue;             /* value for string type */
         vector<struct value> listValue; /* value for list type */
         string variableName;            /* name of the Variable */
+
+        // slice or item of List
+        vector<struct value>::iterator begin; // slice 起始位置 或 item 坐标
+        vector<struct value>::iterator end;
+        int step;
     } Value;
 
     /*
@@ -77,11 +82,17 @@ stat:
 assignExpr:
     atom_expr '=' assignExpr
     {
-        if ($1.type == Variable)
-        {
-            Symbol[$1.variableName] = $3; /* 加入符号表 */
-        }
         $$.type = None;
+        switch ($1.type)
+        {
+            case Variable:
+                Symbol[$1.variableName] = $3; /* 加入符号表或重新赋值 */
+                break;
+            case ListItem:
+                *$1.begin = $3;
+                break;
+            // default: yyerror(); // TODO @NXH ， only subscriptable type here
+        }
     }|
     add_expr
 ;
@@ -104,19 +115,28 @@ factor:
         } |
     atom_expr
         {
-            if ($1.type == Variable) // atom 是变量
+            switch ($1.type)
             {
-                if (Symbol.count($1.variableName) == 1) // 已在变量表内
-                    $$ = Symbol.at($1.variableName); // 取变量内容，使用下标检查
-                else
-                {
-                    $$.type = None; // 不输出变量内容，也确实没有可以输出的
-                    // TODO @NXH 把这里的错误信息处理好，注意string到char*的转换
-                    // yyerror("Traceback (most recent call last):\n\tFile \"<stdin>\", line 1, in <module>\nNameError: name "+ $1.variableName +" is not defined  ");
-                }
+                case Integer:
+                case Real:
+                case String:
+                    $$ = $1;
+                    break;
+                case Variable:
+                    if (Symbol.count($1.variableName) == 1) // 已在变量表内
+                        $$ = Symbol.at($1.variableName); // 取变量内容，使用下标检查
+                    else
+                    {
+                        $$.type = None; // 不输出变量内容，也确实没有可以输出的
+                        // TODO @NXH 把这里的错误信息处理好，注意string到char*的转换
+                        // yyerror("Traceback (most recent call last):\n\tFile \"<stdin>\", line 1, in <module>\nNameError: name "+ $1.variableName +" is not defined  ");
+                    }
+                    break;
+                case ListItem:
+                    $$ = *$1.begin;
+                    break;
+                // default: yyerror(); // TODO @NXH ， only subscriptable type here
             }
-            else
-                $$ = $1;
         }
 ;
 
@@ -139,8 +159,52 @@ sub_expr:
 
 atom_expr:
     atom |
-    atom_expr  '[' sub_expr  ':' sub_expr  slice_op ']' |
-    atom_expr  '[' add_expr ']' |
+    atom_expr  '[' sub_expr  ':' sub_expr  slice_op ']'
+    {
+    }|
+    atom_expr  '[' add_expr ']'
+    {
+        if ($3.type == Integer)
+        {
+            switch ($1.type)
+            {
+                case String:
+                    $$.type = String;
+                    $$.stringValue = $1.stringValue[$3.integerValue]; // 字符和字符串同等
+                    break;
+                case List:
+                    $$.type = ListItem; // 列表元素类型
+                    $$.begin = $1.listValue.begin() + $3.integerValue; // 取列表元素地址
+                    break;
+                case Variable:
+                    if ((Symbol.count($1.variableName) == 1)) // 已在变量表内
+                    {
+                        switch (Symbol.at($1.variableName).type)
+                        {
+                            case String:
+                                $$.type = String;
+                                $$.stringValue = Symbol.at($1.variableName).stringValue[$3.integerValue]; // 字符和字符串同等
+                                break;
+                            case List:
+                                $$.type = ListItem; // 列表元素类型
+                                $$.begin = Symbol.at($1.variableName).listValue.begin() + $3.integerValue; // 取列表元素地址
+                                break;
+                            // default: yyerror(); // TODO @NXH ， only subscriptable type here
+                        }
+                    }
+                    else
+                    {
+                        // yyerror(); // TODO @NXH ， only subscriptable type here
+                    }
+                    break;
+                // default: yyerror(); // TODO @NXH ， only subscriptable type here
+            }
+        }
+        else
+        {
+            // yyerror(); // TODO @NXH , indices must be integers or slices
+        }
+    }|
     atom_expr  '.' ID |
     atom_expr  '(' arglist opt_comma ')' |
     atom_expr  '('  ')'
@@ -454,6 +518,7 @@ void Print(Value x)
             cout << '\'' << x.stringValue << '\'';
             break;
         case List:
+        case ListSlice: // Slice 的 listValue 也存储相应值
             cout << "[";
             for (vector<struct value>::iterator i = x.listValue.begin(); i != x.listValue.end(); i++)
             {
@@ -462,6 +527,9 @@ void Print(Value x)
                     cout << ", ";
             }
             cout << "]";
+            break;
+        case ListItem:
+            Print(*x.begin); // 输出元素
             break;
     }
 }
