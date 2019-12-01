@@ -15,7 +15,7 @@
         Type type;
         int integerValue;               /* value for int type */
         double realValue;               /* value for real type */
-        string stringValue;             /* value for string type */
+        string stringValue;             /* value for string type 或 方法 函数名称*/
         vector<struct value> listValue; /* value for list type */
         string variableName;            /* name of the Variable */
 
@@ -40,6 +40,8 @@
 
 %}
 
+%token APPEND
+%token PRINT RANGE LEN LIST
 %token ID INT REAL STRING_LITERAL
 %token DIV
 %left  '+' '-'
@@ -460,14 +462,41 @@ atom_expr:
             // yyerror(); // TODO @NXH , indices must be integers or slices
         }
     }|
-    atom_expr  '.' ID |
-    atom_expr  '(' arglist opt_comma ')' |
+    atom_expr '(' arglist opt_comma ')'
+    {
+        if ($1.stringValue == "append")
+        {
+            $$.type = None;
+            if (Symbol.at($1.variableName).type == List)
+            {
+                if ($3.listValue.size() == 1) // append 有且仅有1个参数
+                {
+                    Symbol.at($1.variableName).listValue.push_back(*$3.listValue.begin());
+                }
+            }
+        }
+    } |
+    atom_expr '.' ID
+    {
+         $$.type = None;
+         $$.variableName = $1.variableName; // 变量名
+         $$.stringValue = $3.variableName; // 属性或方法名
+    } |
     atom_expr  '('  ')'
 ;
 
 arglist:
-    add_expr |
+    add_expr
+    {
+        $$.type = List;
+        $$.listValue = vector<struct value>(1, $1); // 用列表“框柱”参数
+    }|
     arglist ',' add_expr
+    {
+        $$.type = List;
+        $1.listValue.push_back($3);
+        $$.listValue = vector<struct value>($1.listValue);
+    }
 ;
 
 List:

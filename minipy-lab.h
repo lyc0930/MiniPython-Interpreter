@@ -2,7 +2,7 @@
 
 enum Type
 {
-    None,      // 赋值语句、append()在python里没有输出
+    None,      // 赋值语句、列表方法等在python里没有输出
     Integer,   // 整型
     Real,      // 浮点型
     String,    // 字符和字符串

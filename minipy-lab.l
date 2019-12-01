@@ -51,4 +51,16 @@ real     {number}"."{number}?|{number}?"."{number}
 \/\/                {
                         return DIV;
                     }
+'print'             {
+                        return PRINT;
+                    }
+'range'             {
+                        return RANGE;
+                    }
+'len'               {
+                        return LEN;
+                    }
+'list'              {
+                        return LIST;
+                    }
 %%
