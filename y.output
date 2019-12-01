@@ -1,0 +1,1128 @@
+State 33 conflicts: 1 shift/reduce
+
+
+Grammar
+
+    0 $accept: Start $end
+
+    1 Start: prompt Lines
+
+    2 $@1: %empty
+
+    3 Lines: Lines stat '\n' $@1 prompt
+    4      | Lines '\n' prompt
+    5      | %empty
+    6      | error '\n'
+
+    7 prompt: %empty
+
+    8 stat: assignExpr
+
+    9 assignExpr: atom_expr '=' assignExpr
+   10           | add_expr
+
+   11 number: INT
+   12       | REAL
+
+   13 factor: '+' factor
+   14       | '-' factor
+   15       | atom_expr
+
+   16 atom: ID
+   17     | STRING_LITERAL
+   18     | List
+   19     | number
+
+   20 slice_op: %empty
+   21         | ':' add_expr
+
+   22 sub_expr: %empty
+   23         | add_expr
+
+   24 atom_expr: atom
+   25          | atom_expr '[' sub_expr ':' sub_expr slice_op ']'
+   26          | atom_expr '[' add_expr ']'
+   27          | atom_expr '(' arglist opt_comma ')'
+   28          | atom_expr '.' ID
+   29          | atom_expr '(' ')'
+
+   30 arglist: add_expr
+   31        | arglist ',' add_expr
+
+   32 List: '[' ']'
+   33     | '[' List_items opt_comma ']'
+
+   34 opt_comma: %empty
+   35          | ','
+
+   36 List_items: add_expr
+   37           | List_items ',' add_expr
+
+   38 add_expr: add_expr '+' mul_expr
+   39         | add_expr '-' mul_expr
+   40         | mul_expr
+
+   41 mul_expr: mul_expr '*' mul_expr
+   42         | mul_expr '/' mul_expr
+   43         | mul_expr DIV mul_expr
+   44         | mul_expr '%' mul_expr
+   45         | '(' add_expr ')'
+   46         | '(' mul_expr ')'
+   47         | factor
+
+
+Terminals, with rules where they appear
+
+$end (0) 0
+'\n' (10) 3 4 6
+'%' (37) 44
+'(' (40) 27 29 45 46
+')' (41) 27 29 45 46
+'*' (42) 41
+'+' (43) 13 38
+',' (44) 31 35 37
+'-' (45) 14 39
+'.' (46) 28
+'/' (47) 42
+':' (58) 21 25
+'=' (61) 9
+'[' (91) 25 26 32 33
+']' (93) 25 26 32 33
+error (256) 6
+ID (258) 16 28
+INT (259) 11
+REAL (260) 12
+STRING_LITERAL (261) 17
+DIV (262) 43
+UMINUS (263)
+
+
+Nonterminals, with rules where they appear
+
+$accept (23)
+    on left: 0
+Start (24)
+    on left: 1, on right: 0
+Lines (25)
+    on left: 3 4 5 6, on right: 1 3 4
+$@1 (26)
+    on left: 2, on right: 3
+prompt (27)
+    on left: 7, on right: 1 3 4
+stat (28)
+    on left: 8, on right: 3
+assignExpr (29)
+    on left: 9 10, on right: 8 9
+number (30)
+    on left: 11 12, on right: 19
+factor (31)
+    on left: 13 14 15, on right: 13 14 47
+atom (32)
+    on left: 16 17 18 19, on right: 24
+slice_op (33)
+    on left: 20 21, on right: 25
+sub_expr (34)
+    on left: 22 23, on right: 25
+atom_expr (35)
+    on left: 24 25 26 27 28 29, on right: 9 15 25 26 27 28 29
+arglist (36)
+    on left: 30 31, on right: 27 31
+List (37)
+    on left: 32 33, on right: 18
+opt_comma (38)
+    on left: 34 35, on right: 27 33
+List_items (39)
+    on left: 36 37, on right: 33 37
+add_expr (40)
+    on left: 38 39 40, on right: 10 21 23 26 30 31 36 37 38 39 45
+mul_expr (41)
+    on left: 41 42 43 44 45 46 47, on right: 38 39 40 41 42 43 44 46
+
+
+State 0
+
+    0 $accept: . Start $end
+
+    $default  reduce using rule 7 (prompt)
+
+    Start   go to state 1
+    prompt  go to state 2
+
+
+State 1
+
+    0 $accept: Start . $end
+
+    $end  shift, and go to state 3
+
+
+State 2
+
+    1 Start: prompt . Lines
+
+    error  shift, and go to state 4
+
+    $end            reduce using rule 5 (Lines)
+    ID              reduce using rule 5 (Lines)
+    INT             reduce using rule 5 (Lines)
+    REAL            reduce using rule 5 (Lines)
+    STRING_LITERAL  reduce using rule 5 (Lines)
+    '+'             reduce using rule 5 (Lines)
+    '-'             reduce using rule 5 (Lines)
+    '\n'            reduce using rule 5 (Lines)
+    '['             reduce using rule 5 (Lines)
+    '('             reduce using rule 5 (Lines)
+
+    Lines  go to state 5
+
+
+State 3
+
+    0 $accept: Start $end .
+
+    $default  accept
+
+
+State 4
+
+    6 Lines: error . '\n'
+
+    '\n'  shift, and go to state 6
+
+
+State 5
+
+    1 Start: prompt Lines .
+    3 Lines: Lines . stat '\n' $@1 prompt
+    4      | Lines . '\n' prompt
+
+    ID              shift, and go to state 7
+    INT             shift, and go to state 8
+    REAL            shift, and go to state 9
+    STRING_LITERAL  shift, and go to state 10
+    '+'             shift, and go to state 11
+    '-'             shift, and go to state 12
+    '\n'            shift, and go to state 13
+    '['             shift, and go to state 14
+    '('             shift, and go to state 15
+
+    $default  reduce using rule 1 (Start)
+
+    stat        go to state 16
+    assignExpr  go to state 17
+    number      go to state 18
+    factor      go to state 19
+    atom        go to state 20
+    atom_expr   go to state 21
+    List        go to state 22
+    add_expr    go to state 23
+    mul_expr    go to state 24
+
+
+State 6
+
+    6 Lines: error '\n' .
+
+    $default  reduce using rule 6 (Lines)
+
+
+State 7
+
+   16 atom: ID .
+
+    $default  reduce using rule 16 (atom)
+
+
+State 8
+
+   11 number: INT .
+
+    $default  reduce using rule 11 (number)
+
+
+State 9
+
+   12 number: REAL .
+
+    $default  reduce using rule 12 (number)
+
+
+State 10
+
+   17 atom: STRING_LITERAL .
+
+    $default  reduce using rule 17 (atom)
+
+
+State 11
+
+   13 factor: '+' . factor
+
+    ID              shift, and go to state 7
+    INT             shift, and go to state 8
+    REAL            shift, and go to state 9
+    STRING_LITERAL  shift, and go to state 10
+    '+'             shift, and go to state 11
+    '-'             shift, and go to state 12
+    '['             shift, and go to state 14
+
+    number     go to state 18
+    factor     go to state 25
+    atom       go to state 20
+    atom_expr  go to state 26
+    List       go to state 22
+
+
+State 12
+
+   14 factor: '-' . factor
+
+    ID              shift, and go to state 7
+    INT             shift, and go to state 8
+    REAL            shift, and go to state 9
+    STRING_LITERAL  shift, and go to state 10
+    '+'             shift, and go to state 11
+    '-'             shift, and go to state 12
+    '['             shift, and go to state 14
+
+    number     go to state 18
+    factor     go to state 27
+    atom       go to state 20
+    atom_expr  go to state 26
+    List       go to state 22
+
+
+State 13
+
+    4 Lines: Lines '\n' . prompt
+
+    $default  reduce using rule 7 (prompt)
+
+    prompt  go to state 28
+
+
+State 14
+
+   32 List: '[' . ']'
+   33     | '[' . List_items opt_comma ']'
+
+    ID              shift, and go to state 7
+    INT             shift, and go to state 8
+    REAL            shift, and go to state 9
+    STRING_LITERAL  shift, and go to state 10
+    '+'             shift, and go to state 11
+    '-'             shift, and go to state 12
+    '['             shift, and go to state 14
+    ']'             shift, and go to state 29
+    '('             shift, and go to state 15
+
+    number      go to state 18
+    factor      go to state 19
+    atom        go to state 20
+    atom_expr   go to state 26
+    List        go to state 22
+    List_items  go to state 30
+    add_expr    go to state 31
+    mul_expr    go to state 24
+
+
+State 15
+
+   45 mul_expr: '(' . add_expr ')'
+   46         | '(' . mul_expr ')'
+
+    ID              shift, and go to state 7
+    INT             shift, and go to state 8
+    REAL            shift, and go to state 9
+    STRING_LITERAL  shift, and go to state 10
+    '+'             shift, and go to state 11
+    '-'             shift, and go to state 12
+    '['             shift, and go to state 14
+    '('             shift, and go to state 15
+
+    number     go to state 18
+    factor     go to state 19
+    atom       go to state 20
+    atom_expr  go to state 26
+    List       go to state 22
+    add_expr   go to state 32
+    mul_expr   go to state 33
+
+
+State 16
+
+    3 Lines: Lines stat . '\n' $@1 prompt
+
+    '\n'  shift, and go to state 34
+
+
+State 17
+
+    8 stat: assignExpr .
+
+    $default  reduce using rule 8 (stat)
+
+
+State 18
+
+   19 atom: number .
+
+    $default  reduce using rule 19 (atom)
+
+
+State 19
+
+   47 mul_expr: factor .
+
+    $default  reduce using rule 47 (mul_expr)
+
+
+State 20
+
+   24 atom_expr: atom .
+
+    $default  reduce using rule 24 (atom_expr)
+
+
+State 21
+
+    9 assignExpr: atom_expr . '=' assignExpr
+   15 factor: atom_expr .
+   25 atom_expr: atom_expr . '[' sub_expr ':' sub_expr slice_op ']'
+   26          | atom_expr . '[' add_expr ']'
+   27          | atom_expr . '(' arglist opt_comma ')'
+   28          | atom_expr . '.' ID
+   29          | atom_expr . '(' ')'
+
+    '='  shift, and go to state 35
+    '['  shift, and go to state 36
+    '('  shift, and go to state 37
+    '.'  shift, and go to state 38
+
+    $default  reduce using rule 15 (factor)
+
+
+State 22
+
+   18 atom: List .
+
+    $default  reduce using rule 18 (atom)
+
+
+State 23
+
+   10 assignExpr: add_expr .
+   38 add_expr: add_expr . '+' mul_expr
+   39         | add_expr . '-' mul_expr
+
+    '+'  shift, and go to state 39
+    '-'  shift, and go to state 40
+
+    $default  reduce using rule 10 (assignExpr)
+
+
+State 24
+
+   40 add_expr: mul_expr .
+   41 mul_expr: mul_expr . '*' mul_expr
+   42         | mul_expr . '/' mul_expr
+   43         | mul_expr . DIV mul_expr
+   44         | mul_expr . '%' mul_expr
+
+    DIV  shift, and go to state 41
+    '*'  shift, and go to state 42
+    '/'  shift, and go to state 43
+    '%'  shift, and go to state 44
+
+    $default  reduce using rule 40 (add_expr)
+
+
+State 25
+
+   13 factor: '+' factor .
+
+    $default  reduce using rule 13 (factor)
+
+
+State 26
+
+   15 factor: atom_expr .
+   25 atom_expr: atom_expr . '[' sub_expr ':' sub_expr slice_op ']'
+   26          | atom_expr . '[' add_expr ']'
+   27          | atom_expr . '(' arglist opt_comma ')'
+   28          | atom_expr . '.' ID
+   29          | atom_expr . '(' ')'
+
+    '['  shift, and go to state 36
+    '('  shift, and go to state 37
+    '.'  shift, and go to state 38
+
+    $default  reduce using rule 15 (factor)
+
+
+State 27
+
+   14 factor: '-' factor .
+
+    $default  reduce using rule 14 (factor)
+
+
+State 28
+
+    4 Lines: Lines '\n' prompt .
+
+    $default  reduce using rule 4 (Lines)
+
+
+State 29
+
+   32 List: '[' ']' .
+
+    $default  reduce using rule 32 (List)
+
+
+State 30
+
+   33 List: '[' List_items . opt_comma ']'
+   37 List_items: List_items . ',' add_expr
+
+    ','  shift, and go to state 45
+
+    $default  reduce using rule 34 (opt_comma)
+
+    opt_comma  go to state 46
+
+
+State 31
+
+   36 List_items: add_expr .
+   38 add_expr: add_expr . '+' mul_expr
+   39         | add_expr . '-' mul_expr
+
+    '+'  shift, and go to state 39
+    '-'  shift, and go to state 40
+
+    $default  reduce using rule 36 (List_items)
+
+
+State 32
+
+   38 add_expr: add_expr . '+' mul_expr
+   39         | add_expr . '-' mul_expr
+   45 mul_expr: '(' add_expr . ')'
+
+    '+'  shift, and go to state 39
+    '-'  shift, and go to state 40
+    ')'  shift, and go to state 47
+
+
+State 33
+
+   40 add_expr: mul_expr .
+   41 mul_expr: mul_expr . '*' mul_expr
+   42         | mul_expr . '/' mul_expr
+   43         | mul_expr . DIV mul_expr
+   44         | mul_expr . '%' mul_expr
+   46         | '(' mul_expr . ')'
+
+    DIV  shift, and go to state 41
+    '*'  shift, and go to state 42
+    '/'  shift, and go to state 43
+    '%'  shift, and go to state 44
+    ')'  shift, and go to state 48
+
+    ')'       [reduce using rule 40 (add_expr)]
+    $default  reduce using rule 40 (add_expr)
+
+
+State 34
+
+    3 Lines: Lines stat '\n' . $@1 prompt
+
+    $default  reduce using rule 2 ($@1)
+
+    $@1  go to state 49
+
+
+State 35
+
+    9 assignExpr: atom_expr '=' . assignExpr
+
+    ID              shift, and go to state 7
+    INT             shift, and go to state 8
+    REAL            shift, and go to state 9
+    STRING_LITERAL  shift, and go to state 10
+    '+'             shift, and go to state 11
+    '-'             shift, and go to state 12
+    '['             shift, and go to state 14
+    '('             shift, and go to state 15
+
+    assignExpr  go to state 50
+    number      go to state 18
+    factor      go to state 19
+    atom        go to state 20
+    atom_expr   go to state 21
+    List        go to state 22
+    add_expr    go to state 23
+    mul_expr    go to state 24
+
+
+State 36
+
+   25 atom_expr: atom_expr '[' . sub_expr ':' sub_expr slice_op ']'
+   26          | atom_expr '[' . add_expr ']'
+
+    ID              shift, and go to state 7
+    INT             shift, and go to state 8
+    REAL            shift, and go to state 9
+    STRING_LITERAL  shift, and go to state 10
+    '+'             shift, and go to state 11
+    '-'             shift, and go to state 12
+    '['             shift, and go to state 14
+    '('             shift, and go to state 15
+
+    $default  reduce using rule 22 (sub_expr)
+
+    number     go to state 18
+    factor     go to state 19
+    atom       go to state 20
+    sub_expr   go to state 51
+    atom_expr  go to state 26
+    List       go to state 22
+    add_expr   go to state 52
+    mul_expr   go to state 24
+
+
+State 37
+
+   27 atom_expr: atom_expr '(' . arglist opt_comma ')'
+   29          | atom_expr '(' . ')'
+
+    ID              shift, and go to state 7
+    INT             shift, and go to state 8
+    REAL            shift, and go to state 9
+    STRING_LITERAL  shift, and go to state 10
+    '+'             shift, and go to state 11
+    '-'             shift, and go to state 12
+    '['             shift, and go to state 14
+    '('             shift, and go to state 15
+    ')'             shift, and go to state 53
+
+    number     go to state 18
+    factor     go to state 19
+    atom       go to state 20
+    atom_expr  go to state 26
+    arglist    go to state 54
+    List       go to state 22
+    add_expr   go to state 55
+    mul_expr   go to state 24
+
+
+State 38
+
+   28 atom_expr: atom_expr '.' . ID
+
+    ID  shift, and go to state 56
+
+
+State 39
+
+   38 add_expr: add_expr '+' . mul_expr
+
+    ID              shift, and go to state 7
+    INT             shift, and go to state 8
+    REAL            shift, and go to state 9
+    STRING_LITERAL  shift, and go to state 10
+    '+'             shift, and go to state 11
+    '-'             shift, and go to state 12
+    '['             shift, and go to state 14
+    '('             shift, and go to state 15
+
+    number     go to state 18
+    factor     go to state 19
+    atom       go to state 20
+    atom_expr  go to state 26
+    List       go to state 22
+    mul_expr   go to state 57
+
+
+State 40
+
+   39 add_expr: add_expr '-' . mul_expr
+
+    ID              shift, and go to state 7
+    INT             shift, and go to state 8
+    REAL            shift, and go to state 9
+    STRING_LITERAL  shift, and go to state 10
+    '+'             shift, and go to state 11
+    '-'             shift, and go to state 12
+    '['             shift, and go to state 14
+    '('             shift, and go to state 15
+
+    number     go to state 18
+    factor     go to state 19
+    atom       go to state 20
+    atom_expr  go to state 26
+    List       go to state 22
+    mul_expr   go to state 58
+
+
+State 41
+
+   43 mul_expr: mul_expr DIV . mul_expr
+
+    ID              shift, and go to state 7
+    INT             shift, and go to state 8
+    REAL            shift, and go to state 9
+    STRING_LITERAL  shift, and go to state 10
+    '+'             shift, and go to state 11
+    '-'             shift, and go to state 12
+    '['             shift, and go to state 14
+    '('             shift, and go to state 15
+
+    number     go to state 18
+    factor     go to state 19
+    atom       go to state 20
+    atom_expr  go to state 26
+    List       go to state 22
+    mul_expr   go to state 59
+
+
+State 42
+
+   41 mul_expr: mul_expr '*' . mul_expr
+
+    ID              shift, and go to state 7
+    INT             shift, and go to state 8
+    REAL            shift, and go to state 9
+    STRING_LITERAL  shift, and go to state 10
+    '+'             shift, and go to state 11
+    '-'             shift, and go to state 12
+    '['             shift, and go to state 14
+    '('             shift, and go to state 15
+
+    number     go to state 18
+    factor     go to state 19
+    atom       go to state 20
+    atom_expr  go to state 26
+    List       go to state 22
+    mul_expr   go to state 60
+
+
+State 43
+
+   42 mul_expr: mul_expr '/' . mul_expr
+
+    ID              shift, and go to state 7
+    INT             shift, and go to state 8
+    REAL            shift, and go to state 9
+    STRING_LITERAL  shift, and go to state 10
+    '+'             shift, and go to state 11
+    '-'             shift, and go to state 12
+    '['             shift, and go to state 14
+    '('             shift, and go to state 15
+
+    number     go to state 18
+    factor     go to state 19
+    atom       go to state 20
+    atom_expr  go to state 26
+    List       go to state 22
+    mul_expr   go to state 61
+
+
+State 44
+
+   44 mul_expr: mul_expr '%' . mul_expr
+
+    ID              shift, and go to state 7
+    INT             shift, and go to state 8
+    REAL            shift, and go to state 9
+    STRING_LITERAL  shift, and go to state 10
+    '+'             shift, and go to state 11
+    '-'             shift, and go to state 12
+    '['             shift, and go to state 14
+    '('             shift, and go to state 15
+
+    number     go to state 18
+    factor     go to state 19
+    atom       go to state 20
+    atom_expr  go to state 26
+    List       go to state 22
+    mul_expr   go to state 62
+
+
+State 45
+
+   35 opt_comma: ',' .
+   37 List_items: List_items ',' . add_expr
+
+    ID              shift, and go to state 7
+    INT             shift, and go to state 8
+    REAL            shift, and go to state 9
+    STRING_LITERAL  shift, and go to state 10
+    '+'             shift, and go to state 11
+    '-'             shift, and go to state 12
+    '['             shift, and go to state 14
+    '('             shift, and go to state 15
+
+    $default  reduce using rule 35 (opt_comma)
+
+    number     go to state 18
+    factor     go to state 19
+    atom       go to state 20
+    atom_expr  go to state 26
+    List       go to state 22
+    add_expr   go to state 63
+    mul_expr   go to state 24
+
+
+State 46
+
+   33 List: '[' List_items opt_comma . ']'
+
+    ']'  shift, and go to state 64
+
+
+State 47
+
+   45 mul_expr: '(' add_expr ')' .
+
+    $default  reduce using rule 45 (mul_expr)
+
+
+State 48
+
+   46 mul_expr: '(' mul_expr ')' .
+
+    $default  reduce using rule 46 (mul_expr)
+
+
+State 49
+
+    3 Lines: Lines stat '\n' $@1 . prompt
+
+    $default  reduce using rule 7 (prompt)
+
+    prompt  go to state 65
+
+
+State 50
+
+    9 assignExpr: atom_expr '=' assignExpr .
+
+    $default  reduce using rule 9 (assignExpr)
+
+
+State 51
+
+   25 atom_expr: atom_expr '[' sub_expr . ':' sub_expr slice_op ']'
+
+    ':'  shift, and go to state 66
+
+
+State 52
+
+   23 sub_expr: add_expr .
+   26 atom_expr: atom_expr '[' add_expr . ']'
+   38 add_expr: add_expr . '+' mul_expr
+   39         | add_expr . '-' mul_expr
+
+    '+'  shift, and go to state 39
+    '-'  shift, and go to state 40
+    ']'  shift, and go to state 67
+
+    $default  reduce using rule 23 (sub_expr)
+
+
+State 53
+
+   29 atom_expr: atom_expr '(' ')' .
+
+    $default  reduce using rule 29 (atom_expr)
+
+
+State 54
+
+   27 atom_expr: atom_expr '(' arglist . opt_comma ')'
+   31 arglist: arglist . ',' add_expr
+
+    ','  shift, and go to state 68
+
+    $default  reduce using rule 34 (opt_comma)
+
+    opt_comma  go to state 69
+
+
+State 55
+
+   30 arglist: add_expr .
+   38 add_expr: add_expr . '+' mul_expr
+   39         | add_expr . '-' mul_expr
+
+    '+'  shift, and go to state 39
+    '-'  shift, and go to state 40
+
+    $default  reduce using rule 30 (arglist)
+
+
+State 56
+
+   28 atom_expr: atom_expr '.' ID .
+
+    $default  reduce using rule 28 (atom_expr)
+
+
+State 57
+
+   38 add_expr: add_expr '+' mul_expr .
+   41 mul_expr: mul_expr . '*' mul_expr
+   42         | mul_expr . '/' mul_expr
+   43         | mul_expr . DIV mul_expr
+   44         | mul_expr . '%' mul_expr
+
+    DIV  shift, and go to state 41
+    '*'  shift, and go to state 42
+    '/'  shift, and go to state 43
+    '%'  shift, and go to state 44
+
+    $default  reduce using rule 38 (add_expr)
+
+
+State 58
+
+   39 add_expr: add_expr '-' mul_expr .
+   41 mul_expr: mul_expr . '*' mul_expr
+   42         | mul_expr . '/' mul_expr
+   43         | mul_expr . DIV mul_expr
+   44         | mul_expr . '%' mul_expr
+
+    DIV  shift, and go to state 41
+    '*'  shift, and go to state 42
+    '/'  shift, and go to state 43
+    '%'  shift, and go to state 44
+
+    $default  reduce using rule 39 (add_expr)
+
+
+State 59
+
+   41 mul_expr: mul_expr . '*' mul_expr
+   42         | mul_expr . '/' mul_expr
+   43         | mul_expr . DIV mul_expr
+   43         | mul_expr DIV mul_expr .
+   44         | mul_expr . '%' mul_expr
+
+    $default  reduce using rule 43 (mul_expr)
+
+
+State 60
+
+   41 mul_expr: mul_expr . '*' mul_expr
+   41         | mul_expr '*' mul_expr .
+   42         | mul_expr . '/' mul_expr
+   43         | mul_expr . DIV mul_expr
+   44         | mul_expr . '%' mul_expr
+
+    $default  reduce using rule 41 (mul_expr)
+
+
+State 61
+
+   41 mul_expr: mul_expr . '*' mul_expr
+   42         | mul_expr . '/' mul_expr
+   42         | mul_expr '/' mul_expr .
+   43         | mul_expr . DIV mul_expr
+   44         | mul_expr . '%' mul_expr
+
+    $default  reduce using rule 42 (mul_expr)
+
+
+State 62
+
+   41 mul_expr: mul_expr . '*' mul_expr
+   42         | mul_expr . '/' mul_expr
+   43         | mul_expr . DIV mul_expr
+   44         | mul_expr . '%' mul_expr
+   44         | mul_expr '%' mul_expr .
+
+    $default  reduce using rule 44 (mul_expr)
+
+
+State 63
+
+   37 List_items: List_items ',' add_expr .
+   38 add_expr: add_expr . '+' mul_expr
+   39         | add_expr . '-' mul_expr
+
+    '+'  shift, and go to state 39
+    '-'  shift, and go to state 40
+
+    $default  reduce using rule 37 (List_items)
+
+
+State 64
+
+   33 List: '[' List_items opt_comma ']' .
+
+    $default  reduce using rule 33 (List)
+
+
+State 65
+
+    3 Lines: Lines stat '\n' $@1 prompt .
+
+    $default  reduce using rule 3 (Lines)
+
+
+State 66
+
+   25 atom_expr: atom_expr '[' sub_expr ':' . sub_expr slice_op ']'
+
+    ID              shift, and go to state 7
+    INT             shift, and go to state 8
+    REAL            shift, and go to state 9
+    STRING_LITERAL  shift, and go to state 10
+    '+'             shift, and go to state 11
+    '-'             shift, and go to state 12
+    '['             shift, and go to state 14
+    '('             shift, and go to state 15
+
+    $default  reduce using rule 22 (sub_expr)
+
+    number     go to state 18
+    factor     go to state 19
+    atom       go to state 20
+    sub_expr   go to state 70
+    atom_expr  go to state 26
+    List       go to state 22
+    add_expr   go to state 71
+    mul_expr   go to state 24
+
+
+State 67
+
+   26 atom_expr: atom_expr '[' add_expr ']' .
+
+    $default  reduce using rule 26 (atom_expr)
+
+
+State 68
+
+   31 arglist: arglist ',' . add_expr
+   35 opt_comma: ',' .
+
+    ID              shift, and go to state 7
+    INT             shift, and go to state 8
+    REAL            shift, and go to state 9
+    STRING_LITERAL  shift, and go to state 10
+    '+'             shift, and go to state 11
+    '-'             shift, and go to state 12
+    '['             shift, and go to state 14
+    '('             shift, and go to state 15
+
+    $default  reduce using rule 35 (opt_comma)
+
+    number     go to state 18
+    factor     go to state 19
+    atom       go to state 20
+    atom_expr  go to state 26
+    List       go to state 22
+    add_expr   go to state 72
+    mul_expr   go to state 24
+
+
+State 69
+
+   27 atom_expr: atom_expr '(' arglist opt_comma . ')'
+
+    ')'  shift, and go to state 73
+
+
+State 70
+
+   25 atom_expr: atom_expr '[' sub_expr ':' sub_expr . slice_op ']'
+
+    ':'  shift, and go to state 74
+
+    $default  reduce using rule 20 (slice_op)
+
+    slice_op  go to state 75
+
+
+State 71
+
+   23 sub_expr: add_expr .
+   38 add_expr: add_expr . '+' mul_expr
+   39         | add_expr . '-' mul_expr
+
+    '+'  shift, and go to state 39
+    '-'  shift, and go to state 40
+
+    $default  reduce using rule 23 (sub_expr)
+
+
+State 72
+
+   31 arglist: arglist ',' add_expr .
+   38 add_expr: add_expr . '+' mul_expr
+   39         | add_expr . '-' mul_expr
+
+    '+'  shift, and go to state 39
+    '-'  shift, and go to state 40
+
+    $default  reduce using rule 31 (arglist)
+
+
+State 73
+
+   27 atom_expr: atom_expr '(' arglist opt_comma ')' .
+
+    $default  reduce using rule 27 (atom_expr)
+
+
+State 74
+
+   21 slice_op: ':' . add_expr
+
+    ID              shift, and go to state 7
+    INT             shift, and go to state 8
+    REAL            shift, and go to state 9
+    STRING_LITERAL  shift, and go to state 10
+    '+'             shift, and go to state 11
+    '-'             shift, and go to state 12
+    '['             shift, and go to state 14
+    '('             shift, and go to state 15
+
+    number     go to state 18
+    factor     go to state 19
+    atom       go to state 20
+    atom_expr  go to state 26
+    List       go to state 22
+    add_expr   go to state 76
+    mul_expr   go to state 24
+
+
+State 75
+
+   25 atom_expr: atom_expr '[' sub_expr ':' sub_expr slice_op . ']'
+
+    ']'  shift, and go to state 77
+
+
+State 76
+
+   21 slice_op: ':' add_expr .
+   38 add_expr: add_expr . '+' mul_expr
+   39         | add_expr . '-' mul_expr
+
+    '+'  shift, and go to state 39
+    '-'  shift, and go to state 40
+
+    $default  reduce using rule 21 (slice_op)
+
+
+State 77
+
+   25 atom_expr: atom_expr '[' sub_expr ':' sub_expr slice_op ']' .
+
+    $default  reduce using rule 25 (atom_expr)

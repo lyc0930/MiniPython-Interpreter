@@ -80,9 +80,14 @@
         Type type;
         int integerValue;               /* value for int type */
         double realValue;               /* value for real type */
-        string stringValue;             /* value for string type */
+        string stringValue;             /* value for string type 或 方法 函数名称*/
         vector<struct value> listValue; /* value for list type */
         string variableName;            /* name of the Variable */
+
+        // slice or item of List
+        vector<struct value>::iterator begin; // slice 起始位置 或 item 坐标
+        vector<struct value>::iterator end;
+        int step;
     } Value;
 
     /*
@@ -93,13 +98,13 @@
 
     #define YYSTYPE Value
     #include "lex.yy.c"
-    void yyerror(char*);
+    void yyerror(string);
 
     // 变量值的输出函数
     void Print(Value);
 
 
-#line 103 "y.tab.c" /* yacc.c:339  */
+#line 108 "y.tab.c" /* yacc.c:339  */
 
 # ifndef YY_NULLPTR
 #  if defined __cplusplus && 201103L <= __cplusplus
@@ -166,7 +171,7 @@ int yyparse (void);
 
 /* Copy the second part of user declarations.  */
 
-#line 170 "y.tab.c" /* yacc.c:358  */
+#line 175 "y.tab.c" /* yacc.c:358  */
 
 #ifdef short
 # undef short
@@ -435,7 +440,7 @@ static const yytype_uint8 yytranslate[] =
       14,     2,     2,     2,     2,     2,     2,     2,     2,     2,
        2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
        2,     2,     2,     2,     2,     2,     2,    12,     2,     2,
-      20,    21,    10,     8,    22,     9,    19,    11,     2,     2,
+      19,    20,    10,     8,    22,     9,    21,    11,     2,     2,
        2,     2,     2,     2,     2,     2,     2,     2,    16,     2,
        2,    15,     2,     2,     2,     2,     2,     2,     2,     2,
        2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
@@ -464,11 +469,11 @@ static const yytype_uint8 yytranslate[] =
   /* YYRLINE[YYN] -- Source line where rule number YYN was defined.  */
 static const yytype_uint16 yyrline[] =
 {
-       0,    46,    46,    51,    50,    63,    63,    65,    70,    74,
-      78,    86,    90,    91,    95,    97,   105,   124,   125,   126,
-     127,   130,   132,   135,   137,   141,   142,   143,   144,   145,
-     146,   150,   151,   155,   160,   167,   169,   173,   178,   187,
-     268,   304,   308,   374,   384,   395,   418,   419,   420
+       0,    51,    51,    56,    55,    68,    68,    70,    75,    79,
+      83,   111,   115,   116,   120,   122,   130,   158,   159,   160,
+     161,   166,   169,   180,   183,   187,   188,   420,   463,   532,
+     538,   546,   551,   560,   565,   572,   574,   578,   583,   592,
+     673,   709,   713,   779,   789,   800,   823,   824,   825
 };
 #endif
 
@@ -479,7 +484,7 @@ static const char *const yytname[] =
 {
   "$end", "error", "$undefined", "ID", "INT", "REAL", "STRING_LITERAL",
   "DIV", "'+'", "'-'", "'*'", "'/'", "'%'", "UMINUS", "'\\n'", "'='",
-  "':'", "'['", "']'", "'.'", "'('", "')'", "','", "$accept", "Start",
+  "':'", "'['", "']'", "'('", "')'", "'.'", "','", "$accept", "Start",
   "Lines", "$@1", "prompt", "stat", "assignExpr", "number", "factor",
   "atom", "slice_op", "sub_expr", "atom_expr", "arglist", "List",
   "opt_comma", "List_items", "add_expr", "mul_expr", YY_NULLPTR
@@ -492,8 +497,8 @@ static const char *const yytname[] =
 static const yytype_uint16 yytoknum[] =
 {
        0,   256,   257,   258,   259,   260,   261,   262,    43,    45,
-      42,    47,    37,   263,    10,    61,    58,    91,    93,    46,
-      40,    41,    44
+      42,    47,    37,   263,    10,    61,    58,    91,    93,    40,
+      41,    46,    44
 };
 # endif
 
@@ -511,14 +516,14 @@ static const yytype_uint16 yytoknum[] =
      STATE-NUM.  */
 static const yytype_int8 yypact[] =
 {
-     -15,    20,    58,   -15,    -6,    65,   -15,   -15,   -15,   -15,
-     -15,    90,    90,   -15,     1,    83,     9,   -15,   -15,   -15,
-     -15,    36,   -15,    18,    98,   -15,    64,   -15,   -15,   -15,
-      12,    18,    93,    25,   -15,    83,    83,    27,     8,    83,
-      83,    83,    83,    83,    83,    83,    47,   -15,   -15,   -15,
-     -15,    29,    39,   -15,   -15,    54,    18,    98,    98,   -15,
-     -15,   -15,   -15,    18,   -15,   -15,    83,   -15,    83,    56,
-      74,    18,    18,   -15,    83,    62,    18,   -15
+     -15,    19,    58,   -15,    -6,    65,   -15,   -15,   -15,   -15,
+     -15,    89,    89,   -15,     8,    82,    10,   -15,   -15,   -15,
+     -15,    34,   -15,    20,    97,   -15,    59,   -15,   -15,   -15,
+      12,    20,    94,    25,   -15,    82,    82,     1,    27,    82,
+      82,    82,    82,    82,    82,    82,    30,   -15,   -15,   -15,
+     -15,    41,    38,   -15,    28,    20,   -15,    97,    97,   -15,
+     -15,   -15,   -15,    20,   -15,   -15,    82,   -15,    82,    45,
+      67,    20,    20,   -15,    82,    63,    20,   -15
 };
 
   /* YYDEFACT[STATE-NUM] -- Default reduction number in state STATE-NUM.
@@ -531,23 +536,23 @@ static const yytype_uint8 yydefact[] =
       25,    16,    19,    11,    41,    14,    16,    15,     5,    33,
       35,    37,     0,    41,     3,     0,    23,     0,     0,     0,
        0,     0,     0,     0,     0,    36,     0,    46,    47,     8,
-      10,     0,    24,    28,    30,    35,    31,    39,    40,    44,
+      10,     0,    24,    30,    35,    31,    29,    39,    40,    44,
       42,    43,    45,    38,    34,     4,    23,    27,    36,     0,
-      21,    24,    32,    29,     0,     0,    22,    26
+      21,    24,    32,    28,     0,     0,    22,    26
 };
 
   /* YYPGOTO[NTERM-NUM].  */
 static const yytype_int8 yypgoto[] =
 {
-     -15,   -15,   -15,   -15,   -11,   -15,    69,   -15,    38,   -15,
-     -15,    31,    -2,   -15,   -15,    51,   -15,   -14,     0
+     -15,   -15,   -15,   -15,   -11,   -15,    54,   -15,    99,   -15,
+     -15,    39,    -2,   -15,   -15,    42,   -15,   -14,     0
 };
 
   /* YYDEFGOTO[NTERM-NUM].  */
 static const yytype_int8 yydefgoto[] =
 {
       -1,     1,     5,    49,     2,    16,    17,    18,    19,    20,
-      75,    51,    26,    55,    22,    46,    30,    23,    24
+      75,    51,    26,    54,    22,    46,    30,    23,    24
 };
 
   /* YYTABLE[YYPACT[STATE-NUM]] -- What to do in state STATE-NUM.  If
@@ -556,33 +561,33 @@ static const yytype_int8 yydefgoto[] =
 static const yytype_int8 yytable[] =
 {
       31,    32,    28,    21,     7,     8,     9,    10,     6,    11,
-      12,     7,     8,     9,    10,    33,    11,    12,    14,    29,
-       3,    15,    52,    34,    56,    14,    39,    40,    15,    54,
-      53,    63,    41,    21,    45,    42,    43,    44,    65,    57,
-      58,    59,    60,    61,    62,    66,    48,    39,    40,    25,
-      27,    35,    71,    36,    72,    37,    38,    67,    -6,     4,
-      76,    -6,    -6,    -6,    -6,    64,    -6,    -6,     7,     8,
-       9,    10,    -6,    11,    12,    -6,    68,    73,    -6,    13,
-      77,    36,    14,    37,    38,    15,     7,     8,     9,    10,
-      74,    11,    12,     7,     8,     9,    10,    70,    11,    12,
-      14,    39,    40,    15,    50,    41,    69,    14,    42,    43,
-      44,     0,     0,     0,    47
+      12,     7,     8,     9,    10,    33,    11,    12,    14,     3,
+      15,    53,    52,    55,    34,    14,    29,    15,    39,    40,
+      56,    63,    41,    21,    45,    42,    43,    44,    65,    57,
+      58,    59,    60,    61,    62,    48,    39,    40,    64,    35,
+      68,    36,    71,    37,    72,    38,    67,    66,    -6,     4,
+      76,    -6,    -6,    -6,    -6,    73,    -6,    -6,     7,     8,
+       9,    10,    -6,    11,    12,    -6,    36,    -6,    37,    13,
+      38,    77,    14,    74,    15,     7,     8,     9,    10,    50,
+      11,    12,     7,     8,     9,    10,    69,    11,    12,    14,
+       0,    15,    39,    40,    41,    70,    14,    42,    43,    44,
+      25,    27,     0,     0,    47
 };
 
 static const yytype_int8 yycheck[] =
 {
       14,    15,    13,     5,     3,     4,     5,     6,    14,     8,
-       9,     3,     4,     5,     6,    15,     8,     9,    17,    18,
-       0,    20,    36,    14,    38,    17,     8,     9,    20,    21,
+       9,     3,     4,     5,     6,    15,     8,     9,    17,     0,
+      19,    20,    36,    37,    14,    17,    18,    19,     8,     9,
        3,    45,     7,    35,    22,    10,    11,    12,    49,    39,
-      40,    41,    42,    43,    44,    16,    21,     8,     9,    11,
-      12,    15,    66,    17,    68,    19,    20,    18,     0,     1,
-      74,     3,     4,     5,     6,    18,     8,     9,     3,     4,
-       5,     6,    14,     8,     9,    17,    22,    21,    20,    14,
-      18,    17,    17,    19,    20,    20,     3,     4,     5,     6,
-      16,     8,     9,     3,     4,     5,     6,    66,     8,     9,
-      17,     8,     9,    20,    35,     7,    55,    17,    10,    11,
-      12,    -1,    -1,    -1,    21
+      40,    41,    42,    43,    44,    20,     8,     9,    18,    15,
+      22,    17,    66,    19,    68,    21,    18,    16,     0,     1,
+      74,     3,     4,     5,     6,    20,     8,     9,     3,     4,
+       5,     6,    14,     8,     9,    17,    17,    19,    19,    14,
+      21,    18,    17,    16,    19,     3,     4,     5,     6,    35,
+       8,     9,     3,     4,     5,     6,    54,     8,     9,    17,
+      -1,    19,     8,     9,     7,    66,    17,    10,    11,    12,
+      11,    12,    -1,    -1,    20
 };
 
   /* YYSTOS[STATE-NUM] -- The (internal number of the) accessing
@@ -590,13 +595,13 @@ static const yytype_int8 yycheck[] =
 static const yytype_uint8 yystos[] =
 {
        0,    24,    27,     0,     1,    25,    14,     3,     4,     5,
-       6,     8,     9,    14,    17,    20,    28,    29,    30,    31,
+       6,     8,     9,    14,    17,    19,    28,    29,    30,    31,
       32,    35,    37,    40,    41,    31,    35,    31,    27,    18,
-      39,    40,    40,    41,    14,    15,    17,    19,    20,     8,
-       9,     7,    10,    11,    12,    22,    38,    21,    21,    26,
-      29,    34,    40,     3,    21,    36,    40,    41,    41,    41,
+      39,    40,    40,    41,    14,    15,    17,    19,    21,     8,
+       9,     7,    10,    11,    12,    22,    38,    20,    20,    26,
+      29,    34,    40,    20,    36,    40,     3,    41,    41,    41,
       41,    41,    41,    40,    18,    27,    16,    18,    22,    38,
-      34,    40,    40,    21,    16,    33,    40,    18
+      34,    40,    40,    20,    16,    33,    40,    18
 };
 
   /* YYR1[YYN] -- Symbol number of symbol that rule YYN derives.  */
@@ -614,7 +619,7 @@ static const yytype_uint8 yyr2[] =
 {
        0,     2,     2,     0,     5,     3,     0,     2,     0,     1,
        3,     1,     1,     1,     2,     2,     1,     1,     1,     1,
-       1,     0,     2,     0,     1,     1,     7,     4,     3,     5,
+       1,     0,     2,     0,     1,     1,     7,     4,     5,     3,
        3,     1,     3,     2,     4,     0,     1,     1,     3,     3,
        3,     1,     3,     3,     3,     3,     3,     3,     1
 };
@@ -1293,7 +1298,7 @@ yyreduce:
   switch (yyn)
     {
         case 3:
-#line 51 "minipy-lab.y" /* yacc.c:1646  */
+#line 56 "minipy-lab.y" /* yacc.c:1646  */
     {
             Value temp;
             if ((yyvsp[-1]).type != None)
@@ -1305,53 +1310,61 @@ yyreduce:
                 cout << endl;
             }
         }
-#line 1309 "y.tab.c" /* yacc.c:1646  */
+#line 1314 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 7:
-#line 66 "minipy-lab.y" /* yacc.c:1646  */
+#line 71 "minipy-lab.y" /* yacc.c:1646  */
     { yyerrok; }
-#line 1315 "y.tab.c" /* yacc.c:1646  */
+#line 1320 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 8:
-#line 70 "minipy-lab.y" /* yacc.c:1646  */
+#line 75 "minipy-lab.y" /* yacc.c:1646  */
     { cout << "miniPy> "; }
-#line 1321 "y.tab.c" /* yacc.c:1646  */
+#line 1326 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 10:
-#line 79 "minipy-lab.y" /* yacc.c:1646  */
+#line 84 "minipy-lab.y" /* yacc.c:1646  */
     {
-        if ((yyvsp[-2]).type == Variable)
-        {
-            Symbol[(yyvsp[-2]).variableName] = (yyvsp[0]); /* 加入符号表 */
+            (yyval).type = None;
+            switch ((yyvsp[-2]).type)
+            {
+                case Variable:
+                    Symbol[(yyvsp[-2]).variableName] = (yyvsp[0]); /* 加入符号表或重新赋值 */
+                    break;
+                case ListItem:
+                    *(yyvsp[-2]).begin = (yyvsp[0]);
+                    break;
+                case ListSlice:
+                    switch ((yyvsp[0]).type)
+                    {
+                        case List:
+                            Symbol[(yyvsp[-2]).variableName].listValue.erase((yyvsp[-2]).begin, (yyvsp[-2]).end);
+                            Symbol[(yyvsp[-2]).variableName].listValue.insert((yyvsp[-2]).begin + 1, (yyvsp[0]).listValue.begin(), (yyvsp[0]).listValue.end()); // 插入
+                            break;
+                        case ListSlice:
+                            Symbol[(yyvsp[-2]).variableName].listValue.erase((yyvsp[-2]).begin, (yyvsp[-2]).end);
+                            Symbol[(yyvsp[-2]).variableName].listValue.insert((yyvsp[-2]).begin + 1, (yyvsp[0]).begin, (yyvsp[0]).end); // 插入
+                            break;
+                        // default: yyerror(); // TODO @NXH ，只能给切片赋切片或者列表
+                    }
+                    break;
+                // default: yyerror(); // TODO @NXH ， only subscriptable type here
+            }
         }
-        (yyval).type = None;
-    }
-#line 1333 "y.tab.c" /* yacc.c:1646  */
-    break;
-
-  case 12:
-#line 90 "minipy-lab.y" /* yacc.c:1646  */
-    { (yyval) = (yyvsp[0]);}
-#line 1339 "y.tab.c" /* yacc.c:1646  */
-    break;
-
-  case 13:
-#line 91 "minipy-lab.y" /* yacc.c:1646  */
-    { (yyval) = (yyvsp[0]);}
-#line 1345 "y.tab.c" /* yacc.c:1646  */
+#line 1358 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 14:
-#line 96 "minipy-lab.y" /* yacc.c:1646  */
+#line 121 "minipy-lab.y" /* yacc.c:1646  */
     { (yyval) = (yyvsp[0]); }
-#line 1351 "y.tab.c" /* yacc.c:1646  */
+#line 1364 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 15:
-#line 98 "minipy-lab.y" /* yacc.c:1646  */
+#line 123 "minipy-lab.y" /* yacc.c:1646  */
     {
             (yyval).type = (yyvsp[0]).type;
             if ((yyvsp[0]).type == Integer)
@@ -1359,68 +1372,498 @@ yyreduce:
             else if ((yyvsp[0]).type == Real)
                 (yyval).realValue = -(yyvsp[0]).realValue;
         }
-#line 1363 "y.tab.c" /* yacc.c:1646  */
+#line 1376 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 16:
-#line 106 "minipy-lab.y" /* yacc.c:1646  */
+#line 131 "minipy-lab.y" /* yacc.c:1646  */
     {
-            if ((yyvsp[0]).type == Variable) // atom 是变量
+            switch ((yyvsp[0]).type)
             {
-                if (Symbol.count((yyvsp[0]).variableName) == 1) // 已在变量表内
-                    (yyval) = Symbol.at((yyvsp[0]).variableName); // 取变量内容，使用下标检查
-                else
+                case Integer:
+                case Real:
+                case String:
+                    (yyval) = (yyvsp[0]);
+                    break;
+                case Variable:
+                    if (Symbol.count((yyvsp[0]).variableName) == 1) // 已在变量表内
+                        (yyval) = Symbol.at((yyvsp[0]).variableName); // 取变量内容，使用下标检查
+                    else
+                    {
+                        (yyval).type = None; // 不输出变量内容，也确实没有可以输出的
+                        // TODO @NXH 把这里的错误信息处理好
+                        // yyerror("Traceback (most recent call last):\n\tFile \"<stdin>\", line 1, in <module>\nNameError: name "+ $1.variableName +" is not defined  ");
+                    }
+                    break;
+                case ListItem:
+                    (yyval) = *(yyvsp[0]).begin;
+                    break;
+                // default: yyerror(); // TODO @NXH ， only subscriptable type here
+            }
+        }
+#line 1405 "y.tab.c" /* yacc.c:1646  */
+    break;
+
+  case 21:
+#line 166 "minipy-lab.y" /* yacc.c:1646  */
+    {
+            (yyval).type = None;
+        }
+#line 1413 "y.tab.c" /* yacc.c:1646  */
+    break;
+
+  case 22:
+#line 170 "minipy-lab.y" /* yacc.c:1646  */
+    {
+            (yyval).type = Integer;
+            if ((yyvsp[0]).type == Integer)
+                (yyval).integerValue = (yyvsp[0]).integerValue;
+            // yyerror(); // TODO @NXH ， int
+        }
+#line 1424 "y.tab.c" /* yacc.c:1646  */
+    break;
+
+  case 23:
+#line 180 "minipy-lab.y" /* yacc.c:1646  */
+    {
+            (yyval).type = None;
+        }
+#line 1432 "y.tab.c" /* yacc.c:1646  */
+    break;
+
+  case 26:
+#line 189 "minipy-lab.y" /* yacc.c:1646  */
+    {
+            int begin, end, step;
+
+            if ((yyvsp[-1]).type == None) // 默认步长
+                step = 1;
+            else if ((yyvsp[-1]).type == Integer)
+                step = (yyvsp[-1]).integerValue;
+            else
+            {
+                // yyerror(); // TODO @NXH ， int or none
+            }
+
+            switch ((yyvsp[-6]).type)
+            {
+                case String:
+                    (yyval).type = String;
+                    (yyval).stringValue = "";
+
+                    if (step > 0)
+                    {
+                        if ((yyvsp[-4]).type == None) // 默认起始
+                            begin = 0;
+                        else if ((yyvsp[-4]).type == Integer)
+                            begin = (yyvsp[-4]).integerValue;
+                        else
+                        {
+                            // yyerror(); // TODO @NXH ， int or none
+                        }
+
+                        if ((yyvsp[-2]).type == None) // 默认结束
+                            end = (yyvsp[-6]).stringValue.length();
+                        else if ((yyvsp[-2]).type == Integer)
+                            end = (yyvsp[-2]).integerValue;
+                        else
+                        {
+                            // yyerror(); // TODO @NXH ， int or none
+                        }
+
+                        for (int i = begin; i < end; i += step)
+                            (yyval).stringValue += (yyvsp[-6]).stringValue[i]; // 逐个取子串
+                    }
+                    else if (step < 0) // 负步长
+                    {
+                        if ((yyvsp[-4]).type == None) // 默认起始
+                            begin = (yyvsp[-6]).stringValue.length() - 1;
+                        else if ((yyvsp[-4]).type == Integer)
+                            begin = (yyvsp[-4]).integerValue;
+                        else
+                        {
+                            // yyerror(); // TODO @NXH ， int or none
+                        }
+
+                        if ((yyvsp[-2]).type == None) // 默认结束
+                            end = -1;
+                        else if ((yyvsp[-2]).type == Integer)
+                            end = (yyvsp[-2]).integerValue;
+                        else
+                        {
+                            // yyerror(); // TODO @NXH ， int or none
+                        }
+
+                        for (int i = begin; i > end; i += step)
+                            (yyval).stringValue += (yyvsp[-6]).stringValue[i]; // 逐个取子串
+                    }
+                    break;
+                case List:
+                    (yyval).type = List; // 列表元素类型
+                    (yyval).listValue = vector<struct value>();
+                    if (step > 0)
+                    {
+                        if ((yyvsp[-4]).type == None) // 默认起始
+                            begin = 0;
+                        else if ((yyvsp[-4]).type == Integer)
+                            begin = (yyvsp[-4]).integerValue;
+                        else
+                        {
+                            // yyerror(); // TODO @NXH ， int or none
+                        }
+
+                        if ((yyvsp[-2]).type == None) // 默认结束
+                            end = (yyvsp[-6]).listValue.size();
+                        else if ((yyvsp[-2]).type == Integer)
+                            end = (yyvsp[-2]).integerValue;
+                        else
+                        {
+                            // yyerror(); // TODO @NXH ， int or none
+                        }
+
+                        for (vector<struct value>::iterator i = (yyvsp[-6]).listValue.begin() + begin; i != (yyvsp[-6]).listValue.begin() + end; i += step)
+                            (yyval).listValue.push_back(*i); // 逐个取子串
+                    }
+                    else if (step < 0)
+                    {
+                        if ((yyvsp[-4]).type == None) // 默认起始
+                            begin = (yyvsp[-6]).listValue.size() - 1;
+                        else if ((yyvsp[-4]).type == Integer)
+                            begin = (yyvsp[-4]).integerValue;
+                        else
+                        {
+                            // yyerror(); // TODO @NXH ， int or none
+                        }
+
+                        if ((yyvsp[-2]).type == None) // 默认结束
+                            end = -1;
+                        else if ((yyvsp[-2]).type == Integer)
+                            end = (yyvsp[-2]).integerValue;
+                        else
+                        {
+                            // yyerror(); // TODO @NXH ， int or none
+                        }
+
+                        for (vector<struct value>::iterator i = (yyvsp[-6]).listValue.begin() + begin; i != (yyvsp[-6]).listValue.begin() + end; i += step)
+                            (yyval).listValue.push_back(*i); // 逐个取子串
+                    }
+                    break;
+                case Variable:
+                    if ((Symbol.count((yyvsp[-6]).variableName) == 1)) // 已在变量表内
+                    {
+                        switch (Symbol.at((yyvsp[-6]).variableName).type)
+                        {
+                            case String:
+                                (yyval).type = String;
+                                (yyval).stringValue = "";
+
+                                if (step > 0)
+                                {
+                                    if ((yyvsp[-4]).type == None) // 默认起始
+                                        begin = 0;
+                                    else if ((yyvsp[-4]).type == Integer)
+                                        begin = (yyvsp[-4]).integerValue;
+                                    else
+                                    {
+                                        // yyerror(); // TODO @NXH ， int or none
+                                    }
+
+                                    if ((yyvsp[-2]).type == None) // 默认结束
+                                        end = Symbol.at((yyvsp[-6]).variableName).stringValue.length();
+                                    else if ((yyvsp[-2]).type == Integer)
+                                        end = (yyvsp[-2]).integerValue;
+                                    else
+                                    {
+                                        // yyerror(); // TODO @NXH ， int or none
+                                    }
+                                    for (int i = begin; i < end; i += step)
+                                        (yyval).stringValue += Symbol.at((yyvsp[-6]).variableName).stringValue[i]; // 逐个取子串
+                                }
+                                else if (step < 0) // 负步长
+                                {
+                                    if ((yyvsp[-4]).type == None) // 默认起始
+                                        begin = Symbol.at((yyvsp[-6]).variableName).stringValue.length() - 1;
+                                    else if ((yyvsp[-4]).type == Integer)
+                                        begin = (yyvsp[-4]).integerValue;
+                                    else
+                                    {
+                                        // yyerror(); // TODO @NXH ， int or none
+                                    }
+
+                                    if ((yyvsp[-2]).type == None) // 默认结束
+                                        end = -1;
+                                    else if ((yyvsp[-2]).type == Integer)
+                                        end = (yyvsp[-2]).integerValue;
+                                    else
+                                    {
+                                        // yyerror(); // TODO @NXH ， int or none
+                                    }
+
+                                    for (int i = begin; i > end; i += step)
+                                        (yyval).stringValue += Symbol.at((yyvsp[-6]).variableName).stringValue[i]; // 逐个取子串
+                                }
+                                break;
+                            case List:
+                                (yyval).type = ListSlice; // 列表元素类型
+                                (yyval).variableName = (yyvsp[-6]).variableName;
+                                (yyval).listValue = vector<struct value>();
+                                if (step > 0)
+                                {
+                                    if ((yyvsp[-4]).type == None) // 默认起始
+                                        (yyval).begin = Symbol.at((yyvsp[-6]).variableName).listValue.begin();
+                                    else if ((yyvsp[-4]).type == Integer)
+                                        (yyval).begin = Symbol.at((yyvsp[-6]).variableName).listValue.begin() + (yyvsp[-4]).integerValue;
+                                    else
+                                    {
+                                        // yyerror(); // TODO @NXH ， int or none
+                                    }
+
+                                    if ((yyvsp[-2]).type == None) // 默认结束
+                                        (yyval).end = Symbol.at((yyvsp[-6]).variableName).listValue.end();
+                                    else if ((yyvsp[-2]).type == Integer)
+                                        (yyval).end = Symbol.at((yyvsp[-6]).variableName).listValue.begin() + (yyvsp[-2]).integerValue;
+                                    else
+                                    {
+                                        // yyerror(); // TODO @NXH ， int or none
+                                    }
+                                    for (vector<struct value>::iterator i = (yyval).begin; i != (yyval).end; i += step)
+                                        (yyval).listValue.push_back(*i); // 逐个取子串
+                                }
+                                else if (step < 0)
+                                {
+                                    if ((yyvsp[-4]).type == None) // 默认起始
+                                        (yyval).begin = Symbol.at((yyvsp[-6]).variableName).listValue.end() - 1;
+                                    else if ((yyvsp[-4]).type == Integer)
+                                        (yyval).begin = Symbol.at((yyvsp[-6]).variableName).listValue.begin() + (yyvsp[-4]).integerValue;
+                                    else
+                                    {
+                                        // yyerror(); // TODO @NXH ， int or none
+                                    }
+
+                                    if ((yyvsp[-2]).type == None) // 默认结束
+                                        (yyval).end = Symbol.at((yyvsp[-6]).variableName).listValue.begin() - 1;
+                                    else if ((yyvsp[-2]).type == Integer)
+                                        (yyval).end = Symbol.at((yyvsp[-6]).variableName).listValue.begin() + (yyvsp[-2]).integerValue;
+                                    else
+                                    {
+                                        // yyerror(); // TODO @NXH ， int or none
+                                    }
+
+                                    for (vector<struct value>::iterator i = (yyval).begin; i != (yyval).end; i += step)
+                                        (yyval).listValue.push_back(*i); // 逐个取子串
+                                }
+                                break;
+                            // default: yyerror(); // TODO @NXH ， only subscriptable type here
+                        }
+                    }
+                    else
+                    {
+                        // yyerror(); // TODO @NXH ， only subscriptable type here
+                    }
+                    break;
+                // default: yyerror(); // TODO @NXH ， only subscriptable type here
+            }
+        }
+#line 1668 "y.tab.c" /* yacc.c:1646  */
+    break;
+
+  case 27:
+#line 421 "minipy-lab.y" /* yacc.c:1646  */
+    {
+            if ((yyvsp[-1]).type == Integer)
+            {
+                switch ((yyvsp[-3]).type)
                 {
-                    (yyval).type = None; // 不输出变量内容，也确实没有可以输出的
-                    // TODO @NXH 把这里的错误信息处理好，注意string到char*的转换
-                    // yyerror("Traceback (most recent call last):\n\tFile \"<stdin>\", line 1, in <module>\nNameError: name "+ $1.variableName +" is not defined  ");
+                    case String:
+                        (yyval).type = String;
+                        (yyval).stringValue = (yyvsp[-3]).stringValue[(yyvsp[-1]).integerValue]; // 字符和字符串同等
+                        break;
+                    case List:
+                        (yyval).type = ListItem; // 列表元素类型
+                        (yyval).begin = (yyvsp[-3]).listValue.begin() + (yyvsp[-1]).integerValue; // 取列表元素地址
+                        break;
+                    case Variable:
+                        if ((Symbol.count((yyvsp[-3]).variableName) == 1)) // 已在变量表内
+                        {
+                            switch (Symbol.at((yyvsp[-3]).variableName).type)
+                            {
+                                case String:
+                                    (yyval).type = String;
+                                    (yyval).stringValue = Symbol.at((yyvsp[-3]).variableName).stringValue[(yyvsp[-1]).integerValue]; // 字符和字符串同等
+                                    break;
+                                case List:
+                                    (yyval).type = ListItem; // 列表元素类型
+                                    (yyval).begin = Symbol.at((yyvsp[-3]).variableName).listValue.begin() + (yyvsp[-1]).integerValue; // 取列表元素地址
+                                    break;
+                                // default: yyerror(); // TODO @NXH ， only subscriptable type here
+                            }
+                        }
+                        else
+                        {
+                            // yyerror(); // TODO @NXH ， only subscriptable type here
+                        }
+                        break;
+                    // default: yyerror(); // TODO @NXH ， only subscriptable type here
                 }
             }
             else
-                (yyval) = (yyvsp[0]);
+            {
+                // yyerror(); // TODO @NXH , indices must be integers or slices
+            }
         }
-#line 1383 "y.tab.c" /* yacc.c:1646  */
+#line 1715 "y.tab.c" /* yacc.c:1646  */
     break;
 
-  case 33:
-#line 156 "minipy-lab.y" /* yacc.c:1646  */
+  case 28:
+#line 464 "minipy-lab.y" /* yacc.c:1646  */
+    {
+            if ((yyvsp[-4]).stringValue == "append") // append方法
+            {
+                (yyval).type = None;
+                if (Symbol.at((yyvsp[-4]).variableName).type == List)
+                {
+                    if ((yyvsp[-2]).listValue.size() == 1) // append 有且仅有1个参数
+                    {
+                        Symbol.at((yyvsp[-4]).variableName).listValue.push_back(*(yyvsp[-2]).listValue.begin());
+                    }
+                }
+            }
+            else if ((yyvsp[-4]).variableName == "print") // print函数
+            {
+                (yyval).type = None;
+                for (vector<struct value>::iterator i = (yyvsp[-2]).listValue.begin(); i != (yyvsp[-2]).listValue.end(); i++)
+                {
+                    if ((*i).type == None)
+                        cout << "None";
+                    else
+                        Print(*i);
+                    if (i != (yyvsp[-2]).listValue.end() - 1)
+                        cout << ' ';
+                }
+                cout << endl;
+            }
+            else if ((yyvsp[-4]).variableName == "range") // range函数
+            {
+                (yyval).type = List;
+                (yyval).listValue = vector<struct value>();
+                Value temp;
+                temp.type = Integer; // 整数列表
+
+                int begin, end, step;
+
+                if ((yyvsp[-2]).listValue.size() == 1 || (yyvsp[-2]).listValue.size() == 2) // 默认步长
+                    step = 1;
+                else if ((yyvsp[-2]).listValue.size() == 3)
+                    step = (yyvsp[-2]).listValue[2].integerValue; // 第三个参数
+                else
+                {
+                    // yyerror(); // TODO @NXH ， 2 或 3 个参数
+                }
+
+                if (step > 0)
+                {
+                    if ((yyvsp[-2]).listValue.size() == 1) // 仅一个参数：从0到参数
+                    {
+                        begin = 0;
+                        end = (yyvsp[-2]).listValue[0].integerValue;
+                    }
+                    else if ((yyvsp[-2]).listValue.size() == 2 || (yyvsp[-2]).listValue.size() == 3)
+                    {
+                        begin = (yyvsp[-2]).listValue[0].integerValue;
+                        end = (yyvsp[-2]).listValue[1].integerValue;
+                    }
+                    for (temp.integerValue = begin; temp.integerValue < end; temp.integerValue+=step)
+                        (yyval).listValue.push_back(temp);
+                }
+                else if (step < 0) // 一定有3个参数
+                {
+                    begin = (yyvsp[-2]).listValue[0].integerValue;
+                    end = (yyvsp[-2]).listValue[1].integerValue;
+                    for (temp.integerValue = begin; temp.integerValue > end; temp.integerValue+=step)
+                        (yyval).listValue.push_back(temp);
+                }
+            }
+        }
+#line 1788 "y.tab.c" /* yacc.c:1646  */
+    break;
+
+  case 29:
+#line 533 "minipy-lab.y" /* yacc.c:1646  */
+    {
+            (yyval).type = None;
+            (yyval).variableName = (yyvsp[-2]).variableName; // 变量名
+            (yyval).stringValue = (yyvsp[0]).variableName; // 属性或方法名
+        }
+#line 1798 "y.tab.c" /* yacc.c:1646  */
+    break;
+
+  case 30:
+#line 539 "minipy-lab.y" /* yacc.c:1646  */
+    {
+            if ((yyvsp[-2]).variableName == "quit") // quit函数
+                exit(0);
+        }
+#line 1807 "y.tab.c" /* yacc.c:1646  */
+    break;
+
+  case 31:
+#line 547 "minipy-lab.y" /* yacc.c:1646  */
     {
         (yyval).type = List;
-        (yyval).listValue = vector<struct value>();
+        (yyval).listValue = vector<struct value>(1, (yyvsp[0])); // 用列表“框柱”参数
     }
-#line 1392 "y.tab.c" /* yacc.c:1646  */
+#line 1816 "y.tab.c" /* yacc.c:1646  */
     break;
 
-  case 34:
-#line 161 "minipy-lab.y" /* yacc.c:1646  */
-    {
-        (yyval).type = List;
-        (yyval).listValue = vector<struct value>((yyvsp[-2]).listValue);
-    }
-#line 1401 "y.tab.c" /* yacc.c:1646  */
-    break;
-
-  case 37:
-#line 174 "minipy-lab.y" /* yacc.c:1646  */
-    {
-        (yyval).type = List;
-        (yyval).listValue = vector<struct value>(1, (yyvsp[0])); // 用列表“框柱”变量
-    }
-#line 1410 "y.tab.c" /* yacc.c:1646  */
-    break;
-
-  case 38:
-#line 179 "minipy-lab.y" /* yacc.c:1646  */
+  case 32:
+#line 552 "minipy-lab.y" /* yacc.c:1646  */
     {
         (yyval).type = List;
         (yyvsp[-2]).listValue.push_back((yyvsp[0]));
         (yyval).listValue = vector<struct value>((yyvsp[-2]).listValue);
     }
-#line 1420 "y.tab.c" /* yacc.c:1646  */
+#line 1826 "y.tab.c" /* yacc.c:1646  */
+    break;
+
+  case 33:
+#line 561 "minipy-lab.y" /* yacc.c:1646  */
+    {
+        (yyval).type = List;
+        (yyval).listValue = vector<struct value>();
+    }
+#line 1835 "y.tab.c" /* yacc.c:1646  */
+    break;
+
+  case 34:
+#line 566 "minipy-lab.y" /* yacc.c:1646  */
+    {
+        (yyval).type = List;
+        (yyval).listValue = vector<struct value>((yyvsp[-2]).listValue);
+    }
+#line 1844 "y.tab.c" /* yacc.c:1646  */
+    break;
+
+  case 37:
+#line 579 "minipy-lab.y" /* yacc.c:1646  */
+    {
+        (yyval).type = List;
+        (yyval).listValue = vector<struct value>(1, (yyvsp[0])); // 用列表“框柱”变量
+    }
+#line 1853 "y.tab.c" /* yacc.c:1646  */
+    break;
+
+  case 38:
+#line 584 "minipy-lab.y" /* yacc.c:1646  */
+    {
+        (yyval).type = List;
+        (yyvsp[-2]).listValue.push_back((yyvsp[0]));
+        (yyval).listValue = vector<struct value>((yyvsp[-2]).listValue);
+    }
+#line 1863 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 39:
-#line 188 "minipy-lab.y" /* yacc.c:1646  */
+#line 593 "minipy-lab.y" /* yacc.c:1646  */
     {
             switch((yyvsp[-2]).type)
             {
@@ -1501,11 +1944,11 @@ yyreduce:
                 // default: yyerror(); // TODO @NXH
             }
         }
-#line 1505 "y.tab.c" /* yacc.c:1646  */
+#line 1948 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 40:
-#line 269 "minipy-lab.y" /* yacc.c:1646  */
+#line 674 "minipy-lab.y" /* yacc.c:1646  */
     {
             switch((yyvsp[-2]).type)
             {
@@ -1541,11 +1984,11 @@ yyreduce:
                     break;
             }
         }
-#line 1545 "y.tab.c" /* yacc.c:1646  */
+#line 1988 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 42:
-#line 309 "minipy-lab.y" /* yacc.c:1646  */
+#line 714 "minipy-lab.y" /* yacc.c:1646  */
     {
             switch((yyvsp[-2]).type)
             {
@@ -1611,11 +2054,11 @@ yyreduce:
                 // default: yyerror(); // TODO @NXH
             }
         }
-#line 1615 "y.tab.c" /* yacc.c:1646  */
+#line 2058 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 43:
-#line 375 "minipy-lab.y" /* yacc.c:1646  */
+#line 780 "minipy-lab.y" /* yacc.c:1646  */
     {
             (yyval).type = Real;
             if ( (yyvsp[-2]).type == Integer )
@@ -1625,11 +2068,11 @@ yyreduce:
             (yyval).realValue = (yyvsp[-2]).realValue / (yyvsp[0]).realValue;
             // default: yyerror(); // TODO @NXH
         }
-#line 1629 "y.tab.c" /* yacc.c:1646  */
+#line 2072 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 44:
-#line 385 "minipy-lab.y" /* yacc.c:1646  */
+#line 790 "minipy-lab.y" /* yacc.c:1646  */
     {
             // 整除
             if ( (yyvsp[-2]).type == Real )
@@ -1640,11 +2083,11 @@ yyreduce:
             (yyval).integerValue = (yyvsp[-2]).integerValue / (yyvsp[0]).integerValue;
             // default: yyerror(); // TODO @NXH
         }
-#line 1644 "y.tab.c" /* yacc.c:1646  */
+#line 2087 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 45:
-#line 396 "minipy-lab.y" /* yacc.c:1646  */
+#line 801 "minipy-lab.y" /* yacc.c:1646  */
     {
             if (((yyvsp[-2]).type == Integer) && ( (yyvsp[0]).type == Integer ))
             {
@@ -1667,23 +2110,23 @@ yyreduce:
             }
             // default: yyerror(); // TODO @NXH
         }
-#line 1671 "y.tab.c" /* yacc.c:1646  */
+#line 2114 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 46:
-#line 418 "minipy-lab.y" /* yacc.c:1646  */
+#line 823 "minipy-lab.y" /* yacc.c:1646  */
     { (yyval) = (yyvsp[-1]); }
-#line 1677 "y.tab.c" /* yacc.c:1646  */
+#line 2120 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 47:
-#line 419 "minipy-lab.y" /* yacc.c:1646  */
+#line 824 "minipy-lab.y" /* yacc.c:1646  */
     { (yyval) = (yyvsp[-1]); }
-#line 1683 "y.tab.c" /* yacc.c:1646  */
+#line 2126 "y.tab.c" /* yacc.c:1646  */
     break;
 
 
-#line 1687 "y.tab.c" /* yacc.c:1646  */
+#line 2130 "y.tab.c" /* yacc.c:1646  */
       default: break;
     }
   /* User semantic actions sometimes alter yychar, and that requires
@@ -1911,7 +2354,7 @@ yyreturn:
 #endif
   return yyresult;
 }
-#line 423 "minipy-lab.y" /* yacc.c:1906  */
+#line 828 "minipy-lab.y" /* yacc.c:1906  */
 
 
 int main()
@@ -1919,7 +2362,7 @@ int main()
 	return yyparse();
 }
 
-void yyerror(char *s)
+void yyerror(string s)
 {
 	cout << s << endl << "miniPy> ";
 }
@@ -1946,6 +2389,7 @@ void Print(Value x)
             cout << '\'' << x.stringValue << '\'';
             break;
         case List:
+        case ListSlice: // Slice 的 listValue 也存储相应值
             cout << "[";
             for (vector<struct value>::iterator i = x.listValue.begin(); i != x.listValue.end(); i++)
             {
@@ -1954,6 +2398,9 @@ void Print(Value x)
                     cout << ", ";
             }
             cout << "]";
+            break;
+        case ListItem:
+            Print(*x.begin); // 输出元素
             break;
     }
 }
