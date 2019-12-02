@@ -475,7 +475,7 @@ static const yytype_uint16 yyrline[] =
       85,   134,   138,   139,   143,   156,   169,   203,   204,   205,
      206,   211,   214,   229,   232,   236,   237,   493,   542,   660,
      666,   674,   679,   688,   693,   700,   702,   706,   711,   720,
-     801,   837,   841,   907,   917,   928,   951,   952,   953
+     812,   855,   859,   940,   957,   976,  1006,  1007,  1008
 };
 #endif
 
@@ -2007,12 +2007,14 @@ yyreduce:
                             (yyvsp[-2]).realValue = (double) (yyvsp[-2]).integerValue;
                             (yyval).realValue = (yyvsp[-2]).realValue + (yyvsp[0]).realValue;
                             break;
-                        case List:
-                            (yyval).type = List;
-                            (yyval).listValue = vector<struct value>((yyvsp[0]).listValue);
-                            (yyval).listValue.insert((yyval).listValue.begin(), (yyvsp[-2])); // 在头部插入
-                            break;
-                        // default: yyerror(); // TODO @NXH
+                        // case List:
+                        //     $$.type = List;
+                        //     $$.listValue = vector<struct value>($3.listValue);
+                        //     $$.listValue.insert($$.listValue.begin(), $1); // 在头部插入
+                        //     break;
+                        default:
+                            yyerror("TypeError: unsupported operand type(s) for +: 'int' and '" + TypeString((yyvsp[0])) + "\'");
+                            YYERROR;
                     }
                     break;
                 case Real:
@@ -2027,12 +2029,14 @@ yyreduce:
                             (yyval).type = Real;
                             (yyval).realValue = (yyvsp[-2]).realValue + (yyvsp[0]).realValue;
                             break;
-                        case List:
-                            (yyval).type = List;
-                            (yyval).listValue = vector<struct value>((yyvsp[0]).listValue);
-                            (yyval).listValue.insert((yyval).listValue.begin(), (yyvsp[-2])); // 在头部插入
-                            break;
-                        // default: yyerror(); // TODO @NXH
+                        // case List:
+                        //     $$.type = List;
+                        //     $$.listValue = vector<struct value>($3.listValue);
+                        //     $$.listValue.insert($$.listValue.begin(), $1); // 在头部插入
+                        //     break;
+                        default:
+                            yyerror("TypeError: unsupported operand type(s) for +: 'float' and '" + TypeString((yyvsp[0])) + "\'");
+                            YYERROR;
                     }
                     break;
                 case String:
@@ -2042,12 +2046,14 @@ yyreduce:
                             (yyval).type = String;
                             (yyval).stringValue = (yyvsp[-2]).stringValue + (yyvsp[0]).stringValue;
                             break;
-                        case List:
-                            (yyval).type = List;
-                            (yyval).listValue = vector<struct value>((yyvsp[0]).listValue);
-                            (yyval).listValue.insert((yyval).listValue.begin(), (yyvsp[-2])); // 在头部插入
-                            break;
-                        // default: yyerror(); // TODO @NXH
+                        // case List:
+                        //     $$.type = List;
+                        //     $$.listValue = vector<struct value>($3.listValue);
+                        //     $$.listValue.insert($$.listValue.begin(), $1); // 在头部插入
+                        //     break;
+                        default:
+                            yyerror("TypeError: can only concatenate str (not \"" + TypeString((yyvsp[0])) + "\") to str");
+                            YYERROR;
                     }
                     break;
                 case List:
@@ -2067,16 +2073,21 @@ yyreduce:
                         case List:
                             (yyval).listValue.insert((yyval).listValue.end(), (yyvsp[0]).listValue.begin(), (yyvsp[0]).listValue.end()); // 在尾部插入
                             break;
-                        // default: yyerror(); // TODO @NXH
+                        default:
+                            yyerror("TypeError: can only concatenate list (not \"" + TypeString((yyvsp[0])) + "\") to list");
+                            YYERROR;
                     }
-                // default: yyerror(); // TODO @NXH
+                    break;
+                default:
+                    yyerror("TypeError: not supported type");
+                    YYERROR;
             }
         }
-#line 2076 "y.tab.c" /* yacc.c:1646  */
+#line 2087 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 40:
-#line 802 "minipy-lab.y" /* yacc.c:1646  */
+#line 813 "minipy-lab.y" /* yacc.c:1646  */
     {
             switch((yyvsp[-2]).type)
             {
@@ -2092,7 +2103,9 @@ yyreduce:
                             (yyvsp[-2]).realValue = (double) (yyvsp[-2]).integerValue;
                             (yyval).realValue = (yyvsp[-2]).realValue - (yyvsp[0]).realValue;
                             break;
-                        // default: yyerror(); // TODO @NXH
+                        default:
+                            yyerror("TypeError: unsupported operand type(s) for +: 'int' and '" + TypeString((yyvsp[0])) + "\'");
+                            YYERROR;
                     }
                     break;
                 case Real:
@@ -2107,16 +2120,21 @@ yyreduce:
                             (yyval).type = Real;
                             (yyval).realValue = (yyvsp[-2]).realValue - (yyvsp[0]).realValue;
                             break;
-                        // default: yyerror(); // TODO @NXH
+                        default:
+                            yyerror("TypeError: unsupported operand type(s) for +: 'int' and '" + TypeString((yyvsp[0])) + "\'");
+                            YYERROR;
                     }
                     break;
+                default:
+                    yyerror("TypeError: unsupported operand type(s) for +: '"+ TypeString((yyvsp[-2])) +"' and '" + TypeString((yyvsp[0])) + "\'");
+                    YYERROR;
             }
         }
-#line 2116 "y.tab.c" /* yacc.c:1646  */
+#line 2134 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 42:
-#line 842 "minipy-lab.y" /* yacc.c:1646  */
+#line 860 "minipy-lab.y" /* yacc.c:1646  */
     {
             switch((yyvsp[-2]).type)
             {
@@ -2138,7 +2156,9 @@ yyreduce:
                             for (int i = 1; i < (yyvsp[-2]).integerValue; i++)
                                 (yyval).listValue.insert((yyval).listValue.end(), (yyvsp[0]).listValue.begin(), (yyvsp[0]).listValue.end()); // 循环插入
                             break;
-                        // default: yyerror(); // TODO @NXH
+                        default:
+                            yyerror("TypeError: not supported type");
+                            YYERROR;
                     }
                     break;
                 case Real:
@@ -2153,7 +2173,14 @@ yyreduce:
                             (yyval).type = Real;
                             (yyval).realValue = (yyvsp[-2]).realValue * (yyvsp[0]).realValue;
                             break;
-                        // default: yyerror(); // TODO @NXH
+                        case String:
+                        case List:
+                            yyerror("TypeError: can't multiply sequence by non-int of type 'float'");
+                            YYERROR;
+                            break;
+                        default:
+                            yyerror("TypeError: not supported type");
+                            YYERROR;
                     }
                     break;
                 case String:
@@ -2165,7 +2192,9 @@ yyreduce:
                             for (int i = 1; i < (yyvsp[0]).integerValue; i++)
                                 (yyval).stringValue += (yyvsp[-2]).stringValue;
                             break;
-                        // default: yyerror(); // TODO @NXH
+                        default:
+                            yyerror("TypeError: can't multiply sequence by non-int of type '" + TypeString((yyvsp[0])) + "\'");
+                            YYERROR;
                     }
                     break;
                 case List:
@@ -2177,84 +2206,110 @@ yyreduce:
                             for (int i = 1; i < (yyvsp[0]).integerValue; i++)
                                 (yyval).listValue.insert((yyval).listValue.end(), (yyvsp[-2]).listValue.begin(), (yyvsp[-2]).listValue.end()); // 循环插入
                             break;
-                        // default: yyerror(); // TODO @NXH
+                        default:
+                            yyerror("TypeError: can't multiply sequence by non-int of type '" + TypeString((yyvsp[0])) + "\'");
+                            YYERROR;
                     }
-                // default: yyerror(); // TODO @NXH
+                default:
+                    yyerror("TypeError: not supported type");
+                    YYERROR;
             }
         }
-#line 2186 "y.tab.c" /* yacc.c:1646  */
+#line 2219 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 43:
-#line 908 "minipy-lab.y" /* yacc.c:1646  */
+#line 941 "minipy-lab.y" /* yacc.c:1646  */
     {
             (yyval).type = Real;
-            if ( (yyvsp[-2]).type == Integer )
-                (yyvsp[-2]).realValue = (double) (yyvsp[-2]).integerValue;
-            if ( (yyvsp[0]).type == Integer )
-                (yyvsp[0]).realValue = (double) (yyvsp[0]).integerValue;
-            (yyval).realValue = (yyvsp[-2]).realValue / (yyvsp[0]).realValue;
-            // default: yyerror(); // TODO @NXH
-        }
-#line 2200 "y.tab.c" /* yacc.c:1646  */
-    break;
-
-  case 44:
-#line 918 "minipy-lab.y" /* yacc.c:1646  */
-    {
-            // 整除
-            if ( (yyvsp[-2]).type == Real )
-                (yyvsp[-2]).integerValue = round((yyvsp[-2]).realValue);
-            if ( (yyvsp[0]).type == Real )
-                (yyvsp[0]).integerValue = round((yyvsp[0]).realValue);
-            (yyval).type = Integer;
-            (yyval).integerValue = (yyvsp[-2]).integerValue / (yyvsp[0]).integerValue;
-            // default: yyerror(); // TODO @NXH
-        }
-#line 2215 "y.tab.c" /* yacc.c:1646  */
-    break;
-
-  case 45:
-#line 929 "minipy-lab.y" /* yacc.c:1646  */
-    {
-            if (((yyvsp[-2]).type == Integer) && ( (yyvsp[0]).type == Integer ))
+            if (((yyvsp[-2]).type == Integer || (yyvsp[-2]).type == Real) && ((yyvsp[0]).type == Integer || (yyvsp[0]).type == Real))
             {
-			    (yyval).type = Integer;
-                (yyval).integerValue = (yyvsp[-2]).integerValue % (yyvsp[0]).integerValue;
-                if ((yyvsp[-2]).integerValue * (yyvsp[0]).integerValue < 0) // 取余的符号问题
-                    (yyval).integerValue += (yyvsp[0]).integerValue;
-            }
-            else
-            {
-		        (yyval).type = Real;
                 if ( (yyvsp[-2]).type == Integer )
                     (yyvsp[-2]).realValue = (double) (yyvsp[-2]).integerValue;
                 if ( (yyvsp[0]).type == Integer )
                     (yyvsp[0]).realValue = (double) (yyvsp[0]).integerValue;
-                int temp = (int)((yyvsp[-2]).realValue / (yyvsp[0]).realValue); // 手动实现实数取余
-                (yyval).realValue = (yyvsp[-2]).realValue - ((yyvsp[0]).realValue * temp);
-                if ((yyvsp[-2]).realValue * (yyvsp[0]).realValue < 0)
-                    (yyval).realValue += (yyvsp[0]).realValue;
+                (yyval).realValue = (yyvsp[-2]).realValue / (yyvsp[0]).realValue;
             }
-            // default: yyerror(); // TODO @NXH
+            else
+            {
+                yyerror("TypeError: unsupported operand type(s) for /: '"+ TypeString((yyvsp[-2])) +"' and '" + TypeString((yyvsp[0])) + "\'");
+                YYERROR;
+            }
         }
-#line 2242 "y.tab.c" /* yacc.c:1646  */
+#line 2240 "y.tab.c" /* yacc.c:1646  */
+    break;
+
+  case 44:
+#line 958 "minipy-lab.y" /* yacc.c:1646  */
+    {
+            // 整除
+            (yyval).type = Integer;
+            if (((yyvsp[-2]).type == Integer || (yyvsp[-2]).type == Real) && ((yyvsp[0]).type == Integer || (yyvsp[0]).type == Real))
+            {
+                if ( (yyvsp[-2]).type == Real )
+                    (yyvsp[-2]).integerValue = round((yyvsp[-2]).realValue);
+                if ( (yyvsp[0]).type == Real )
+                    (yyvsp[0]).integerValue = round((yyvsp[0]).realValue);
+                (yyval).integerValue = (yyvsp[-2]).integerValue / (yyvsp[0]).integerValue;
+            }
+            else
+            {
+                yyerror("TypeError: unsupported operand type(s) for //: '"+ TypeString((yyvsp[-2])) +"' and '" + TypeString((yyvsp[0])) + "\'");
+                YYERROR;
+            }
+
+        }
+#line 2263 "y.tab.c" /* yacc.c:1646  */
+    break;
+
+  case 45:
+#line 977 "minipy-lab.y" /* yacc.c:1646  */
+    {
+            if (((yyvsp[-2]).type == Integer || (yyvsp[-2]).type == Real) && ((yyvsp[0]).type == Integer || (yyvsp[0]).type == Real))
+            {
+                if (((yyvsp[-2]).type == Integer) && ( (yyvsp[0]).type == Integer ))
+                {
+                    (yyval).type = Integer;
+                    (yyval).integerValue = (yyvsp[-2]).integerValue % (yyvsp[0]).integerValue;
+                    if ((yyvsp[-2]).integerValue * (yyvsp[0]).integerValue < 0) // 取余的符号问题
+                        (yyval).integerValue += (yyvsp[0]).integerValue;
+                }
+                else
+                {
+                    (yyval).type = Real;
+                    if ( (yyvsp[-2]).type == Integer )
+                        (yyvsp[-2]).realValue = (double) (yyvsp[-2]).integerValue;
+                    if ( (yyvsp[0]).type == Integer )
+                        (yyvsp[0]).realValue = (double) (yyvsp[0]).integerValue;
+                    int temp = (int)((yyvsp[-2]).realValue / (yyvsp[0]).realValue); // 手动实现实数取余
+                    (yyval).realValue = (yyvsp[-2]).realValue - ((yyvsp[0]).realValue * temp);
+                    if ((yyvsp[-2]).realValue * (yyvsp[0]).realValue < 0)
+                        (yyval).realValue += (yyvsp[0]).realValue;
+                }
+            }
+            else
+            {
+                yyerror("TypeError: unsupported operand type(s) for %: '"+ TypeString((yyvsp[-2])) +"' and '" + TypeString((yyvsp[0])) + "\'");
+                YYERROR;
+            }
+        }
+#line 2297 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 46:
-#line 951 "minipy-lab.y" /* yacc.c:1646  */
+#line 1006 "minipy-lab.y" /* yacc.c:1646  */
     { (yyval) = (yyvsp[-1]); }
-#line 2248 "y.tab.c" /* yacc.c:1646  */
+#line 2303 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 47:
-#line 952 "minipy-lab.y" /* yacc.c:1646  */
+#line 1007 "minipy-lab.y" /* yacc.c:1646  */
     { (yyval) = (yyvsp[-1]); }
-#line 2254 "y.tab.c" /* yacc.c:1646  */
+#line 2309 "y.tab.c" /* yacc.c:1646  */
     break;
 
 
-#line 2258 "y.tab.c" /* yacc.c:1646  */
+#line 2313 "y.tab.c" /* yacc.c:1646  */
       default: break;
     }
   /* User semantic actions sometimes alter yychar, and that requires
@@ -2482,7 +2537,7 @@ yyreturn:
 #endif
   return yyresult;
 }
-#line 956 "minipy-lab.y" /* yacc.c:1906  */
+#line 1011 "minipy-lab.y" /* yacc.c:1906  */
 
 
 int main()

@@ -663,7 +663,7 @@ atom_expr:
             $$.variableName = $1.variableName; // 变量名
             $$.stringValue = $3.variableName; // 属性或方法名
         } |
-    atom_expr  '('  ')'
+    atom_expr  '('  ')' // 在本实验中目前只包括无参量函数
         {
             if ($1.variableName == "quit") // quit函数
                 exit(0);
@@ -733,12 +733,14 @@ add_expr:
                             $1.realValue = (double) $1.integerValue;
                             $$.realValue = $1.realValue + $3.realValue;
                             break;
-                        case List:
-                            $$.type = List;
-                            $$.listValue = vector<struct value>($3.listValue);
-                            $$.listValue.insert($$.listValue.begin(), $1); // 在头部插入
-                            break;
-                        // default: yyerror(); // TODO @NXH
+                        // case List:
+                        //     $$.type = List;
+                        //     $$.listValue = vector<struct value>($3.listValue);
+                        //     $$.listValue.insert($$.listValue.begin(), $1); // 在头部插入
+                        //     break;
+                        default:
+                            yyerror("TypeError: unsupported operand type(s) for +: 'int' and '" + TypeString($3) + "\'");
+                            YYERROR;
                     }
                     break;
                 case Real:
@@ -753,12 +755,14 @@ add_expr:
                             $$.type = Real;
                             $$.realValue = $1.realValue + $3.realValue;
                             break;
-                        case List:
-                            $$.type = List;
-                            $$.listValue = vector<struct value>($3.listValue);
-                            $$.listValue.insert($$.listValue.begin(), $1); // 在头部插入
-                            break;
-                        // default: yyerror(); // TODO @NXH
+                        // case List:
+                        //     $$.type = List;
+                        //     $$.listValue = vector<struct value>($3.listValue);
+                        //     $$.listValue.insert($$.listValue.begin(), $1); // 在头部插入
+                        //     break;
+                        default:
+                            yyerror("TypeError: unsupported operand type(s) for +: 'float' and '" + TypeString($3) + "\'");
+                            YYERROR;
                     }
                     break;
                 case String:
@@ -768,12 +772,14 @@ add_expr:
                             $$.type = String;
                             $$.stringValue = $1.stringValue + $3.stringValue;
                             break;
-                        case List:
-                            $$.type = List;
-                            $$.listValue = vector<struct value>($3.listValue);
-                            $$.listValue.insert($$.listValue.begin(), $1); // 在头部插入
-                            break;
-                        // default: yyerror(); // TODO @NXH
+                        // case List:
+                        //     $$.type = List;
+                        //     $$.listValue = vector<struct value>($3.listValue);
+                        //     $$.listValue.insert($$.listValue.begin(), $1); // 在头部插入
+                        //     break;
+                        default:
+                            yyerror("TypeError: can only concatenate str (not \"" + TypeString($3) + "\") to str");
+                            YYERROR;
                     }
                     break;
                 case List:
@@ -793,9 +799,14 @@ add_expr:
                         case List:
                             $$.listValue.insert($$.listValue.end(), $3.listValue.begin(), $3.listValue.end()); // 在尾部插入
                             break;
-                        // default: yyerror(); // TODO @NXH
+                        default:
+                            yyerror("TypeError: can only concatenate list (not \"" + TypeString($3) + "\") to list");
+                            YYERROR;
                     }
-                // default: yyerror(); // TODO @NXH
+                    break;
+                default:
+                    yyerror("TypeError: not supported type");
+                    YYERROR;
             }
         }|
     add_expr '-' mul_expr
@@ -814,7 +825,9 @@ add_expr:
                             $1.realValue = (double) $1.integerValue;
                             $$.realValue = $1.realValue - $3.realValue;
                             break;
-                        // default: yyerror(); // TODO @NXH
+                        default:
+                            yyerror("TypeError: unsupported operand type(s) for +: 'int' and '" + TypeString($3) + "\'");
+                            YYERROR;
                     }
                     break;
                 case Real:
@@ -829,9 +842,14 @@ add_expr:
                             $$.type = Real;
                             $$.realValue = $1.realValue - $3.realValue;
                             break;
-                        // default: yyerror(); // TODO @NXH
+                        default:
+                            yyerror("TypeError: unsupported operand type(s) for +: 'int' and '" + TypeString($3) + "\'");
+                            YYERROR;
                     }
                     break;
+                default:
+                    yyerror("TypeError: unsupported operand type(s) for +: '"+ TypeString($1) +"' and '" + TypeString($3) + "\'");
+                    YYERROR;
             }
         }|
     mul_expr
@@ -860,7 +878,9 @@ mul_expr:
                             for (int i = 1; i < $1.integerValue; i++)
                                 $$.listValue.insert($$.listValue.end(), $3.listValue.begin(), $3.listValue.end()); // 循环插入
                             break;
-                        // default: yyerror(); // TODO @NXH
+                        default:
+                            yyerror("TypeError: not supported type");
+                            YYERROR;
                     }
                     break;
                 case Real:
@@ -875,7 +895,14 @@ mul_expr:
                             $$.type = Real;
                             $$.realValue = $1.realValue * $3.realValue;
                             break;
-                        // default: yyerror(); // TODO @NXH
+                        case String:
+                        case List:
+                            yyerror("TypeError: can't multiply sequence by non-int of type 'float'");
+                            YYERROR;
+                            break;
+                        default:
+                            yyerror("TypeError: not supported type");
+                            YYERROR;
                     }
                     break;
                 case String:
@@ -887,7 +914,9 @@ mul_expr:
                             for (int i = 1; i < $3.integerValue; i++)
                                 $$.stringValue += $1.stringValue;
                             break;
-                        // default: yyerror(); // TODO @NXH
+                        default:
+                            yyerror("TypeError: can't multiply sequence by non-int of type '" + TypeString($3) + "\'");
+                            YYERROR;
                     }
                     break;
                 case List:
@@ -899,54 +928,80 @@ mul_expr:
                             for (int i = 1; i < $3.integerValue; i++)
                                 $$.listValue.insert($$.listValue.end(), $1.listValue.begin(), $1.listValue.end()); // 循环插入
                             break;
-                        // default: yyerror(); // TODO @NXH
+                        default:
+                            yyerror("TypeError: can't multiply sequence by non-int of type '" + TypeString($3) + "\'");
+                            YYERROR;
                     }
-                // default: yyerror(); // TODO @NXH
+                default:
+                    yyerror("TypeError: not supported type");
+                    YYERROR;
             }
         }|
     mul_expr '/' mul_expr
         {
             $$.type = Real;
-            if ( $1.type == Integer )
-                $1.realValue = (double) $1.integerValue;
-            if ( $3.type == Integer )
-                $3.realValue = (double) $3.integerValue;
-            $$.realValue = $1.realValue / $3.realValue;
-            // default: yyerror(); // TODO @NXH
-        }|
-    mul_expr DIV mul_expr
-        {
-            // 整除
-            if ( $1.type == Real )
-                $1.integerValue = round($1.realValue);
-            if ( $3.type == Real )
-                $3.integerValue = round($3.realValue);
-            $$.type = Integer;
-            $$.integerValue = $1.integerValue / $3.integerValue;
-            // default: yyerror(); // TODO @NXH
-        }|
-    mul_expr '%' mul_expr
-        {
-            if (($1.type == Integer) && ( $3.type == Integer ))
+            if (($1.type == Integer || $1.type == Real) && ($3.type == Integer || $3.type == Real))
             {
-			    $$.type = Integer;
-                $$.integerValue = $1.integerValue % $3.integerValue;
-                if ($1.integerValue * $3.integerValue < 0) // 取余的符号问题
-                    $$.integerValue += $3.integerValue;
-            }
-            else
-            {
-		        $$.type = Real;
                 if ( $1.type == Integer )
                     $1.realValue = (double) $1.integerValue;
                 if ( $3.type == Integer )
                     $3.realValue = (double) $3.integerValue;
-                int temp = (int)($1.realValue / $3.realValue); // 手动实现实数取余
-                $$.realValue = $1.realValue - ($3.realValue * temp);
-                if ($1.realValue * $3.realValue < 0)
-                    $$.realValue += $3.realValue;
+                $$.realValue = $1.realValue / $3.realValue;
             }
-            // default: yyerror(); // TODO @NXH
+            else
+            {
+                yyerror("TypeError: unsupported operand type(s) for /: '"+ TypeString($1) +"' and '" + TypeString($3) + "\'");
+                YYERROR;
+            }
+        }|
+    mul_expr DIV mul_expr
+        {
+            // 整除
+            $$.type = Integer;
+            if (($1.type == Integer || $1.type == Real) && ($3.type == Integer || $3.type == Real))
+            {
+                if ( $1.type == Real )
+                    $1.integerValue = round($1.realValue);
+                if ( $3.type == Real )
+                    $3.integerValue = round($3.realValue);
+                $$.integerValue = $1.integerValue / $3.integerValue;
+            }
+            else
+            {
+                yyerror("TypeError: unsupported operand type(s) for //: '"+ TypeString($1) +"' and '" + TypeString($3) + "\'");
+                YYERROR;
+            }
+
+        }|
+    mul_expr '%' mul_expr
+        {
+            if (($1.type == Integer || $1.type == Real) && ($3.type == Integer || $3.type == Real))
+            {
+                if (($1.type == Integer) && ( $3.type == Integer ))
+                {
+                    $$.type = Integer;
+                    $$.integerValue = $1.integerValue % $3.integerValue;
+                    if ($1.integerValue * $3.integerValue < 0) // 取余的符号问题
+                        $$.integerValue += $3.integerValue;
+                }
+                else
+                {
+                    $$.type = Real;
+                    if ( $1.type == Integer )
+                        $1.realValue = (double) $1.integerValue;
+                    if ( $3.type == Integer )
+                        $3.realValue = (double) $3.integerValue;
+                    int temp = (int)($1.realValue / $3.realValue); // 手动实现实数取余
+                    $$.realValue = $1.realValue - ($3.realValue * temp);
+                    if ($1.realValue * $3.realValue < 0)
+                        $$.realValue += $3.realValue;
+                }
+            }
+            else
+            {
+                yyerror("TypeError: unsupported operand type(s) for %: '"+ TypeString($1) +"' and '" + TypeString($3) + "\'");
+                YYERROR;
+            }
         }|
     '(' add_expr ')' { $$ = $2; } |
     '(' mul_expr ')' { $$ = $2; } |
