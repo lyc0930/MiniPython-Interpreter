@@ -60,7 +60,7 @@ Lines:
             if ($2.type != None)
             {
                 if ($2.type == Variable) /* 单独的变量 */
-                    Print(Symbol[$2.variableName]);
+                    Print(Symbol.at($2.variableName));
                 else
                     Print($2);
                 cout << endl;
@@ -149,7 +149,7 @@ factor:
                 $$.realValue = $2.realValue;
             else
             {
-                yyerror("TypeError: bad operand type for unary +: "+ TypeString($2));
+                yyerror("TypeError: bad operand type for unary +: '"+ TypeString($2) + "\'");
                 YYERROR;
             }
         } |
@@ -162,7 +162,7 @@ factor:
                 $$.realValue = -$2.realValue;
             else
             {
-                yyerror("TypeError: bad operand type for unary -: "+ TypeString($2));
+                yyerror("TypeError: bad operand type for unary -: '"+ TypeString($2) + "\'");
                 YYERROR;
             }
         } |
@@ -188,7 +188,7 @@ factor:
                         $$ = Symbol.at($1.variableName); // 取变量内容，使用下标检查
                     else
                     {
-                        yyerror("NameError: name "+ $1.variableName +" is not defined");
+                        yyerror("NameError: name '"+ $1.variableName +"' is not defined");
                         YYERROR;
                     }
                     break;
@@ -475,7 +475,7 @@ atom_expr:
                                 }
                                 break;
                             default:
-                                yyerror("TypeError: "+ TypeString(Symbol.at($1.variableName)) +" object is not subscriptable");
+                                yyerror("TypeError: '"+ TypeString(Symbol.at($1.variableName)) +"' object is not subscriptable");
                                 YYERROR;
                         }
                     }
@@ -486,7 +486,7 @@ atom_expr:
                     }
                     break;
                 default:
-                    yyerror("TypeError: "+ TypeString($1) +" object is not subscriptable");
+                    yyerror("TypeError: '"+ TypeString($1) +"' object is not subscriptable");
                     YYERROR;
             }
         }|
@@ -517,20 +517,26 @@ atom_expr:
                                     $$.type = ListItem; // 列表元素类型
                                     $$.begin = Symbol.at($1.variableName).listValue.begin() + $3.integerValue; // 取列表元素地址
                                     break;
-                                // default: yyerror(); // TODO @NXH ， only subscriptable type here
+                                default:
+                                    yyerror("TypeError: '"+ TypeString(Symbol.at($1.variableName)) +"' object is not subscriptable");
+                                    YYERROR;
                             }
                         }
                         else
                         {
-                            // yyerror(); // TODO @NXH ， only subscriptable type here
+                            yyerror("NameError: name '" + $1.variableName + "' is not defined");
+                            YYERROR;
                         }
                         break;
-                    // default: yyerror(); // TODO @NXH ， only subscriptable type here
+                    default:
+                        yyerror("TypeError: '"+ TypeString($1) +"' object is not subscriptable");
+                        YYERROR;
                 }
             }
             else
             {
-                // yyerror(); // TODO @NXH , indices must be integers or slices
+                yyerror("TypeError: list indices must be integers or slices, not " + TypeString($3));
+                YYERROR;
             }
         }|
     atom_expr '(' arglist opt_comma ')'
@@ -1004,17 +1010,17 @@ string TypeString(Value x) // 将枚举类型返回字符串类型，用于错�
         case None:       // 赋值语句、列表方法等在python里没有输出
             return "None";
         case Integer:    // 整型
-            return "\'int\'";
+            return "int";
         case Real:       // 浮点型
-            return "\'float\'";
+            return "float";
         case String:     // 字符和字符串
-            return "\'str\'";
+            return "str";
         case List:       // 列表
-            return "\'list\'";
+            return "list";
         case Variable:   // 变量
             return TypeString(Symbol.at(x.variableName));
         case ListSlice:  // 列表切片
-            return "\'list\'";
+            return "list";
         case ListItem:   // 列表元素
             return TypeString(*x.begin);
         default:
