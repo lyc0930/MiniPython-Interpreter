@@ -665,6 +665,28 @@ atom_expr:
                     YYERROR;
                 }
             }
+            else if ($1.variableName == "type") // type函数
+            {
+                $$.type = None;
+                if ($3.listValue.size() == 1 || $3.listValue.size() == 3)
+                {
+                    if ($3.listValue.size() == 1)
+                    {
+                        cout << "<type '" + TypeString(*$3.listValue.begin()) + "'>" << endl;
+                    }
+                    else
+                    {
+                        yyerror("SyntaxError: not supported syntax of 3 arguments");
+                        YYERROR;
+                    }
+                }
+                else
+                {
+                    yyerror("TypeError: type() takes 1 or 3 arguments");
+                    YYERROR;
+                }
+            }
+
         } |
     atom_expr '.' ID
         {
