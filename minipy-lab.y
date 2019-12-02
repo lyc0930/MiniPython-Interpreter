@@ -593,6 +593,25 @@ atom_expr:
                     YYERROR;
                 }
             }
+            else if ($1.stringValue == "count") // append方法
+            {
+                $$.type = Integer;
+                if ($3.listValue.size() == 1)
+                {
+                    if (Symbol.at($1.variableName).type == List)
+                    {
+                        if ($3.listValue.size() == 1) // count 有且仅有1个参数
+                        {
+                            $$.integerValue = count(Symbol.at($1.variableName).listValue.begin(), Symbol.at($1.variableName).listValue.end(), *$3.listValue.begin()); // 调用algorithm中的count
+                        }
+                    }
+                }
+                else
+                {
+                    yyerror("TypeError: count() takes exactly one argument ("+ to_string($3.listValue.size()) +" given)");
+                    YYERROR;
+                }
+            }
             else if ($1.stringValue == "reverse") // reverse方法
             {
                 yyerror("TypeError: append() takes no arguments ("+ to_string($3.listValue.size()) +" given)");
@@ -737,6 +756,11 @@ atom_expr:
             if ($1.variableName == "quit") // quit函数
                 exit(0);
             else if ($1.stringValue == "append")
+            {
+                yyerror("TypeError: append() takes exactly one argument (0 given)");
+                YYERROR;
+            }
+            else if ($1.stringValue == "count")
             {
                 yyerror("TypeError: append() takes exactly one argument (0 given)");
                 YYERROR;
