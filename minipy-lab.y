@@ -192,9 +192,9 @@ factor:
                         YYERROR;
                     }
                     break;
-                default:
-                    yyerror("TypeError: not supported type");
-                    YYERROR;
+                // default:
+                //     yyerror("TypeError: not supported type");
+                //     YYERROR;
             }
         }
 ;
@@ -544,12 +544,20 @@ atom_expr:
             if ($1.stringValue == "append") // append方法
             {
                 $$.type = None;
-                if (Symbol.at($1.variableName).type == List)
+                if ($3.listValue.size() == 1)
                 {
-                    if ($3.listValue.size() == 1) // append 有且仅有1个参数
+                    if (Symbol.at($1.variableName).type == List)
                     {
-                        Symbol.at($1.variableName).listValue.push_back(*$3.listValue.begin());
+                        if ($3.listValue.size() == 1) // append 有且仅有1个参数
+                        {
+                            Symbol.at($1.variableName).listValue.push_back(*$3.listValue.begin());
+                        }
                     }
+                }
+                else
+                {
+                    yyerror("TypeError: append() takes exactly one argument ("+ to_string($3.listValue.size()) +" given)");
+                    YYERROR;
                 }
             }
             else if ($1.variableName == "print") // print函数
@@ -579,9 +587,10 @@ atom_expr:
                     step = 1;
                 else if ($3.listValue.size() == 3)
                     step = $3.listValue[2].integerValue; // 第三个参数
-                else
+                else if ($3.listValue.size() > 3)
                 {
-                    // yyerror(); // TODO @NXH ， 2 或 3 个参数
+                    yyerror("TypeError: range expected at most 3 arguments, got " + to_string($3.listValue.size()));
+                    YYERROR;
                 }
 
                 if (step > 0)
@@ -667,6 +676,26 @@ atom_expr:
         {
             if ($1.variableName == "quit") // quit函数
                 exit(0);
+            else if ($1.stringValue == "append")
+            {
+                yyerror("TypeError: append() takes exactly one argument (0 given)");
+                YYERROR;
+            }
+            else if ($1.variableName == "print")
+            {
+                $$.type = None;
+                cout << endl;
+            }
+            else if ($1.variableName == "range")
+            {
+                yyerror("TypeError: range expected 1 arguments, got 0");
+                YYERROR;
+            }
+            else if ($1.variableName == "list")
+            {
+                $$.type = List;
+                $$.listValue = vector<struct value>();
+            }
         }
 ;
 
