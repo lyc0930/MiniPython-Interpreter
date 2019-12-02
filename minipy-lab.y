@@ -718,6 +718,11 @@ atom_expr:
                 $$.type = List;
                 $$.listValue = vector<struct value>();
             }
+            else if ($1.variableName == "type")
+            {
+                yyerror("TypeError: type() takes 1 or 3 arguments");
+                YYERROR;
+            }
         }
 ;
 
