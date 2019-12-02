@@ -11,6 +11,11 @@
     #include <algorithm>
     #include "minipy-lab.h"
     using namespace std;
+    /*
+        符号表 Symbol Table
+        variableName(string) -> Value(not Variable)
+    */
+    map<string, struct value> Symbol;
     typedef struct value
     {
         Type type;
@@ -24,13 +29,41 @@
         vector<struct value>::iterator begin; // slice 起始位置 或 item 坐标
         vector<struct value>::iterator end;
         int step;
+
+        // Overload the operator
+        bool operator==(const value that) const
+        {
+            struct value A, B;
+            if (this->type == Variable)
+                A = Symbol.at(this->variableName);
+            else if (this->type == ListItem)
+                A = *(this->begin);
+            else
+                A = *this;
+            if (that.type == Variable)
+                B = Symbol.at(that.variableName);
+            else if (that.type == ListItem)
+                B = *(that.begin);
+            else
+                B = that;
+            switch (A.type)
+            {
+                case Integer:
+                    return (A.type == B.type && A.integerValue == B.integerValue);
+                case Real:
+                    return (A.type == B.type && A.realValue == B.realValue);
+                case String:
+                    return (A.type == B.type && A.stringValue == B.stringValue);
+                case List:
+                case ListSlice:
+                    return ((B.type == List || B.type == ListSlice) && (A.listValue == B.listValue));
+                default:
+                    return false;
+            }
+        }
     } Value;
 
-    /*
-        符号表 Symbol Table
-        variableName(string) -> Value(not Variable)
-    */
-    map<string, Value> Symbol;
+
 
     #define YYSTYPE Value
     #include "lex.yy.c"
