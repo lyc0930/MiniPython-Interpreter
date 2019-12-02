@@ -577,45 +577,119 @@ atom_expr:
             if ($1.stringValue == "append") // append方法
             {
                 $$.type = None;
-                if ($3.listValue.size() == 1)
+                if (Symbol.at($1.variableName).type == List)
                 {
-                    if (Symbol.at($1.variableName).type == List)
+                    if ($3.listValue.size() == 1) // append 有且仅有1个参数
                     {
-                        if ($3.listValue.size() == 1) // append 有且仅有1个参数
-                        {
-                            Symbol.at($1.variableName).listValue.push_back(*$3.listValue.begin());
-                        }
+                        Symbol.at($1.variableName).listValue.push_back(*$3.listValue.begin());
+                    }
+                    else
+                    {
+                        yyerror("TypeError: append() takes exactly one argument ("+ to_string($3.listValue.size()) +" given)");
+                        YYERROR;
                     }
                 }
                 else
                 {
-                    yyerror("TypeError: append() takes exactly one argument ("+ to_string($3.listValue.size()) +" given)");
+                    yyerror("AttributeError: '" + TypeString(Symbol.at($1.variableName)) + "' object has no attribute 'append'");
                     YYERROR;
                 }
+
             }
-            else if ($1.stringValue == "count") // append方法
+            else if ($1.stringValue == "count") // count方法
             {
                 $$.type = Integer;
-                if ($3.listValue.size() == 1)
+                if (Symbol.at($1.variableName).type == List)
                 {
-                    if (Symbol.at($1.variableName).type == List)
+                    if ($3.listValue.size() == 1)
                     {
-                        if ($3.listValue.size() == 1) // count 有且仅有1个参数
+                        if (Symbol.at($1.variableName).type == List)
                         {
-                            $$.integerValue = count(Symbol.at($1.variableName).listValue.begin(), Symbol.at($1.variableName).listValue.end(), *$3.listValue.begin()); // 调用algorithm中的count
+                            if ($3.listValue.size() == 1) // count 有且仅有1个参数
+                            {
+                                $$.integerValue = count(Symbol.at($1.variableName).listValue.begin(), Symbol.at($1.variableName).listValue.end(), *$3.listValue.begin()); // 调用algorithm中的count
+                            }
                         }
+                    }
+                    else
+                    {
+                        yyerror("TypeError: count() takes exactly one argument ("+ to_string($3.listValue.size()) +" given)");
+                        YYERROR;
                     }
                 }
                 else
                 {
-                    yyerror("TypeError: count() takes exactly one argument ("+ to_string($3.listValue.size()) +" given)");
+                    yyerror("AttributeError: '" + TypeString(Symbol.at($1.variableName)) + "' object has no attribute 'count'");
                     YYERROR;
                 }
             }
-            else if ($1.stringValue == "reverse") // reverse方法
+            else if ($1.stringValue == "extend") // extend方法
             {
-                yyerror("TypeError: append() takes no arguments ("+ to_string($3.listValue.size()) +" given)");
-                YYERROR;
+                $$.type = None;
+                if (Symbol.at($1.variableName).type == List)
+                {
+                    if ($3.listValue.size() == 1) // list 有且仅有1个参数
+                    {
+                        Value temp;
+                        Value temp_2; // 拆分字符串
+
+                        if ((*$3.listValue.begin()).type == Variable) // 变量替换为实体
+                        {
+                            if (Symbol.count((*$3.listValue.begin()).variableName) == 1) // 已在变量表中
+                                temp = Symbol.at((*$3.listValue.begin()).variableName);
+                            else
+                            {
+                                yyerror("NameError: name '" + (*$3.listValue.begin()).variableName + "' is not defined");
+                                YYERROR;
+                            }
+                        }
+                        else
+                            temp = (*$3.listValue.begin());
+
+                        switch (temp.type)
+                        {
+                            case String:
+                                temp_2.type = String;
+                                for (int i = 0; i < temp.stringValue.length(); i++)
+                                {
+                                    temp_2.stringValue = temp.stringValue[i];
+                                    Symbol.at($1.variableName).listValue.push_back(temp_2);
+                                }
+                                break;
+                            case List:
+                                Symbol.at($1.variableName).listValue.insert(Symbol.at($1.variableName).listValue.end(), temp.listValue.begin(), temp.listValue.end());
+                                break;
+                            default:
+                            {
+                                yyerror("TypeError: '"+TypeString(temp)+"' object is not iterable");
+                                YYERROR;
+                            }
+                        }
+                    }
+                    else
+                    {
+                        yyerror("TypeError: extend() takes exactly one argument ("+ to_string($3.listValue.size()) +" given)");
+                        YYERROR;
+                    }
+                }
+                else
+                {
+                    yyerror("AttributeError: '" + TypeString(Symbol.at($1.variableName)) + "' object has no attribute 'extend'");
+                    YYERROR;
+                }
+            }
+            else if ($1.stringValue == "reverse")
+            {
+                if (Symbol.at($1.variableName).type == List)
+                {
+                    yyerror("TypeError: append() takes no arguments ("+ to_string($3.listValue.size()) +" given)");
+                    YYERROR;
+                }
+                else
+                {
+                    yyerror("AttributeError: '" + TypeString(Symbol.at($1.variableName)) + "' object has no attribute 'reverse'");
+                    YYERROR;
+                }
             }
             else if ($1.variableName == "print") // print函数
             {
@@ -751,19 +825,51 @@ atom_expr:
             $$.variableName = $1.variableName; // 变量名
             $$.stringValue = $3.variableName; // 属性或方法名
         } |
-    atom_expr  '('  ')' // 在本实验中目前只包括无参量函数
+    atom_expr  '('  ')'
         {
             if ($1.variableName == "quit") // quit函数
                 exit(0);
             else if ($1.stringValue == "append")
             {
-                yyerror("TypeError: append() takes exactly one argument (0 given)");
-                YYERROR;
+                $$.type = None;
+                if (Symbol.at($1.variableName).type == List)
+                {
+                    yyerror("TypeError: append() takes exactly one argument (0 given)");
+                    YYERROR;
+                }
+                else
+                {
+                    yyerror("AttributeError: '" + TypeString(Symbol.at($1.variableName)) + "' object has no attribute 'append'");
+                    YYERROR;
+                }
             }
             else if ($1.stringValue == "count")
             {
-                yyerror("TypeError: append() takes exactly one argument (0 given)");
-                YYERROR;
+                $$.type = None;
+                if (Symbol.at($1.variableName).type == List)
+                {
+                    yyerror("TypeError: append() takes exactly one argument (0 given)");
+                    YYERROR;
+                }
+                else
+                {
+                    yyerror("AttributeError: '" + TypeString(Symbol.at($1.variableName)) + "' object has no attribute 'count'");
+                    YYERROR;
+                }
+            }
+            else if ($1.stringValue == "extend")
+            {
+                $$.type = None;
+                if (Symbol.at($1.variableName).type == List)
+                {
+                    yyerror("TypeError: extend() takes exactly one argument (0 given)");
+                    YYERROR;
+                }
+                else
+                {
+                    yyerror("AttributeError: '" + TypeString(Symbol.at($1.variableName)) + "' object has no attribute 'extend'");
+                    YYERROR;
+                }
             }
             else if ($1.stringValue == "reverse") // reverse方法
             {
@@ -778,7 +884,7 @@ atom_expr:
                     YYERROR;
                 }
             }
-            else if ($1.variableName == "print")
+            else if ($1.variableName == "print") // print函数
             {
                 $$.type = None;
                 cout << endl;
@@ -788,7 +894,7 @@ atom_expr:
                 yyerror("TypeError: range expected 1 arguments, got 0");
                 YYERROR;
             }
-            else if ($1.variableName == "list")
+            else if ($1.variableName == "list") // list函数
             {
                 $$.type = List;
                 $$.listValue = vector<struct value>();

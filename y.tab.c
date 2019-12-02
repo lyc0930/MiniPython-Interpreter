@@ -507,9 +507,9 @@ static const yytype_uint16 yyrline[] =
 {
        0,    87,    87,    92,    91,   104,   104,   106,   110,   114,
      118,   167,   171,   172,   176,   189,   202,   236,   237,   238,
-     239,   244,   247,   262,   265,   269,   270,   526,   575,   748,
-     754,   800,   805,   814,   819,   826,   828,   832,   837,   846,
-     938,   981,   985,  1066,  1083,  1102,  1132,  1133,  1134
+     239,   244,   247,   262,   265,   269,   270,   526,   575,   822,
+     828,   911,   916,   925,   930,   937,   939,   943,   948,   957,
+    1049,  1092,  1096,  1177,  1194,  1213,  1243,  1244,  1245
 };
 #endif
 
@@ -1833,45 +1833,119 @@ yyreduce:
             if ((yyvsp[-4]).stringValue == "append") // append方法
             {
                 (yyval).type = None;
-                if ((yyvsp[-2]).listValue.size() == 1)
+                if (Symbol.at((yyvsp[-4]).variableName).type == List)
                 {
-                    if (Symbol.at((yyvsp[-4]).variableName).type == List)
+                    if ((yyvsp[-2]).listValue.size() == 1) // append 有且仅有1个参数
                     {
-                        if ((yyvsp[-2]).listValue.size() == 1) // append 有且仅有1个参数
-                        {
-                            Symbol.at((yyvsp[-4]).variableName).listValue.push_back(*(yyvsp[-2]).listValue.begin());
-                        }
+                        Symbol.at((yyvsp[-4]).variableName).listValue.push_back(*(yyvsp[-2]).listValue.begin());
+                    }
+                    else
+                    {
+                        yyerror("TypeError: append() takes exactly one argument ("+ to_string((yyvsp[-2]).listValue.size()) +" given)");
+                        YYERROR;
                     }
                 }
                 else
                 {
-                    yyerror("TypeError: append() takes exactly one argument ("+ to_string((yyvsp[-2]).listValue.size()) +" given)");
+                    yyerror("AttributeError: '" + TypeString(Symbol.at((yyvsp[-4]).variableName)) + "' object has no attribute 'append'");
                     YYERROR;
                 }
+
             }
-            else if ((yyvsp[-4]).stringValue == "count") // append方法
+            else if ((yyvsp[-4]).stringValue == "count") // count方法
             {
                 (yyval).type = Integer;
-                if ((yyvsp[-2]).listValue.size() == 1)
+                if (Symbol.at((yyvsp[-4]).variableName).type == List)
                 {
-                    if (Symbol.at((yyvsp[-4]).variableName).type == List)
+                    if ((yyvsp[-2]).listValue.size() == 1)
                     {
-                        if ((yyvsp[-2]).listValue.size() == 1) // count 有且仅有1个参数
+                        if (Symbol.at((yyvsp[-4]).variableName).type == List)
                         {
-                            (yyval).integerValue = count(Symbol.at((yyvsp[-4]).variableName).listValue.begin(), Symbol.at((yyvsp[-4]).variableName).listValue.end(), *(yyvsp[-2]).listValue.begin()); // 调用algorithm中的count
+                            if ((yyvsp[-2]).listValue.size() == 1) // count 有且仅有1个参数
+                            {
+                                (yyval).integerValue = count(Symbol.at((yyvsp[-4]).variableName).listValue.begin(), Symbol.at((yyvsp[-4]).variableName).listValue.end(), *(yyvsp[-2]).listValue.begin()); // 调用algorithm中的count
+                            }
                         }
+                    }
+                    else
+                    {
+                        yyerror("TypeError: count() takes exactly one argument ("+ to_string((yyvsp[-2]).listValue.size()) +" given)");
+                        YYERROR;
                     }
                 }
                 else
                 {
-                    yyerror("TypeError: count() takes exactly one argument ("+ to_string((yyvsp[-2]).listValue.size()) +" given)");
+                    yyerror("AttributeError: '" + TypeString(Symbol.at((yyvsp[-4]).variableName)) + "' object has no attribute 'count'");
                     YYERROR;
                 }
             }
-            else if ((yyvsp[-4]).stringValue == "reverse") // reverse方法
+            else if ((yyvsp[-4]).stringValue == "extend") // extend方法
             {
-                yyerror("TypeError: append() takes no arguments ("+ to_string((yyvsp[-2]).listValue.size()) +" given)");
-                YYERROR;
+                (yyval).type = None;
+                if (Symbol.at((yyvsp[-4]).variableName).type == List)
+                {
+                    if ((yyvsp[-2]).listValue.size() == 1) // list 有且仅有1个参数
+                    {
+                        Value temp;
+                        Value temp_2; // 拆分字符串
+
+                        if ((*(yyvsp[-2]).listValue.begin()).type == Variable) // 变量替换为实体
+                        {
+                            if (Symbol.count((*(yyvsp[-2]).listValue.begin()).variableName) == 1) // 已在变量表中
+                                temp = Symbol.at((*(yyvsp[-2]).listValue.begin()).variableName);
+                            else
+                            {
+                                yyerror("NameError: name '" + (*(yyvsp[-2]).listValue.begin()).variableName + "' is not defined");
+                                YYERROR;
+                            }
+                        }
+                        else
+                            temp = (*(yyvsp[-2]).listValue.begin());
+
+                        switch (temp.type)
+                        {
+                            case String:
+                                temp_2.type = String;
+                                for (int i = 0; i < temp.stringValue.length(); i++)
+                                {
+                                    temp_2.stringValue = temp.stringValue[i];
+                                    Symbol.at((yyvsp[-4]).variableName).listValue.push_back(temp_2);
+                                }
+                                break;
+                            case List:
+                                Symbol.at((yyvsp[-4]).variableName).listValue.insert(Symbol.at((yyvsp[-4]).variableName).listValue.end(), temp.listValue.begin(), temp.listValue.end());
+                                break;
+                            default:
+                            {
+                                yyerror("TypeError: '"+TypeString(temp)+"' object is not iterable");
+                                YYERROR;
+                            }
+                        }
+                    }
+                    else
+                    {
+                        yyerror("TypeError: extend() takes exactly one argument ("+ to_string((yyvsp[-2]).listValue.size()) +" given)");
+                        YYERROR;
+                    }
+                }
+                else
+                {
+                    yyerror("AttributeError: '" + TypeString(Symbol.at((yyvsp[-4]).variableName)) + "' object has no attribute 'extend'");
+                    YYERROR;
+                }
+            }
+            else if ((yyvsp[-4]).stringValue == "reverse")
+            {
+                if (Symbol.at((yyvsp[-4]).variableName).type == List)
+                {
+                    yyerror("TypeError: append() takes no arguments ("+ to_string((yyvsp[-2]).listValue.size()) +" given)");
+                    YYERROR;
+                }
+                else
+                {
+                    yyerror("AttributeError: '" + TypeString(Symbol.at((yyvsp[-4]).variableName)) + "' object has no attribute 'reverse'");
+                    YYERROR;
+                }
             }
             else if ((yyvsp[-4]).variableName == "print") // print函数
             {
@@ -2001,28 +2075,65 @@ yyreduce:
             }
 
         }
-#line 2005 "y.tab.c" /* yacc.c:1646  */
+#line 2079 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 29:
-#line 749 "minipy-lab.y" /* yacc.c:1646  */
+#line 823 "minipy-lab.y" /* yacc.c:1646  */
     {
             (yyval).type = None;
             (yyval).variableName = (yyvsp[-2]).variableName; // 变量名
             (yyval).stringValue = (yyvsp[0]).variableName; // 属性或方法名
         }
-#line 2015 "y.tab.c" /* yacc.c:1646  */
+#line 2089 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 30:
-#line 755 "minipy-lab.y" /* yacc.c:1646  */
+#line 829 "minipy-lab.y" /* yacc.c:1646  */
     {
             if ((yyvsp[-2]).variableName == "quit") // quit函数
                 exit(0);
             else if ((yyvsp[-2]).stringValue == "append")
             {
-                yyerror("TypeError: append() takes exactly one argument (0 given)");
-                YYERROR;
+                (yyval).type = None;
+                if (Symbol.at((yyvsp[-2]).variableName).type == List)
+                {
+                    yyerror("TypeError: append() takes exactly one argument (0 given)");
+                    YYERROR;
+                }
+                else
+                {
+                    yyerror("AttributeError: '" + TypeString(Symbol.at((yyvsp[-2]).variableName)) + "' object has no attribute 'append'");
+                    YYERROR;
+                }
+            }
+            else if ((yyvsp[-2]).stringValue == "count")
+            {
+                (yyval).type = None;
+                if (Symbol.at((yyvsp[-2]).variableName).type == List)
+                {
+                    yyerror("TypeError: append() takes exactly one argument (0 given)");
+                    YYERROR;
+                }
+                else
+                {
+                    yyerror("AttributeError: '" + TypeString(Symbol.at((yyvsp[-2]).variableName)) + "' object has no attribute 'count'");
+                    YYERROR;
+                }
+            }
+            else if ((yyvsp[-2]).stringValue == "extend")
+            {
+                (yyval).type = None;
+                if (Symbol.at((yyvsp[-2]).variableName).type == List)
+                {
+                    yyerror("TypeError: extend() takes exactly one argument (0 given)");
+                    YYERROR;
+                }
+                else
+                {
+                    yyerror("AttributeError: '" + TypeString(Symbol.at((yyvsp[-2]).variableName)) + "' object has no attribute 'extend'");
+                    YYERROR;
+                }
             }
             else if ((yyvsp[-2]).stringValue == "reverse") // reverse方法
             {
@@ -2037,7 +2148,7 @@ yyreduce:
                     YYERROR;
                 }
             }
-            else if ((yyvsp[-2]).variableName == "print")
+            else if ((yyvsp[-2]).variableName == "print") // print函数
             {
                 (yyval).type = None;
                 cout << endl;
@@ -2047,7 +2158,7 @@ yyreduce:
                 yyerror("TypeError: range expected 1 arguments, got 0");
                 YYERROR;
             }
-            else if ((yyvsp[-2]).variableName == "list")
+            else if ((yyvsp[-2]).variableName == "list") // list函数
             {
                 (yyval).type = List;
                 (yyval).listValue = vector<struct value>();
@@ -2058,67 +2169,67 @@ yyreduce:
                 YYERROR;
             }
         }
-#line 2062 "y.tab.c" /* yacc.c:1646  */
+#line 2173 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 31:
-#line 801 "minipy-lab.y" /* yacc.c:1646  */
+#line 912 "minipy-lab.y" /* yacc.c:1646  */
     {
         (yyval).type = List;
         (yyval).listValue = vector<struct value>(1, (yyvsp[0])); // 用列表“框柱”参数
     }
-#line 2071 "y.tab.c" /* yacc.c:1646  */
+#line 2182 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 32:
-#line 806 "minipy-lab.y" /* yacc.c:1646  */
+#line 917 "minipy-lab.y" /* yacc.c:1646  */
     {
         (yyval).type = List;
         (yyvsp[-2]).listValue.push_back((yyvsp[0]));
         (yyval).listValue = vector<struct value>((yyvsp[-2]).listValue);
     }
-#line 2081 "y.tab.c" /* yacc.c:1646  */
+#line 2192 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 33:
-#line 815 "minipy-lab.y" /* yacc.c:1646  */
+#line 926 "minipy-lab.y" /* yacc.c:1646  */
     {
         (yyval).type = List;
         (yyval).listValue = vector<struct value>();
     }
-#line 2090 "y.tab.c" /* yacc.c:1646  */
+#line 2201 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 34:
-#line 820 "minipy-lab.y" /* yacc.c:1646  */
+#line 931 "minipy-lab.y" /* yacc.c:1646  */
     {
         (yyval).type = List;
         (yyval).listValue = vector<struct value>((yyvsp[-2]).listValue);
     }
-#line 2099 "y.tab.c" /* yacc.c:1646  */
+#line 2210 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 37:
-#line 833 "minipy-lab.y" /* yacc.c:1646  */
+#line 944 "minipy-lab.y" /* yacc.c:1646  */
     {
         (yyval).type = List;
         (yyval).listValue = vector<struct value>(1, (yyvsp[0])); // 用列表“框柱”变量
     }
-#line 2108 "y.tab.c" /* yacc.c:1646  */
+#line 2219 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 38:
-#line 838 "minipy-lab.y" /* yacc.c:1646  */
+#line 949 "minipy-lab.y" /* yacc.c:1646  */
     {
         (yyval).type = List;
         (yyvsp[-2]).listValue.push_back((yyvsp[0]));
         (yyval).listValue = vector<struct value>((yyvsp[-2]).listValue);
     }
-#line 2118 "y.tab.c" /* yacc.c:1646  */
+#line 2229 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 39:
-#line 847 "minipy-lab.y" /* yacc.c:1646  */
+#line 958 "minipy-lab.y" /* yacc.c:1646  */
     {
             switch((yyvsp[-2]).type)
             {
@@ -2210,11 +2321,11 @@ yyreduce:
                     YYERROR;
             }
         }
-#line 2214 "y.tab.c" /* yacc.c:1646  */
+#line 2325 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 40:
-#line 939 "minipy-lab.y" /* yacc.c:1646  */
+#line 1050 "minipy-lab.y" /* yacc.c:1646  */
     {
             switch((yyvsp[-2]).type)
             {
@@ -2257,11 +2368,11 @@ yyreduce:
                     YYERROR;
             }
         }
-#line 2261 "y.tab.c" /* yacc.c:1646  */
+#line 2372 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 42:
-#line 986 "minipy-lab.y" /* yacc.c:1646  */
+#line 1097 "minipy-lab.y" /* yacc.c:1646  */
     {
             switch((yyvsp[-2]).type)
             {
@@ -2342,11 +2453,11 @@ yyreduce:
                     YYERROR;
             }
         }
-#line 2346 "y.tab.c" /* yacc.c:1646  */
+#line 2457 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 43:
-#line 1067 "minipy-lab.y" /* yacc.c:1646  */
+#line 1178 "minipy-lab.y" /* yacc.c:1646  */
     {
             (yyval).type = Real;
             if (((yyvsp[-2]).type == Integer || (yyvsp[-2]).type == Real) && ((yyvsp[0]).type == Integer || (yyvsp[0]).type == Real))
@@ -2363,11 +2474,11 @@ yyreduce:
                 YYERROR;
             }
         }
-#line 2367 "y.tab.c" /* yacc.c:1646  */
+#line 2478 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 44:
-#line 1084 "minipy-lab.y" /* yacc.c:1646  */
+#line 1195 "minipy-lab.y" /* yacc.c:1646  */
     {
             // 整除
             (yyval).type = Integer;
@@ -2386,11 +2497,11 @@ yyreduce:
             }
 
         }
-#line 2390 "y.tab.c" /* yacc.c:1646  */
+#line 2501 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 45:
-#line 1103 "minipy-lab.y" /* yacc.c:1646  */
+#line 1214 "minipy-lab.y" /* yacc.c:1646  */
     {
             if (((yyvsp[-2]).type == Integer || (yyvsp[-2]).type == Real) && ((yyvsp[0]).type == Integer || (yyvsp[0]).type == Real))
             {
@@ -2420,23 +2531,23 @@ yyreduce:
                 YYERROR;
             }
         }
-#line 2424 "y.tab.c" /* yacc.c:1646  */
+#line 2535 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 46:
-#line 1132 "minipy-lab.y" /* yacc.c:1646  */
+#line 1243 "minipy-lab.y" /* yacc.c:1646  */
     { (yyval) = (yyvsp[-1]); }
-#line 2430 "y.tab.c" /* yacc.c:1646  */
+#line 2541 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 47:
-#line 1133 "minipy-lab.y" /* yacc.c:1646  */
+#line 1244 "minipy-lab.y" /* yacc.c:1646  */
     { (yyval) = (yyvsp[-1]); }
-#line 2436 "y.tab.c" /* yacc.c:1646  */
+#line 2547 "y.tab.c" /* yacc.c:1646  */
     break;
 
 
-#line 2440 "y.tab.c" /* yacc.c:1646  */
+#line 2551 "y.tab.c" /* yacc.c:1646  */
       default: break;
     }
   /* User semantic actions sometimes alter yychar, and that requires
@@ -2664,7 +2775,7 @@ yyreturn:
 #endif
   return yyresult;
 }
-#line 1137 "minipy-lab.y" /* yacc.c:1906  */
+#line 1248 "minipy-lab.y" /* yacc.c:1906  */
 
 
 int main()
