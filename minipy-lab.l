@@ -37,7 +37,7 @@ real     {number}"."{number}?|{number}?"."{number}
                         yylval.variableName.assign(yytext);
                         return ID;
                     }
-\"(\\.|[^\\"])*\"   {
+('(\\.|[^\\'])*')|(\"(\\.|[^\\"])*\")   {
                         yylval.type = String;
                         string temp;
                         temp.assign(yytext);
