@@ -749,56 +749,56 @@ case 2:
 YY_RULE_SETUP
 #line 25 "minipy-lab.l"
 {
-                        yylval.type = Integer;
-                        yylval.integerValue = atoi( yytext );
-	                    return INT;
-                    }
+                                            yylval.type = Integer;
+                                            yylval.integerValue = atoi( yytext );
+	                                        return INT;
+                                        }
 	YY_BREAK
 case 3:
 YY_RULE_SETUP
 #line 30 "minipy-lab.l"
 {
-                        yylval.type = Real;
-                        yylval.realValue = atof( yytext );
-                        return REAL;
-                    }
+                                            yylval.type = Real;
+                                            yylval.realValue = atof( yytext );
+                                            return REAL;
+                                        }
 	YY_BREAK
 case 4:
 YY_RULE_SETUP
 #line 35 "minipy-lab.l"
 {
-                        yylval.type = Variable;
-                        yylval.variableName.assign(yytext);
-                        return ID;
-                    }
+                                            yylval.type = Variable;
+                                            yylval.variableName.assign(yytext);
+                                            return ID;
+                                        }
 	YY_BREAK
 case 5:
 /* rule 5 can match eol */
 YY_RULE_SETUP
 #line 40 "minipy-lab.l"
 {
-                        yylval.type = String;
-                        string temp;
-                        temp.assign(yytext);
-                        yylval.stringValue = temp.substr(1, temp.length() - 2); /* 删除“” */
-                        return STRING_LITERAL;
-                    }
+                                            yylval.type = String;
+                                            string temp;
+                                            temp.assign(yytext);
+                                            yylval.stringValue = temp.substr(1, temp.length() - 2); /* 删除“” */
+                                            return STRING_LITERAL;
+                                        }
 	YY_BREAK
 case 6:
 /* rule 6 can match eol */
 YY_RULE_SETUP
 #line 47 "minipy-lab.l"
 {
-                        yylval.type = Integer;
-                        return yylval.integerValue = yytext[0];
-                    }
+                                            yylval.type = Integer;
+                                            return yylval.integerValue = yytext[0];
+                                        }
 	YY_BREAK
 case 7:
 YY_RULE_SETUP
 #line 51 "minipy-lab.l"
 {
-                        return DIV;
-                    }
+                                            return DIV;
+                                        }
 	YY_BREAK
 case 8:
 YY_RULE_SETUP

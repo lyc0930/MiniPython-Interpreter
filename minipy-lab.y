@@ -8,6 +8,7 @@
     #include <map>
     #include <string>
     #include <vector>
+    #include <algorithm>
     #include "minipy-lab.h"
     using namespace std;
     typedef struct value
@@ -69,8 +70,7 @@ Lines:
     prompt |
     Lines '\n' prompt |
     /*  empty production */ |
-    error '\n'
-        { yyerrok; }
+    error '\n' { yyerrok; }
 ;
 
 prompt:
@@ -560,6 +560,11 @@ atom_expr:
                     YYERROR;
                 }
             }
+            else if ($1.stringValue == "reverse") // reverse方法
+            {
+                yyerror("TypeError: append() takes no arguments ("+ to_string($3.listValue.size()) +" given)");
+                YYERROR;
+            }
             else if ($1.variableName == "print") // print函数
             {
                 $$.type = None;
@@ -702,6 +707,19 @@ atom_expr:
             {
                 yyerror("TypeError: append() takes exactly one argument (0 given)");
                 YYERROR;
+            }
+            else if ($1.stringValue == "reverse") // reverse方法
+            {
+                $$.type = None;
+                if (Symbol.at($1.variableName).type == List)
+                {
+                    reverse(Symbol.at($1.variableName).listValue.begin(), Symbol.at($1.variableName).listValue.end()); // 调用algorithm中的reverse
+                }
+                else
+                {
+                    yyerror("AttributeError: '" + TypeString(Symbol.at($1.variableName)) + "' object has no attribute 'reverse'");
+                    YYERROR;
+                }
             }
             else if ($1.variableName == "print")
             {
