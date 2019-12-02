@@ -103,8 +103,10 @@
     // 变量值的输出函数
     void Print(Value);
 
+    // 返回变量类型的字符串
+    string TypeString(Value);
 
-#line 108 "y.tab.c" /* yacc.c:339  */
+#line 110 "y.tab.c" /* yacc.c:339  */
 
 # ifndef YY_NULLPTR
 #  if defined __cplusplus && 201103L <= __cplusplus
@@ -171,7 +173,7 @@ int yyparse (void);
 
 /* Copy the second part of user declarations.  */
 
-#line 175 "y.tab.c" /* yacc.c:358  */
+#line 177 "y.tab.c" /* yacc.c:358  */
 
 #ifdef short
 # undef short
@@ -469,11 +471,11 @@ static const yytype_uint8 yytranslate[] =
   /* YYRLINE[YYN] -- Source line where rule number YYN was defined.  */
 static const yytype_uint16 yyrline[] =
 {
-       0,    51,    51,    56,    55,    68,    68,    70,    75,    79,
-      83,   111,   115,   116,   120,   122,   130,   158,   159,   160,
-     161,   166,   169,   180,   183,   187,   188,   420,   463,   532,
-     538,   546,   551,   560,   565,   572,   574,   578,   583,   592,
-     673,   709,   713,   779,   789,   800,   823,   824,   825
+       0,    53,    53,    58,    57,    70,    70,    72,    77,    81,
+      85,   134,   138,   139,   143,   156,   169,   203,   204,   205,
+     206,   211,   214,   229,   232,   236,   237,   493,   542,   669,
+     675,   703,   708,   717,   722,   729,   731,   735,   740,   749,
+     841,   884,   888,   969,   986,  1005,  1035,  1036,  1037
 };
 #endif
 
@@ -1298,141 +1300,188 @@ yyreduce:
   switch (yyn)
     {
         case 3:
-#line 56 "minipy-lab.y" /* yacc.c:1646  */
+#line 58 "minipy-lab.y" /* yacc.c:1646  */
     {
             Value temp;
             if ((yyvsp[-1]).type != None)
             {
                 if ((yyvsp[-1]).type == Variable) /* 单独的变量 */
-                    Print(Symbol[(yyvsp[-1]).variableName]);
+                    Print(Symbol.at((yyvsp[-1]).variableName));
                 else
                     Print((yyvsp[-1]));
                 cout << endl;
             }
         }
-#line 1314 "y.tab.c" /* yacc.c:1646  */
+#line 1316 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 7:
-#line 71 "minipy-lab.y" /* yacc.c:1646  */
+#line 73 "minipy-lab.y" /* yacc.c:1646  */
     { yyerrok; }
-#line 1320 "y.tab.c" /* yacc.c:1646  */
+#line 1322 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 8:
-#line 75 "minipy-lab.y" /* yacc.c:1646  */
+#line 77 "minipy-lab.y" /* yacc.c:1646  */
     { cout << "miniPy> "; }
-#line 1326 "y.tab.c" /* yacc.c:1646  */
+#line 1328 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 10:
-#line 84 "minipy-lab.y" /* yacc.c:1646  */
+#line 86 "minipy-lab.y" /* yacc.c:1646  */
     {
             (yyval).type = None;
+            Value temp;
+            if ((yyvsp[0]).type == Variable)
+                temp = Symbol.at((yyvsp[0]).variableName);
+            else
+                temp = (yyvsp[0]);
+            vector<struct value> temp_for_string = vector<struct value>();
+            Value temp_for_string_2; // 拆分字符串
             switch ((yyvsp[-2]).type)
             {
                 case Variable:
-                    Symbol[(yyvsp[-2]).variableName] = (yyvsp[0]); /* 加入符号表或重新赋值 */
+                    Symbol[(yyvsp[-2]).variableName] = temp; /* 加入符号表或重新赋值 */
                     break;
                 case ListItem:
-                    *(yyvsp[-2]).begin = (yyvsp[0]);
+                    *(yyvsp[-2]).begin = temp;
                     break;
                 case ListSlice:
-                    switch ((yyvsp[0]).type)
+                    switch (temp.type)
                     {
                         case List:
                             Symbol[(yyvsp[-2]).variableName].listValue.erase((yyvsp[-2]).begin, (yyvsp[-2]).end);
-                            Symbol[(yyvsp[-2]).variableName].listValue.insert((yyvsp[-2]).begin + 1, (yyvsp[0]).listValue.begin(), (yyvsp[0]).listValue.end()); // 插入
+                            Symbol[(yyvsp[-2]).variableName].listValue.insert((yyvsp[-2]).begin, temp.listValue.begin(), temp.listValue.end()); // 插入
                             break;
                         case ListSlice:
                             Symbol[(yyvsp[-2]).variableName].listValue.erase((yyvsp[-2]).begin, (yyvsp[-2]).end);
-                            Symbol[(yyvsp[-2]).variableName].listValue.insert((yyvsp[-2]).begin + 1, (yyvsp[0]).begin, (yyvsp[0]).end); // 插入
+                            Symbol[(yyvsp[-2]).variableName].listValue.insert((yyvsp[-2]).begin, temp.begin, temp.end); // 插入
                             break;
-                        // default: yyerror(); // TODO @NXH ，只能给切片赋切片或者列表
+                        case String:
+                            temp_for_string_2.type = String;
+                            for (int i = 0; i < temp.stringValue.length(); i++)
+                            {
+                                temp_for_string_2.stringValue = temp.stringValue[i];
+                                temp_for_string.push_back(temp_for_string_2);
+                            }
+                            Symbol[(yyvsp[-2]).variableName].listValue.erase((yyvsp[-2]).begin, (yyvsp[-2]).end);
+                            Symbol[(yyvsp[-2]).variableName].listValue.insert((yyvsp[-2]).begin, temp_for_string.begin(), temp_for_string.end()); // 插入
+                            break;
+                        default:
+                            yyerror("TypeError: can only assign an iterable");
+                            YYERROR;
                     }
                     break;
-                // default: yyerror(); // TODO @NXH ， only subscriptable type here
+                default:
+                    yyerror("SyntaxError: can't assign to literal");
+                    YYERROR;
             }
         }
-#line 1358 "y.tab.c" /* yacc.c:1646  */
+#line 1381 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 14:
-#line 121 "minipy-lab.y" /* yacc.c:1646  */
-    { (yyval) = (yyvsp[0]); }
-#line 1364 "y.tab.c" /* yacc.c:1646  */
+#line 144 "minipy-lab.y" /* yacc.c:1646  */
+    {
+            (yyval).type = (yyvsp[0]).type;
+            if ((yyvsp[0]).type == Integer)
+                (yyval).integerValue = (yyvsp[0]).integerValue;
+            else if ((yyvsp[0]).type == Real)
+                (yyval).realValue = (yyvsp[0]).realValue;
+            else
+            {
+                yyerror("TypeError: bad operand type for unary +: '"+ TypeString((yyvsp[0])) + "\'");
+                YYERROR;
+            }
+        }
+#line 1398 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 15:
-#line 123 "minipy-lab.y" /* yacc.c:1646  */
+#line 157 "minipy-lab.y" /* yacc.c:1646  */
     {
             (yyval).type = (yyvsp[0]).type;
             if ((yyvsp[0]).type == Integer)
                 (yyval).integerValue = -(yyvsp[0]).integerValue;
             else if ((yyvsp[0]).type == Real)
                 (yyval).realValue = -(yyvsp[0]).realValue;
+            else
+            {
+                yyerror("TypeError: bad operand type for unary -: '"+ TypeString((yyvsp[0])) + "\'");
+                YYERROR;
+            }
         }
-#line 1376 "y.tab.c" /* yacc.c:1646  */
+#line 1415 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 16:
-#line 131 "minipy-lab.y" /* yacc.c:1646  */
+#line 170 "minipy-lab.y" /* yacc.c:1646  */
     {
             switch ((yyvsp[0]).type)
             {
                 case Integer:
                 case Real:
                 case String:
+                case List:
                     (yyval) = (yyvsp[0]);
+                    break;
+                case ListSlice:
+                    (yyval).type = List;
+                    (yyval).listValue = (yyvsp[0]).listValue;
+                    break;
+                case ListItem:
+                    (yyval) = *(yyvsp[0]).begin;
                     break;
                 case Variable:
                     if (Symbol.count((yyvsp[0]).variableName) == 1) // 已在变量表内
                         (yyval) = Symbol.at((yyvsp[0]).variableName); // 取变量内容，使用下标检查
                     else
                     {
-                        (yyval).type = None; // 不输出变量内容，也确实没有可以输出的
-                        // TODO @NXH 把这里的错误信息处理好
-                        // yyerror("Traceback (most recent call last):\n\tFile \"<stdin>\", line 1, in <module>\nNameError: name "+ $1.variableName +" is not defined  ");
+                        yyerror("NameError: name '"+ (yyvsp[0]).variableName +"' is not defined");
+                        YYERROR;
                     }
                     break;
-                case ListItem:
-                    (yyval) = *(yyvsp[0]).begin;
-                    break;
-                // default: yyerror(); // TODO @NXH ， only subscriptable type here
+                // default:
+                //     yyerror("TypeError: not supported type");
+                //     YYERROR;
             }
         }
-#line 1405 "y.tab.c" /* yacc.c:1646  */
+#line 1450 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 21:
-#line 166 "minipy-lab.y" /* yacc.c:1646  */
+#line 211 "minipy-lab.y" /* yacc.c:1646  */
     {
             (yyval).type = None;
         }
-#line 1413 "y.tab.c" /* yacc.c:1646  */
+#line 1458 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 22:
-#line 170 "minipy-lab.y" /* yacc.c:1646  */
+#line 215 "minipy-lab.y" /* yacc.c:1646  */
     {
             (yyval).type = Integer;
             if ((yyvsp[0]).type == Integer)
                 (yyval).integerValue = (yyvsp[0]).integerValue;
-            // yyerror(); // TODO @NXH ， int
+            else
+            {
+                yyerror("TypeError: slice indices must be integers or None");
+                YYERROR;
+            }
         }
-#line 1424 "y.tab.c" /* yacc.c:1646  */
+#line 1473 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 23:
-#line 180 "minipy-lab.y" /* yacc.c:1646  */
+#line 229 "minipy-lab.y" /* yacc.c:1646  */
     {
             (yyval).type = None;
         }
-#line 1432 "y.tab.c" /* yacc.c:1646  */
+#line 1481 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 26:
-#line 189 "minipy-lab.y" /* yacc.c:1646  */
+#line 238 "minipy-lab.y" /* yacc.c:1646  */
     {
             int begin, end, step;
 
@@ -1442,7 +1491,8 @@ yyreduce:
                 step = (yyvsp[-1]).integerValue;
             else
             {
-                // yyerror(); // TODO @NXH ， int or none
+                yyerror("TypeError: slice indices must be integers or None");
+                YYERROR;
             }
 
             switch ((yyvsp[-6]).type)
@@ -1459,7 +1509,8 @@ yyreduce:
                             begin = (yyvsp[-4]).integerValue;
                         else
                         {
-                            // yyerror(); // TODO @NXH ， int or none
+                            yyerror("TypeError: slice indices must be integers or None");
+                            YYERROR;
                         }
 
                         if ((yyvsp[-2]).type == None) // 默认结束
@@ -1468,7 +1519,8 @@ yyreduce:
                             end = (yyvsp[-2]).integerValue;
                         else
                         {
-                            // yyerror(); // TODO @NXH ， int or none
+                            yyerror("TypeError: slice indices must be integers or None");
+                            YYERROR;
                         }
 
                         for (int i = begin; i < end; i += step)
@@ -1482,7 +1534,8 @@ yyreduce:
                             begin = (yyvsp[-4]).integerValue;
                         else
                         {
-                            // yyerror(); // TODO @NXH ， int or none
+                            yyerror("TypeError: slice indices must be integers or None");
+                            YYERROR;
                         }
 
                         if ((yyvsp[-2]).type == None) // 默认结束
@@ -1491,7 +1544,8 @@ yyreduce:
                             end = (yyvsp[-2]).integerValue;
                         else
                         {
-                            // yyerror(); // TODO @NXH ， int or none
+                            yyerror("TypeError: slice indices must be integers or None");
+                            YYERROR;
                         }
 
                         for (int i = begin; i > end; i += step)
@@ -1509,7 +1563,8 @@ yyreduce:
                             begin = (yyvsp[-4]).integerValue;
                         else
                         {
-                            // yyerror(); // TODO @NXH ， int or none
+                            yyerror("TypeError: slice indices must be integers or None");
+                            YYERROR;
                         }
 
                         if ((yyvsp[-2]).type == None) // 默认结束
@@ -1518,11 +1573,12 @@ yyreduce:
                             end = (yyvsp[-2]).integerValue;
                         else
                         {
-                            // yyerror(); // TODO @NXH ， int or none
+                            yyerror("TypeError: slice indices must be integers or None");
+                            YYERROR;
                         }
 
                         for (vector<struct value>::iterator i = (yyvsp[-6]).listValue.begin() + begin; i != (yyvsp[-6]).listValue.begin() + end; i += step)
-                            (yyval).listValue.push_back(*i); // 逐个取子串
+                            (yyval).listValue.push_back(*i); // 逐个取元素
                     }
                     else if (step < 0)
                     {
@@ -1532,7 +1588,8 @@ yyreduce:
                             begin = (yyvsp[-4]).integerValue;
                         else
                         {
-                            // yyerror(); // TODO @NXH ， int or none
+                            yyerror("TypeError: slice indices must be integers or None");
+                            YYERROR;
                         }
 
                         if ((yyvsp[-2]).type == None) // 默认结束
@@ -1541,11 +1598,12 @@ yyreduce:
                             end = (yyvsp[-2]).integerValue;
                         else
                         {
-                            // yyerror(); // TODO @NXH ， int or none
+                            yyerror("TypeError: slice indices must be integers or None");
+                            YYERROR;
                         }
 
                         for (vector<struct value>::iterator i = (yyvsp[-6]).listValue.begin() + begin; i != (yyvsp[-6]).listValue.begin() + end; i += step)
-                            (yyval).listValue.push_back(*i); // 逐个取子串
+                            (yyval).listValue.push_back(*i); // 逐个取元素
                     }
                     break;
                 case Variable:
@@ -1565,7 +1623,8 @@ yyreduce:
                                         begin = (yyvsp[-4]).integerValue;
                                     else
                                     {
-                                        // yyerror(); // TODO @NXH ， int or none
+                                        yyerror("TypeError: slice indices must be integers or None");
+                                        YYERROR;
                                     }
 
                                     if ((yyvsp[-2]).type == None) // 默认结束
@@ -1574,7 +1633,8 @@ yyreduce:
                                         end = (yyvsp[-2]).integerValue;
                                     else
                                     {
-                                        // yyerror(); // TODO @NXH ， int or none
+                                        yyerror("TypeError: slice indices must be integers or None");
+                                        YYERROR;
                                     }
                                     for (int i = begin; i < end; i += step)
                                         (yyval).stringValue += Symbol.at((yyvsp[-6]).variableName).stringValue[i]; // 逐个取子串
@@ -1587,7 +1647,8 @@ yyreduce:
                                         begin = (yyvsp[-4]).integerValue;
                                     else
                                     {
-                                        // yyerror(); // TODO @NXH ， int or none
+                                        yyerror("TypeError: slice indices must be integers or None");
+                                        YYERROR;
                                     }
 
                                     if ((yyvsp[-2]).type == None) // 默认结束
@@ -1596,7 +1657,8 @@ yyreduce:
                                         end = (yyvsp[-2]).integerValue;
                                     else
                                     {
-                                        // yyerror(); // TODO @NXH ， int or none
+                                        yyerror("TypeError: slice indices must be integers or None");
+                                        YYERROR;
                                     }
 
                                     for (int i = begin; i > end; i += step)
@@ -1615,7 +1677,8 @@ yyreduce:
                                         (yyval).begin = Symbol.at((yyvsp[-6]).variableName).listValue.begin() + (yyvsp[-4]).integerValue;
                                     else
                                     {
-                                        // yyerror(); // TODO @NXH ， int or none
+                                        yyerror("TypeError: slice indices must be integers or None");
+                                        YYERROR;
                                     }
 
                                     if ((yyvsp[-2]).type == None) // 默认结束
@@ -1624,10 +1687,13 @@ yyreduce:
                                         (yyval).end = Symbol.at((yyvsp[-6]).variableName).listValue.begin() + (yyvsp[-2]).integerValue;
                                     else
                                     {
-                                        // yyerror(); // TODO @NXH ， int or none
+                                        yyerror("TypeError: slice indices must be integers or None");
+                                        YYERROR;
                                     }
+
                                     for (vector<struct value>::iterator i = (yyval).begin; i != (yyval).end; i += step)
                                         (yyval).listValue.push_back(*i); // 逐个取子串
+
                                 }
                                 else if (step < 0)
                                 {
@@ -1637,7 +1703,8 @@ yyreduce:
                                         (yyval).begin = Symbol.at((yyvsp[-6]).variableName).listValue.begin() + (yyvsp[-4]).integerValue;
                                     else
                                     {
-                                        // yyerror(); // TODO @NXH ， int or none
+                                        yyerror("TypeError: slice indices must be integers or None");
+                                        YYERROR;
                                     }
 
                                     if ((yyvsp[-2]).type == None) // 默认结束
@@ -1646,29 +1713,35 @@ yyreduce:
                                         (yyval).end = Symbol.at((yyvsp[-6]).variableName).listValue.begin() + (yyvsp[-2]).integerValue;
                                     else
                                     {
-                                        // yyerror(); // TODO @NXH ， int or none
+                                        yyerror("TypeError: slice indices must be integers or None");
+                                        YYERROR;
                                     }
 
                                     for (vector<struct value>::iterator i = (yyval).begin; i != (yyval).end; i += step)
                                         (yyval).listValue.push_back(*i); // 逐个取子串
                                 }
                                 break;
-                            // default: yyerror(); // TODO @NXH ， only subscriptable type here
+                            default:
+                                yyerror("TypeError: '"+ TypeString(Symbol.at((yyvsp[-6]).variableName)) +"' object is not subscriptable");
+                                YYERROR;
                         }
                     }
                     else
                     {
-                        // yyerror(); // TODO @NXH ， only subscriptable type here
+                        yyerror("NameError: name '" + (yyvsp[-6]).variableName + "' is not defined");
+                        YYERROR;
                     }
                     break;
-                // default: yyerror(); // TODO @NXH ， only subscriptable type here
+                default:
+                    yyerror("TypeError: '"+ TypeString((yyvsp[-6])) +"' object is not subscriptable");
+                    YYERROR;
             }
         }
-#line 1668 "y.tab.c" /* yacc.c:1646  */
+#line 1741 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 27:
-#line 421 "minipy-lab.y" /* yacc.c:1646  */
+#line 494 "minipy-lab.y" /* yacc.c:1646  */
     {
             if ((yyvsp[-1]).type == Integer)
             {
@@ -1695,37 +1768,51 @@ yyreduce:
                                     (yyval).type = ListItem; // 列表元素类型
                                     (yyval).begin = Symbol.at((yyvsp[-3]).variableName).listValue.begin() + (yyvsp[-1]).integerValue; // 取列表元素地址
                                     break;
-                                // default: yyerror(); // TODO @NXH ， only subscriptable type here
+                                default:
+                                    yyerror("TypeError: '"+ TypeString(Symbol.at((yyvsp[-3]).variableName)) +"' object is not subscriptable");
+                                    YYERROR;
                             }
                         }
                         else
                         {
-                            // yyerror(); // TODO @NXH ， only subscriptable type here
+                            yyerror("NameError: name '" + (yyvsp[-3]).variableName + "' is not defined");
+                            YYERROR;
                         }
                         break;
-                    // default: yyerror(); // TODO @NXH ， only subscriptable type here
+                    default:
+                        yyerror("TypeError: '"+ TypeString((yyvsp[-3])) +"' object is not subscriptable");
+                        YYERROR;
                 }
             }
             else
             {
-                // yyerror(); // TODO @NXH , indices must be integers or slices
+                yyerror("TypeError: list indices must be integers or slices, not " + TypeString((yyvsp[-1])));
+                YYERROR;
             }
         }
-#line 1715 "y.tab.c" /* yacc.c:1646  */
+#line 1794 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 28:
-#line 464 "minipy-lab.y" /* yacc.c:1646  */
+#line 543 "minipy-lab.y" /* yacc.c:1646  */
     {
             if ((yyvsp[-4]).stringValue == "append") // append方法
             {
                 (yyval).type = None;
-                if (Symbol.at((yyvsp[-4]).variableName).type == List)
+                if ((yyvsp[-2]).listValue.size() == 1)
                 {
-                    if ((yyvsp[-2]).listValue.size() == 1) // append 有且仅有1个参数
+                    if (Symbol.at((yyvsp[-4]).variableName).type == List)
                     {
-                        Symbol.at((yyvsp[-4]).variableName).listValue.push_back(*(yyvsp[-2]).listValue.begin());
+                        if ((yyvsp[-2]).listValue.size() == 1) // append 有且仅有1个参数
+                        {
+                            Symbol.at((yyvsp[-4]).variableName).listValue.push_back(*(yyvsp[-2]).listValue.begin());
+                        }
                     }
+                }
+                else
+                {
+                    yyerror("TypeError: append() takes exactly one argument ("+ to_string((yyvsp[-2]).listValue.size()) +" given)");
+                    YYERROR;
                 }
             }
             else if ((yyvsp[-4]).variableName == "print") // print函数
@@ -1755,9 +1842,10 @@ yyreduce:
                     step = 1;
                 else if ((yyvsp[-2]).listValue.size() == 3)
                     step = (yyvsp[-2]).listValue[2].integerValue; // 第三个参数
-                else
+                else if ((yyvsp[-2]).listValue.size() > 3)
                 {
-                    // yyerror(); // TODO @NXH ， 2 或 3 个参数
+                    yyerror("TypeError: range expected at most 3 arguments, got " + to_string((yyvsp[-2]).listValue.size()));
+                    YYERROR;
                 }
 
                 if (step > 0)
@@ -1783,87 +1871,156 @@ yyreduce:
                         (yyval).listValue.push_back(temp);
                 }
             }
+            else if ((yyvsp[-4]).variableName == "list") // list函数
+            {
+                (yyval).type = List;
+
+                if ((yyvsp[-2]).listValue.size() == 1) // list 有且仅有1个参数
+                {
+                    Value temp;
+                    Value temp_2; // 拆分字符串
+
+                    if ((*(yyvsp[-2]).listValue.begin()).type == Variable) // 变量替换为实体
+                    {
+                        if (Symbol.count((*(yyvsp[-2]).listValue.begin()).variableName) == 1) // 已在变量表中
+                            temp = Symbol.at((*(yyvsp[-2]).listValue.begin()).variableName);
+                        else
+                        {
+                            yyerror("NameError: name '" + (*(yyvsp[-2]).listValue.begin()).variableName + "' is not defined");
+                            YYERROR;
+                        }
+                    }
+                    else
+                        temp = (*(yyvsp[-2]).listValue.begin());
+
+                    switch (temp.type)
+                    {
+                        case String:
+                            (yyval).listValue = vector<struct value>();
+                            temp_2.type = String;
+                            for (int i = 0; i < temp.stringValue.length(); i++)
+                            {
+                                temp_2.stringValue = temp.stringValue[i];
+                                (yyval).listValue.push_back(temp_2);
+                            }
+                            break;
+                        case List:
+                            (yyval).listValue = vector<struct value>(temp.listValue);
+                            break;
+                        default:
+                        {
+                            yyerror("TypeError: '"+TypeString(temp)+"' object is not iterable");
+                            YYERROR;
+                        }
+                    }
+                }
+                else
+                {
+                    yyerror("TypeError: list expected at most 1 arguments, got " + to_string((yyvsp[-2]).listValue.size()));
+                    YYERROR;
+                }
+            }
         }
-#line 1788 "y.tab.c" /* yacc.c:1646  */
+#line 1925 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 29:
-#line 533 "minipy-lab.y" /* yacc.c:1646  */
+#line 670 "minipy-lab.y" /* yacc.c:1646  */
     {
             (yyval).type = None;
             (yyval).variableName = (yyvsp[-2]).variableName; // 变量名
             (yyval).stringValue = (yyvsp[0]).variableName; // 属性或方法名
         }
-#line 1798 "y.tab.c" /* yacc.c:1646  */
+#line 1935 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 30:
-#line 539 "minipy-lab.y" /* yacc.c:1646  */
+#line 676 "minipy-lab.y" /* yacc.c:1646  */
     {
             if ((yyvsp[-2]).variableName == "quit") // quit函数
                 exit(0);
+            else if ((yyvsp[-2]).stringValue == "append")
+            {
+                yyerror("TypeError: append() takes exactly one argument (0 given)");
+                YYERROR;
+            }
+            else if ((yyvsp[-2]).variableName == "print")
+            {
+                (yyval).type = None;
+                cout << endl;
+            }
+            else if ((yyvsp[-2]).variableName == "range")
+            {
+                yyerror("TypeError: range expected 1 arguments, got 0");
+                YYERROR;
+            }
+            else if ((yyvsp[-2]).variableName == "list")
+            {
+                (yyval).type = List;
+                (yyval).listValue = vector<struct value>();
+            }
         }
-#line 1807 "y.tab.c" /* yacc.c:1646  */
+#line 1964 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 31:
-#line 547 "minipy-lab.y" /* yacc.c:1646  */
+#line 704 "minipy-lab.y" /* yacc.c:1646  */
     {
         (yyval).type = List;
         (yyval).listValue = vector<struct value>(1, (yyvsp[0])); // 用列表“框柱”参数
     }
-#line 1816 "y.tab.c" /* yacc.c:1646  */
+#line 1973 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 32:
-#line 552 "minipy-lab.y" /* yacc.c:1646  */
+#line 709 "minipy-lab.y" /* yacc.c:1646  */
     {
         (yyval).type = List;
         (yyvsp[-2]).listValue.push_back((yyvsp[0]));
         (yyval).listValue = vector<struct value>((yyvsp[-2]).listValue);
     }
-#line 1826 "y.tab.c" /* yacc.c:1646  */
+#line 1983 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 33:
-#line 561 "minipy-lab.y" /* yacc.c:1646  */
+#line 718 "minipy-lab.y" /* yacc.c:1646  */
     {
         (yyval).type = List;
         (yyval).listValue = vector<struct value>();
     }
-#line 1835 "y.tab.c" /* yacc.c:1646  */
+#line 1992 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 34:
-#line 566 "minipy-lab.y" /* yacc.c:1646  */
+#line 723 "minipy-lab.y" /* yacc.c:1646  */
     {
         (yyval).type = List;
         (yyval).listValue = vector<struct value>((yyvsp[-2]).listValue);
     }
-#line 1844 "y.tab.c" /* yacc.c:1646  */
+#line 2001 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 37:
-#line 579 "minipy-lab.y" /* yacc.c:1646  */
+#line 736 "minipy-lab.y" /* yacc.c:1646  */
     {
         (yyval).type = List;
         (yyval).listValue = vector<struct value>(1, (yyvsp[0])); // 用列表“框柱”变量
     }
-#line 1853 "y.tab.c" /* yacc.c:1646  */
+#line 2010 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 38:
-#line 584 "minipy-lab.y" /* yacc.c:1646  */
+#line 741 "minipy-lab.y" /* yacc.c:1646  */
     {
         (yyval).type = List;
         (yyvsp[-2]).listValue.push_back((yyvsp[0]));
         (yyval).listValue = vector<struct value>((yyvsp[-2]).listValue);
     }
-#line 1863 "y.tab.c" /* yacc.c:1646  */
+#line 2020 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 39:
-#line 593 "minipy-lab.y" /* yacc.c:1646  */
+#line 750 "minipy-lab.y" /* yacc.c:1646  */
     {
             switch((yyvsp[-2]).type)
             {
@@ -1879,12 +2036,14 @@ yyreduce:
                             (yyvsp[-2]).realValue = (double) (yyvsp[-2]).integerValue;
                             (yyval).realValue = (yyvsp[-2]).realValue + (yyvsp[0]).realValue;
                             break;
-                        case List:
-                            (yyval).type = List;
-                            (yyval).listValue = vector<struct value>((yyvsp[0]).listValue);
-                            (yyval).listValue.insert((yyval).listValue.begin(), (yyvsp[-2])); // 在头部插入
-                            break;
-                        // default: yyerror(); // TODO @NXH
+                        // case List:
+                        //     $$.type = List;
+                        //     $$.listValue = vector<struct value>($3.listValue);
+                        //     $$.listValue.insert($$.listValue.begin(), $1); // 在头部插入
+                        //     break;
+                        default:
+                            yyerror("TypeError: unsupported operand type(s) for +: 'int' and '" + TypeString((yyvsp[0])) + "\'");
+                            YYERROR;
                     }
                     break;
                 case Real:
@@ -1899,12 +2058,14 @@ yyreduce:
                             (yyval).type = Real;
                             (yyval).realValue = (yyvsp[-2]).realValue + (yyvsp[0]).realValue;
                             break;
-                        case List:
-                            (yyval).type = List;
-                            (yyval).listValue = vector<struct value>((yyvsp[0]).listValue);
-                            (yyval).listValue.insert((yyval).listValue.begin(), (yyvsp[-2])); // 在头部插入
-                            break;
-                        // default: yyerror(); // TODO @NXH
+                        // case List:
+                        //     $$.type = List;
+                        //     $$.listValue = vector<struct value>($3.listValue);
+                        //     $$.listValue.insert($$.listValue.begin(), $1); // 在头部插入
+                        //     break;
+                        default:
+                            yyerror("TypeError: unsupported operand type(s) for +: 'float' and '" + TypeString((yyvsp[0])) + "\'");
+                            YYERROR;
                     }
                     break;
                 case String:
@@ -1914,12 +2075,14 @@ yyreduce:
                             (yyval).type = String;
                             (yyval).stringValue = (yyvsp[-2]).stringValue + (yyvsp[0]).stringValue;
                             break;
-                        case List:
-                            (yyval).type = List;
-                            (yyval).listValue = vector<struct value>((yyvsp[0]).listValue);
-                            (yyval).listValue.insert((yyval).listValue.begin(), (yyvsp[-2])); // 在头部插入
-                            break;
-                        // default: yyerror(); // TODO @NXH
+                        // case List:
+                        //     $$.type = List;
+                        //     $$.listValue = vector<struct value>($3.listValue);
+                        //     $$.listValue.insert($$.listValue.begin(), $1); // 在头部插入
+                        //     break;
+                        default:
+                            yyerror("TypeError: can only concatenate str (not \"" + TypeString((yyvsp[0])) + "\") to str");
+                            YYERROR;
                     }
                     break;
                 case List:
@@ -1939,16 +2102,21 @@ yyreduce:
                         case List:
                             (yyval).listValue.insert((yyval).listValue.end(), (yyvsp[0]).listValue.begin(), (yyvsp[0]).listValue.end()); // 在尾部插入
                             break;
-                        // default: yyerror(); // TODO @NXH
+                        default:
+                            yyerror("TypeError: can only concatenate list (not \"" + TypeString((yyvsp[0])) + "\") to list");
+                            YYERROR;
                     }
-                // default: yyerror(); // TODO @NXH
+                    break;
+                default:
+                    yyerror("TypeError: not supported type");
+                    YYERROR;
             }
         }
-#line 1948 "y.tab.c" /* yacc.c:1646  */
+#line 2116 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 40:
-#line 674 "minipy-lab.y" /* yacc.c:1646  */
+#line 842 "minipy-lab.y" /* yacc.c:1646  */
     {
             switch((yyvsp[-2]).type)
             {
@@ -1964,7 +2132,9 @@ yyreduce:
                             (yyvsp[-2]).realValue = (double) (yyvsp[-2]).integerValue;
                             (yyval).realValue = (yyvsp[-2]).realValue - (yyvsp[0]).realValue;
                             break;
-                        // default: yyerror(); // TODO @NXH
+                        default:
+                            yyerror("TypeError: unsupported operand type(s) for +: 'int' and '" + TypeString((yyvsp[0])) + "\'");
+                            YYERROR;
                     }
                     break;
                 case Real:
@@ -1979,16 +2149,21 @@ yyreduce:
                             (yyval).type = Real;
                             (yyval).realValue = (yyvsp[-2]).realValue - (yyvsp[0]).realValue;
                             break;
-                        // default: yyerror(); // TODO @NXH
+                        default:
+                            yyerror("TypeError: unsupported operand type(s) for +: 'int' and '" + TypeString((yyvsp[0])) + "\'");
+                            YYERROR;
                     }
                     break;
+                default:
+                    yyerror("TypeError: unsupported operand type(s) for +: '"+ TypeString((yyvsp[-2])) +"' and '" + TypeString((yyvsp[0])) + "\'");
+                    YYERROR;
             }
         }
-#line 1988 "y.tab.c" /* yacc.c:1646  */
+#line 2163 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 42:
-#line 714 "minipy-lab.y" /* yacc.c:1646  */
+#line 889 "minipy-lab.y" /* yacc.c:1646  */
     {
             switch((yyvsp[-2]).type)
             {
@@ -2010,7 +2185,9 @@ yyreduce:
                             for (int i = 1; i < (yyvsp[-2]).integerValue; i++)
                                 (yyval).listValue.insert((yyval).listValue.end(), (yyvsp[0]).listValue.begin(), (yyvsp[0]).listValue.end()); // 循环插入
                             break;
-                        // default: yyerror(); // TODO @NXH
+                        default:
+                            yyerror("TypeError: not supported type");
+                            YYERROR;
                     }
                     break;
                 case Real:
@@ -2025,7 +2202,14 @@ yyreduce:
                             (yyval).type = Real;
                             (yyval).realValue = (yyvsp[-2]).realValue * (yyvsp[0]).realValue;
                             break;
-                        // default: yyerror(); // TODO @NXH
+                        case String:
+                        case List:
+                            yyerror("TypeError: can't multiply sequence by non-int of type 'float'");
+                            YYERROR;
+                            break;
+                        default:
+                            yyerror("TypeError: not supported type");
+                            YYERROR;
                     }
                     break;
                 case String:
@@ -2037,7 +2221,9 @@ yyreduce:
                             for (int i = 1; i < (yyvsp[0]).integerValue; i++)
                                 (yyval).stringValue += (yyvsp[-2]).stringValue;
                             break;
-                        // default: yyerror(); // TODO @NXH
+                        default:
+                            yyerror("TypeError: can't multiply sequence by non-int of type '" + TypeString((yyvsp[0])) + "\'");
+                            YYERROR;
                     }
                     break;
                 case List:
@@ -2049,84 +2235,110 @@ yyreduce:
                             for (int i = 1; i < (yyvsp[0]).integerValue; i++)
                                 (yyval).listValue.insert((yyval).listValue.end(), (yyvsp[-2]).listValue.begin(), (yyvsp[-2]).listValue.end()); // 循环插入
                             break;
-                        // default: yyerror(); // TODO @NXH
+                        default:
+                            yyerror("TypeError: can't multiply sequence by non-int of type '" + TypeString((yyvsp[0])) + "\'");
+                            YYERROR;
                     }
-                // default: yyerror(); // TODO @NXH
+                default:
+                    yyerror("TypeError: not supported type");
+                    YYERROR;
             }
         }
-#line 2058 "y.tab.c" /* yacc.c:1646  */
+#line 2248 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 43:
-#line 780 "minipy-lab.y" /* yacc.c:1646  */
+#line 970 "minipy-lab.y" /* yacc.c:1646  */
     {
             (yyval).type = Real;
-            if ( (yyvsp[-2]).type == Integer )
-                (yyvsp[-2]).realValue = (double) (yyvsp[-2]).integerValue;
-            if ( (yyvsp[0]).type == Integer )
-                (yyvsp[0]).realValue = (double) (yyvsp[0]).integerValue;
-            (yyval).realValue = (yyvsp[-2]).realValue / (yyvsp[0]).realValue;
-            // default: yyerror(); // TODO @NXH
-        }
-#line 2072 "y.tab.c" /* yacc.c:1646  */
-    break;
-
-  case 44:
-#line 790 "minipy-lab.y" /* yacc.c:1646  */
-    {
-            // 整除
-            if ( (yyvsp[-2]).type == Real )
-                (yyvsp[-2]).integerValue = round((yyvsp[-2]).realValue);
-            if ( (yyvsp[0]).type == Real )
-                (yyvsp[0]).integerValue = round((yyvsp[0]).realValue);
-            (yyval).type = Integer;
-            (yyval).integerValue = (yyvsp[-2]).integerValue / (yyvsp[0]).integerValue;
-            // default: yyerror(); // TODO @NXH
-        }
-#line 2087 "y.tab.c" /* yacc.c:1646  */
-    break;
-
-  case 45:
-#line 801 "minipy-lab.y" /* yacc.c:1646  */
-    {
-            if (((yyvsp[-2]).type == Integer) && ( (yyvsp[0]).type == Integer ))
+            if (((yyvsp[-2]).type == Integer || (yyvsp[-2]).type == Real) && ((yyvsp[0]).type == Integer || (yyvsp[0]).type == Real))
             {
-			    (yyval).type = Integer;
-                (yyval).integerValue = (yyvsp[-2]).integerValue % (yyvsp[0]).integerValue;
-                if ((yyvsp[-2]).integerValue * (yyvsp[0]).integerValue < 0) // 取余的符号问题
-                    (yyval).integerValue += (yyvsp[0]).integerValue;
-            }
-            else
-            {
-		        (yyval).type = Real;
                 if ( (yyvsp[-2]).type == Integer )
                     (yyvsp[-2]).realValue = (double) (yyvsp[-2]).integerValue;
                 if ( (yyvsp[0]).type == Integer )
                     (yyvsp[0]).realValue = (double) (yyvsp[0]).integerValue;
-                int temp = (int)((yyvsp[-2]).realValue / (yyvsp[0]).realValue); // 手动实现实数取余
-                (yyval).realValue = (yyvsp[-2]).realValue - ((yyvsp[0]).realValue * temp);
-                if ((yyvsp[-2]).realValue * (yyvsp[0]).realValue < 0)
-                    (yyval).realValue += (yyvsp[0]).realValue;
+                (yyval).realValue = (yyvsp[-2]).realValue / (yyvsp[0]).realValue;
             }
-            // default: yyerror(); // TODO @NXH
+            else
+            {
+                yyerror("TypeError: unsupported operand type(s) for /: '"+ TypeString((yyvsp[-2])) +"' and '" + TypeString((yyvsp[0])) + "\'");
+                YYERROR;
+            }
         }
-#line 2114 "y.tab.c" /* yacc.c:1646  */
+#line 2269 "y.tab.c" /* yacc.c:1646  */
+    break;
+
+  case 44:
+#line 987 "minipy-lab.y" /* yacc.c:1646  */
+    {
+            // 整除
+            (yyval).type = Integer;
+            if (((yyvsp[-2]).type == Integer || (yyvsp[-2]).type == Real) && ((yyvsp[0]).type == Integer || (yyvsp[0]).type == Real))
+            {
+                if ( (yyvsp[-2]).type == Real )
+                    (yyvsp[-2]).integerValue = round((yyvsp[-2]).realValue);
+                if ( (yyvsp[0]).type == Real )
+                    (yyvsp[0]).integerValue = round((yyvsp[0]).realValue);
+                (yyval).integerValue = (yyvsp[-2]).integerValue / (yyvsp[0]).integerValue;
+            }
+            else
+            {
+                yyerror("TypeError: unsupported operand type(s) for //: '"+ TypeString((yyvsp[-2])) +"' and '" + TypeString((yyvsp[0])) + "\'");
+                YYERROR;
+            }
+
+        }
+#line 2292 "y.tab.c" /* yacc.c:1646  */
+    break;
+
+  case 45:
+#line 1006 "minipy-lab.y" /* yacc.c:1646  */
+    {
+            if (((yyvsp[-2]).type == Integer || (yyvsp[-2]).type == Real) && ((yyvsp[0]).type == Integer || (yyvsp[0]).type == Real))
+            {
+                if (((yyvsp[-2]).type == Integer) && ( (yyvsp[0]).type == Integer ))
+                {
+                    (yyval).type = Integer;
+                    (yyval).integerValue = (yyvsp[-2]).integerValue % (yyvsp[0]).integerValue;
+                    if ((yyvsp[-2]).integerValue * (yyvsp[0]).integerValue < 0) // 取余的符号问题
+                        (yyval).integerValue += (yyvsp[0]).integerValue;
+                }
+                else
+                {
+                    (yyval).type = Real;
+                    if ( (yyvsp[-2]).type == Integer )
+                        (yyvsp[-2]).realValue = (double) (yyvsp[-2]).integerValue;
+                    if ( (yyvsp[0]).type == Integer )
+                        (yyvsp[0]).realValue = (double) (yyvsp[0]).integerValue;
+                    int temp = (int)((yyvsp[-2]).realValue / (yyvsp[0]).realValue); // 手动实现实数取余
+                    (yyval).realValue = (yyvsp[-2]).realValue - ((yyvsp[0]).realValue * temp);
+                    if ((yyvsp[-2]).realValue * (yyvsp[0]).realValue < 0)
+                        (yyval).realValue += (yyvsp[0]).realValue;
+                }
+            }
+            else
+            {
+                yyerror("TypeError: unsupported operand type(s) for %: '"+ TypeString((yyvsp[-2])) +"' and '" + TypeString((yyvsp[0])) + "\'");
+                YYERROR;
+            }
+        }
+#line 2326 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 46:
-#line 823 "minipy-lab.y" /* yacc.c:1646  */
+#line 1035 "minipy-lab.y" /* yacc.c:1646  */
     { (yyval) = (yyvsp[-1]); }
-#line 2120 "y.tab.c" /* yacc.c:1646  */
+#line 2332 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 47:
-#line 824 "minipy-lab.y" /* yacc.c:1646  */
+#line 1036 "minipy-lab.y" /* yacc.c:1646  */
     { (yyval) = (yyvsp[-1]); }
-#line 2126 "y.tab.c" /* yacc.c:1646  */
+#line 2338 "y.tab.c" /* yacc.c:1646  */
     break;
 
 
-#line 2130 "y.tab.c" /* yacc.c:1646  */
+#line 2342 "y.tab.c" /* yacc.c:1646  */
       default: break;
     }
   /* User semantic actions sometimes alter yychar, and that requires
@@ -2354,7 +2566,7 @@ yyreturn:
 #endif
   return yyresult;
 }
-#line 828 "minipy-lab.y" /* yacc.c:1906  */
+#line 1040 "minipy-lab.y" /* yacc.c:1906  */
 
 
 int main()
@@ -2402,5 +2614,30 @@ void Print(Value x)
         case ListItem:
             Print(*x.begin); // 输出元素
             break;
+    }
+}
+
+string TypeString(Value x) // 将枚举类型返回字符串类型，用于错误信息
+{
+    switch (x.type)
+    {
+        case None:       // 赋值语句、列表方法等在python里没有输出
+            return "None";
+        case Integer:    // 整型
+            return "int";
+        case Real:       // 浮点型
+            return "float";
+        case String:     // 字符和字符串
+            return "str";
+        case List:       // 列表
+            return "list";
+        case Variable:   // 变量
+            return TypeString(Symbol.at(x.variableName));
+        case ListSlice:  // 列表切片
+            return "list";
+        case ListItem:   // 列表元素
+            return TypeString(*x.begin);
+        default:
+            return "None";
     }
 }

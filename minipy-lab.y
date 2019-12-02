@@ -38,6 +38,8 @@
     // 变量值的输出函数
     void Print(Value);
 
+    // 返回变量类型的字符串
+    string TypeString(Value);
 %}
 
 %token ID INT REAL STRING_LITERAL
@@ -58,7 +60,7 @@ Lines:
             if ($2.type != None)
             {
                 if ($2.type == Variable) /* 单独的变量 */
-                    Print(Symbol[$2.variableName]);
+                    Print(Symbol.at($2.variableName));
                 else
                     Print($2);
                 cout << endl;
@@ -83,29 +85,50 @@ assignExpr:
     atom_expr '=' assignExpr
         {
             $$.type = None;
+            Value temp;
+            if ($3.type == Variable)
+                temp = Symbol.at($3.variableName);
+            else
+                temp = $3;
+            vector<struct value> temp_for_string = vector<struct value>();
+            Value temp_for_string_2; // 拆分字符串
             switch ($1.type)
             {
                 case Variable:
-                    Symbol[$1.variableName] = $3; /* 加入符号表或重新赋值 */
+                    Symbol[$1.variableName] = temp; /* 加入符号表或重新赋值 */
                     break;
                 case ListItem:
-                    *$1.begin = $3;
+                    *$1.begin = temp;
                     break;
                 case ListSlice:
-                    switch ($3.type)
+                    switch (temp.type)
                     {
                         case List:
                             Symbol[$1.variableName].listValue.erase($1.begin, $1.end);
-                            Symbol[$1.variableName].listValue.insert($1.begin + 1, $3.listValue.begin(), $3.listValue.end()); // 插入
+                            Symbol[$1.variableName].listValue.insert($1.begin, temp.listValue.begin(), temp.listValue.end()); // 插入
                             break;
                         case ListSlice:
                             Symbol[$1.variableName].listValue.erase($1.begin, $1.end);
-                            Symbol[$1.variableName].listValue.insert($1.begin + 1, $3.begin, $3.end); // 插入
+                            Symbol[$1.variableName].listValue.insert($1.begin, temp.begin, temp.end); // 插入
                             break;
-                        // default: yyerror(); // TODO @NXH ，只能给切片赋切片或者列表
+                        case String:
+                            temp_for_string_2.type = String;
+                            for (int i = 0; i < temp.stringValue.length(); i++)
+                            {
+                                temp_for_string_2.stringValue = temp.stringValue[i];
+                                temp_for_string.push_back(temp_for_string_2);
+                            }
+                            Symbol[$1.variableName].listValue.erase($1.begin, $1.end);
+                            Symbol[$1.variableName].listValue.insert($1.begin, temp_for_string.begin(), temp_for_string.end()); // 插入
+                            break;
+                        default:
+                            yyerror("TypeError: can only assign an iterable");
+                            YYERROR;
                     }
                     break;
-                // default: yyerror(); // TODO @NXH ， only subscriptable type here
+                default:
+                    yyerror("SyntaxError: can't assign to literal");
+                    YYERROR;
             }
         }|
     add_expr
@@ -118,7 +141,18 @@ number:
 
 factor:
     '+' factor
-        { $$ = $2; } |
+        {
+            $$.type = $2.type;
+            if ($2.type == Integer)
+                $$.integerValue = $2.integerValue;
+            else if ($2.type == Real)
+                $$.realValue = $2.realValue;
+            else
+            {
+                yyerror("TypeError: bad operand type for unary +: '"+ TypeString($2) + "\'");
+                YYERROR;
+            }
+        } |
     '-' factor %prec UMINUS
         {
             $$.type = $2.type;
@@ -126,6 +160,11 @@ factor:
                 $$.integerValue = -$2.integerValue;
             else if ($2.type == Real)
                 $$.realValue = -$2.realValue;
+            else
+            {
+                yyerror("TypeError: bad operand type for unary -: '"+ TypeString($2) + "\'");
+                YYERROR;
+            }
         } |
     atom_expr
         {
@@ -134,22 +173,28 @@ factor:
                 case Integer:
                 case Real:
                 case String:
+                case List:
                     $$ = $1;
+                    break;
+                case ListSlice:
+                    $$.type = List;
+                    $$.listValue = $1.listValue;
+                    break;
+                case ListItem:
+                    $$ = *$1.begin;
                     break;
                 case Variable:
                     if (Symbol.count($1.variableName) == 1) // 已在变量表内
                         $$ = Symbol.at($1.variableName); // 取变量内容，使用下标检查
                     else
                     {
-                        $$.type = None; // 不输出变量内容，也确实没有可以输出的
-                        // TODO @NXH 把这里的错误信息处理好
-                        // yyerror("Traceback (most recent call last):\n\tFile \"<stdin>\", line 1, in <module>\nNameError: name "+ $1.variableName +" is not defined  ");
+                        yyerror("NameError: name '"+ $1.variableName +"' is not defined");
+                        YYERROR;
                     }
                     break;
-                case ListItem:
-                    $$ = *$1.begin;
-                    break;
-                // default: yyerror(); // TODO @NXH ， only subscriptable type here
+                // default:
+                //     yyerror("TypeError: not supported type");
+                //     YYERROR;
             }
         }
 ;
@@ -171,7 +216,11 @@ slice_op:
             $$.type = Integer;
             if ($2.type == Integer)
                 $$.integerValue = $2.integerValue;
-            // yyerror(); // TODO @NXH ， int
+            else
+            {
+                yyerror("TypeError: slice indices must be integers or None");
+                YYERROR;
+            }
         }
 ;
 
@@ -195,7 +244,8 @@ atom_expr:
                 step = $6.integerValue;
             else
             {
-                // yyerror(); // TODO @NXH ， int or none
+                yyerror("TypeError: slice indices must be integers or None");
+                YYERROR;
             }
 
             switch ($1.type)
@@ -212,7 +262,8 @@ atom_expr:
                             begin = $3.integerValue;
                         else
                         {
-                            // yyerror(); // TODO @NXH ， int or none
+                            yyerror("TypeError: slice indices must be integers or None");
+                            YYERROR;
                         }
 
                         if ($5.type == None) // 默认结束
@@ -221,7 +272,8 @@ atom_expr:
                             end = $5.integerValue;
                         else
                         {
-                            // yyerror(); // TODO @NXH ， int or none
+                            yyerror("TypeError: slice indices must be integers or None");
+                            YYERROR;
                         }
 
                         for (int i = begin; i < end; i += step)
@@ -235,7 +287,8 @@ atom_expr:
                             begin = $3.integerValue;
                         else
                         {
-                            // yyerror(); // TODO @NXH ， int or none
+                            yyerror("TypeError: slice indices must be integers or None");
+                            YYERROR;
                         }
 
                         if ($5.type == None) // 默认结束
@@ -244,7 +297,8 @@ atom_expr:
                             end = $5.integerValue;
                         else
                         {
-                            // yyerror(); // TODO @NXH ， int or none
+                            yyerror("TypeError: slice indices must be integers or None");
+                            YYERROR;
                         }
 
                         for (int i = begin; i > end; i += step)
@@ -262,7 +316,8 @@ atom_expr:
                             begin = $3.integerValue;
                         else
                         {
-                            // yyerror(); // TODO @NXH ， int or none
+                            yyerror("TypeError: slice indices must be integers or None");
+                            YYERROR;
                         }
 
                         if ($5.type == None) // 默认结束
@@ -271,11 +326,12 @@ atom_expr:
                             end = $5.integerValue;
                         else
                         {
-                            // yyerror(); // TODO @NXH ， int or none
+                            yyerror("TypeError: slice indices must be integers or None");
+                            YYERROR;
                         }
 
                         for (vector<struct value>::iterator i = $1.listValue.begin() + begin; i != $1.listValue.begin() + end; i += step)
-                            $$.listValue.push_back(*i); // 逐个取子串
+                            $$.listValue.push_back(*i); // 逐个取元素
                     }
                     else if (step < 0)
                     {
@@ -285,7 +341,8 @@ atom_expr:
                             begin = $3.integerValue;
                         else
                         {
-                            // yyerror(); // TODO @NXH ， int or none
+                            yyerror("TypeError: slice indices must be integers or None");
+                            YYERROR;
                         }
 
                         if ($5.type == None) // 默认结束
@@ -294,11 +351,12 @@ atom_expr:
                             end = $5.integerValue;
                         else
                         {
-                            // yyerror(); // TODO @NXH ， int or none
+                            yyerror("TypeError: slice indices must be integers or None");
+                            YYERROR;
                         }
 
                         for (vector<struct value>::iterator i = $1.listValue.begin() + begin; i != $1.listValue.begin() + end; i += step)
-                            $$.listValue.push_back(*i); // 逐个取子串
+                            $$.listValue.push_back(*i); // 逐个取元素
                     }
                     break;
                 case Variable:
@@ -318,7 +376,8 @@ atom_expr:
                                         begin = $3.integerValue;
                                     else
                                     {
-                                        // yyerror(); // TODO @NXH ， int or none
+                                        yyerror("TypeError: slice indices must be integers or None");
+                                        YYERROR;
                                     }
 
                                     if ($5.type == None) // 默认结束
@@ -327,7 +386,8 @@ atom_expr:
                                         end = $5.integerValue;
                                     else
                                     {
-                                        // yyerror(); // TODO @NXH ， int or none
+                                        yyerror("TypeError: slice indices must be integers or None");
+                                        YYERROR;
                                     }
                                     for (int i = begin; i < end; i += step)
                                         $$.stringValue += Symbol.at($1.variableName).stringValue[i]; // 逐个取子串
@@ -340,7 +400,8 @@ atom_expr:
                                         begin = $3.integerValue;
                                     else
                                     {
-                                        // yyerror(); // TODO @NXH ， int or none
+                                        yyerror("TypeError: slice indices must be integers or None");
+                                        YYERROR;
                                     }
 
                                     if ($5.type == None) // 默认结束
@@ -349,7 +410,8 @@ atom_expr:
                                         end = $5.integerValue;
                                     else
                                     {
-                                        // yyerror(); // TODO @NXH ， int or none
+                                        yyerror("TypeError: slice indices must be integers or None");
+                                        YYERROR;
                                     }
 
                                     for (int i = begin; i > end; i += step)
@@ -368,7 +430,8 @@ atom_expr:
                                         $$.begin = Symbol.at($1.variableName).listValue.begin() + $3.integerValue;
                                     else
                                     {
-                                        // yyerror(); // TODO @NXH ， int or none
+                                        yyerror("TypeError: slice indices must be integers or None");
+                                        YYERROR;
                                     }
 
                                     if ($5.type == None) // 默认结束
@@ -377,10 +440,13 @@ atom_expr:
                                         $$.end = Symbol.at($1.variableName).listValue.begin() + $5.integerValue;
                                     else
                                     {
-                                        // yyerror(); // TODO @NXH ， int or none
+                                        yyerror("TypeError: slice indices must be integers or None");
+                                        YYERROR;
                                     }
+
                                     for (vector<struct value>::iterator i = $$.begin; i != $$.end; i += step)
                                         $$.listValue.push_back(*i); // 逐个取子串
+
                                 }
                                 else if (step < 0)
                                 {
@@ -390,7 +456,8 @@ atom_expr:
                                         $$.begin = Symbol.at($1.variableName).listValue.begin() + $3.integerValue;
                                     else
                                     {
-                                        // yyerror(); // TODO @NXH ， int or none
+                                        yyerror("TypeError: slice indices must be integers or None");
+                                        YYERROR;
                                     }
 
                                     if ($5.type == None) // 默认结束
@@ -399,22 +466,28 @@ atom_expr:
                                         $$.end = Symbol.at($1.variableName).listValue.begin() + $5.integerValue;
                                     else
                                     {
-                                        // yyerror(); // TODO @NXH ， int or none
+                                        yyerror("TypeError: slice indices must be integers or None");
+                                        YYERROR;
                                     }
 
                                     for (vector<struct value>::iterator i = $$.begin; i != $$.end; i += step)
                                         $$.listValue.push_back(*i); // 逐个取子串
                                 }
                                 break;
-                            // default: yyerror(); // TODO @NXH ， only subscriptable type here
+                            default:
+                                yyerror("TypeError: '"+ TypeString(Symbol.at($1.variableName)) +"' object is not subscriptable");
+                                YYERROR;
                         }
                     }
                     else
                     {
-                        // yyerror(); // TODO @NXH ， only subscriptable type here
+                        yyerror("NameError: name '" + $1.variableName + "' is not defined");
+                        YYERROR;
                     }
                     break;
-                // default: yyerror(); // TODO @NXH ， only subscriptable type here
+                default:
+                    yyerror("TypeError: '"+ TypeString($1) +"' object is not subscriptable");
+                    YYERROR;
             }
         }|
     atom_expr  '[' add_expr ']'
@@ -444,20 +517,26 @@ atom_expr:
                                     $$.type = ListItem; // 列表元素类型
                                     $$.begin = Symbol.at($1.variableName).listValue.begin() + $3.integerValue; // 取列表元素地址
                                     break;
-                                // default: yyerror(); // TODO @NXH ， only subscriptable type here
+                                default:
+                                    yyerror("TypeError: '"+ TypeString(Symbol.at($1.variableName)) +"' object is not subscriptable");
+                                    YYERROR;
                             }
                         }
                         else
                         {
-                            // yyerror(); // TODO @NXH ， only subscriptable type here
+                            yyerror("NameError: name '" + $1.variableName + "' is not defined");
+                            YYERROR;
                         }
                         break;
-                    // default: yyerror(); // TODO @NXH ， only subscriptable type here
+                    default:
+                        yyerror("TypeError: '"+ TypeString($1) +"' object is not subscriptable");
+                        YYERROR;
                 }
             }
             else
             {
-                // yyerror(); // TODO @NXH , indices must be integers or slices
+                yyerror("TypeError: list indices must be integers or slices, not " + TypeString($3));
+                YYERROR;
             }
         }|
     atom_expr '(' arglist opt_comma ')'
@@ -465,12 +544,20 @@ atom_expr:
             if ($1.stringValue == "append") // append方法
             {
                 $$.type = None;
-                if (Symbol.at($1.variableName).type == List)
+                if ($3.listValue.size() == 1)
                 {
-                    if ($3.listValue.size() == 1) // append 有且仅有1个参数
+                    if (Symbol.at($1.variableName).type == List)
                     {
-                        Symbol.at($1.variableName).listValue.push_back(*$3.listValue.begin());
+                        if ($3.listValue.size() == 1) // append 有且仅有1个参数
+                        {
+                            Symbol.at($1.variableName).listValue.push_back(*$3.listValue.begin());
+                        }
                     }
+                }
+                else
+                {
+                    yyerror("TypeError: append() takes exactly one argument ("+ to_string($3.listValue.size()) +" given)");
+                    YYERROR;
                 }
             }
             else if ($1.variableName == "print") // print函数
@@ -500,9 +587,10 @@ atom_expr:
                     step = 1;
                 else if ($3.listValue.size() == 3)
                     step = $3.listValue[2].integerValue; // 第三个参数
-                else
+                else if ($3.listValue.size() > 3)
                 {
-                    // yyerror(); // TODO @NXH ， 2 或 3 个参数
+                    yyerror("TypeError: range expected at most 3 arguments, got " + to_string($3.listValue.size()));
+                    YYERROR;
                 }
 
                 if (step > 0)
@@ -528,6 +616,55 @@ atom_expr:
                         $$.listValue.push_back(temp);
                 }
             }
+            else if ($1.variableName == "list") // list函数
+            {
+                $$.type = List;
+
+                if ($3.listValue.size() == 1) // list 有且仅有1个参数
+                {
+                    Value temp;
+                    Value temp_2; // 拆分字符串
+
+                    if ((*$3.listValue.begin()).type == Variable) // 变量替换为实体
+                    {
+                        if (Symbol.count((*$3.listValue.begin()).variableName) == 1) // 已在变量表中
+                            temp = Symbol.at((*$3.listValue.begin()).variableName);
+                        else
+                        {
+                            yyerror("NameError: name '" + (*$3.listValue.begin()).variableName + "' is not defined");
+                            YYERROR;
+                        }
+                    }
+                    else
+                        temp = (*$3.listValue.begin());
+
+                    switch (temp.type)
+                    {
+                        case String:
+                            $$.listValue = vector<struct value>();
+                            temp_2.type = String;
+                            for (int i = 0; i < temp.stringValue.length(); i++)
+                            {
+                                temp_2.stringValue = temp.stringValue[i];
+                                $$.listValue.push_back(temp_2);
+                            }
+                            break;
+                        case List:
+                            $$.listValue = vector<struct value>(temp.listValue);
+                            break;
+                        default:
+                        {
+                            yyerror("TypeError: '"+TypeString(temp)+"' object is not iterable");
+                            YYERROR;
+                        }
+                    }
+                }
+                else
+                {
+                    yyerror("TypeError: list expected at most 1 arguments, got " + to_string($3.listValue.size()));
+                    YYERROR;
+                }
+            }
         } |
     atom_expr '.' ID
         {
@@ -535,10 +672,30 @@ atom_expr:
             $$.variableName = $1.variableName; // 变量名
             $$.stringValue = $3.variableName; // 属性或方法名
         } |
-    atom_expr  '('  ')'
+    atom_expr  '('  ')' // 在本实验中目前只包括无参量函数
         {
             if ($1.variableName == "quit") // quit函数
                 exit(0);
+            else if ($1.stringValue == "append")
+            {
+                yyerror("TypeError: append() takes exactly one argument (0 given)");
+                YYERROR;
+            }
+            else if ($1.variableName == "print")
+            {
+                $$.type = None;
+                cout << endl;
+            }
+            else if ($1.variableName == "range")
+            {
+                yyerror("TypeError: range expected 1 arguments, got 0");
+                YYERROR;
+            }
+            else if ($1.variableName == "list")
+            {
+                $$.type = List;
+                $$.listValue = vector<struct value>();
+            }
         }
 ;
 
@@ -605,12 +762,14 @@ add_expr:
                             $1.realValue = (double) $1.integerValue;
                             $$.realValue = $1.realValue + $3.realValue;
                             break;
-                        case List:
-                            $$.type = List;
-                            $$.listValue = vector<struct value>($3.listValue);
-                            $$.listValue.insert($$.listValue.begin(), $1); // 在头部插入
-                            break;
-                        // default: yyerror(); // TODO @NXH
+                        // case List:
+                        //     $$.type = List;
+                        //     $$.listValue = vector<struct value>($3.listValue);
+                        //     $$.listValue.insert($$.listValue.begin(), $1); // 在头部插入
+                        //     break;
+                        default:
+                            yyerror("TypeError: unsupported operand type(s) for +: 'int' and '" + TypeString($3) + "\'");
+                            YYERROR;
                     }
                     break;
                 case Real:
@@ -625,12 +784,14 @@ add_expr:
                             $$.type = Real;
                             $$.realValue = $1.realValue + $3.realValue;
                             break;
-                        case List:
-                            $$.type = List;
-                            $$.listValue = vector<struct value>($3.listValue);
-                            $$.listValue.insert($$.listValue.begin(), $1); // 在头部插入
-                            break;
-                        // default: yyerror(); // TODO @NXH
+                        // case List:
+                        //     $$.type = List;
+                        //     $$.listValue = vector<struct value>($3.listValue);
+                        //     $$.listValue.insert($$.listValue.begin(), $1); // 在头部插入
+                        //     break;
+                        default:
+                            yyerror("TypeError: unsupported operand type(s) for +: 'float' and '" + TypeString($3) + "\'");
+                            YYERROR;
                     }
                     break;
                 case String:
@@ -640,12 +801,14 @@ add_expr:
                             $$.type = String;
                             $$.stringValue = $1.stringValue + $3.stringValue;
                             break;
-                        case List:
-                            $$.type = List;
-                            $$.listValue = vector<struct value>($3.listValue);
-                            $$.listValue.insert($$.listValue.begin(), $1); // 在头部插入
-                            break;
-                        // default: yyerror(); // TODO @NXH
+                        // case List:
+                        //     $$.type = List;
+                        //     $$.listValue = vector<struct value>($3.listValue);
+                        //     $$.listValue.insert($$.listValue.begin(), $1); // 在头部插入
+                        //     break;
+                        default:
+                            yyerror("TypeError: can only concatenate str (not \"" + TypeString($3) + "\") to str");
+                            YYERROR;
                     }
                     break;
                 case List:
@@ -665,9 +828,14 @@ add_expr:
                         case List:
                             $$.listValue.insert($$.listValue.end(), $3.listValue.begin(), $3.listValue.end()); // 在尾部插入
                             break;
-                        // default: yyerror(); // TODO @NXH
+                        default:
+                            yyerror("TypeError: can only concatenate list (not \"" + TypeString($3) + "\") to list");
+                            YYERROR;
                     }
-                // default: yyerror(); // TODO @NXH
+                    break;
+                default:
+                    yyerror("TypeError: not supported type");
+                    YYERROR;
             }
         }|
     add_expr '-' mul_expr
@@ -686,7 +854,9 @@ add_expr:
                             $1.realValue = (double) $1.integerValue;
                             $$.realValue = $1.realValue - $3.realValue;
                             break;
-                        // default: yyerror(); // TODO @NXH
+                        default:
+                            yyerror("TypeError: unsupported operand type(s) for +: 'int' and '" + TypeString($3) + "\'");
+                            YYERROR;
                     }
                     break;
                 case Real:
@@ -701,9 +871,14 @@ add_expr:
                             $$.type = Real;
                             $$.realValue = $1.realValue - $3.realValue;
                             break;
-                        // default: yyerror(); // TODO @NXH
+                        default:
+                            yyerror("TypeError: unsupported operand type(s) for +: 'int' and '" + TypeString($3) + "\'");
+                            YYERROR;
                     }
                     break;
+                default:
+                    yyerror("TypeError: unsupported operand type(s) for +: '"+ TypeString($1) +"' and '" + TypeString($3) + "\'");
+                    YYERROR;
             }
         }|
     mul_expr
@@ -732,7 +907,9 @@ mul_expr:
                             for (int i = 1; i < $1.integerValue; i++)
                                 $$.listValue.insert($$.listValue.end(), $3.listValue.begin(), $3.listValue.end()); // 循环插入
                             break;
-                        // default: yyerror(); // TODO @NXH
+                        default:
+                            yyerror("TypeError: not supported type");
+                            YYERROR;
                     }
                     break;
                 case Real:
@@ -747,7 +924,14 @@ mul_expr:
                             $$.type = Real;
                             $$.realValue = $1.realValue * $3.realValue;
                             break;
-                        // default: yyerror(); // TODO @NXH
+                        case String:
+                        case List:
+                            yyerror("TypeError: can't multiply sequence by non-int of type 'float'");
+                            YYERROR;
+                            break;
+                        default:
+                            yyerror("TypeError: not supported type");
+                            YYERROR;
                     }
                     break;
                 case String:
@@ -759,7 +943,9 @@ mul_expr:
                             for (int i = 1; i < $3.integerValue; i++)
                                 $$.stringValue += $1.stringValue;
                             break;
-                        // default: yyerror(); // TODO @NXH
+                        default:
+                            yyerror("TypeError: can't multiply sequence by non-int of type '" + TypeString($3) + "\'");
+                            YYERROR;
                     }
                     break;
                 case List:
@@ -771,54 +957,80 @@ mul_expr:
                             for (int i = 1; i < $3.integerValue; i++)
                                 $$.listValue.insert($$.listValue.end(), $1.listValue.begin(), $1.listValue.end()); // 循环插入
                             break;
-                        // default: yyerror(); // TODO @NXH
+                        default:
+                            yyerror("TypeError: can't multiply sequence by non-int of type '" + TypeString($3) + "\'");
+                            YYERROR;
                     }
-                // default: yyerror(); // TODO @NXH
+                default:
+                    yyerror("TypeError: not supported type");
+                    YYERROR;
             }
         }|
     mul_expr '/' mul_expr
         {
             $$.type = Real;
-            if ( $1.type == Integer )
-                $1.realValue = (double) $1.integerValue;
-            if ( $3.type == Integer )
-                $3.realValue = (double) $3.integerValue;
-            $$.realValue = $1.realValue / $3.realValue;
-            // default: yyerror(); // TODO @NXH
-        }|
-    mul_expr DIV mul_expr
-        {
-            // 整除
-            if ( $1.type == Real )
-                $1.integerValue = round($1.realValue);
-            if ( $3.type == Real )
-                $3.integerValue = round($3.realValue);
-            $$.type = Integer;
-            $$.integerValue = $1.integerValue / $3.integerValue;
-            // default: yyerror(); // TODO @NXH
-        }|
-    mul_expr '%' mul_expr
-        {
-            if (($1.type == Integer) && ( $3.type == Integer ))
+            if (($1.type == Integer || $1.type == Real) && ($3.type == Integer || $3.type == Real))
             {
-			    $$.type = Integer;
-                $$.integerValue = $1.integerValue % $3.integerValue;
-                if ($1.integerValue * $3.integerValue < 0) // 取余的符号问题
-                    $$.integerValue += $3.integerValue;
-            }
-            else
-            {
-		        $$.type = Real;
                 if ( $1.type == Integer )
                     $1.realValue = (double) $1.integerValue;
                 if ( $3.type == Integer )
                     $3.realValue = (double) $3.integerValue;
-                int temp = (int)($1.realValue / $3.realValue); // 手动实现实数取余
-                $$.realValue = $1.realValue - ($3.realValue * temp);
-                if ($1.realValue * $3.realValue < 0)
-                    $$.realValue += $3.realValue;
+                $$.realValue = $1.realValue / $3.realValue;
             }
-            // default: yyerror(); // TODO @NXH
+            else
+            {
+                yyerror("TypeError: unsupported operand type(s) for /: '"+ TypeString($1) +"' and '" + TypeString($3) + "\'");
+                YYERROR;
+            }
+        }|
+    mul_expr DIV mul_expr
+        {
+            // 整除
+            $$.type = Integer;
+            if (($1.type == Integer || $1.type == Real) && ($3.type == Integer || $3.type == Real))
+            {
+                if ( $1.type == Real )
+                    $1.integerValue = round($1.realValue);
+                if ( $3.type == Real )
+                    $3.integerValue = round($3.realValue);
+                $$.integerValue = $1.integerValue / $3.integerValue;
+            }
+            else
+            {
+                yyerror("TypeError: unsupported operand type(s) for //: '"+ TypeString($1) +"' and '" + TypeString($3) + "\'");
+                YYERROR;
+            }
+
+        }|
+    mul_expr '%' mul_expr
+        {
+            if (($1.type == Integer || $1.type == Real) && ($3.type == Integer || $3.type == Real))
+            {
+                if (($1.type == Integer) && ( $3.type == Integer ))
+                {
+                    $$.type = Integer;
+                    $$.integerValue = $1.integerValue % $3.integerValue;
+                    if ($1.integerValue * $3.integerValue < 0) // 取余的符号问题
+                        $$.integerValue += $3.integerValue;
+                }
+                else
+                {
+                    $$.type = Real;
+                    if ( $1.type == Integer )
+                        $1.realValue = (double) $1.integerValue;
+                    if ( $3.type == Integer )
+                        $3.realValue = (double) $3.integerValue;
+                    int temp = (int)($1.realValue / $3.realValue); // 手动实现实数取余
+                    $$.realValue = $1.realValue - ($3.realValue * temp);
+                    if ($1.realValue * $3.realValue < 0)
+                        $$.realValue += $3.realValue;
+                }
+            }
+            else
+            {
+                yyerror("TypeError: unsupported operand type(s) for %: '"+ TypeString($1) +"' and '" + TypeString($3) + "\'");
+                YYERROR;
+            }
         }|
     '(' add_expr ')' { $$ = $2; } |
     '(' mul_expr ')' { $$ = $2; } |
@@ -872,5 +1084,30 @@ void Print(Value x)
         case ListItem:
             Print(*x.begin); // 输出元素
             break;
+    }
+}
+
+string TypeString(Value x) // 将枚举类型返回字符串类型，用于错误信息
+{
+    switch (x.type)
+    {
+        case None:       // 赋值语句、列表方法等在python里没有输出
+            return "None";
+        case Integer:    // 整型
+            return "int";
+        case Real:       // 浮点型
+            return "float";
+        case String:     // 字符和字符串
+            return "str";
+        case List:       // 列表
+            return "list";
+        case Variable:   // 变量
+            return TypeString(Symbol.at(x.variableName));
+        case ListSlice:  // 列表切片
+            return "list";
+        case ListItem:   // 列表元素
+            return TypeString(*x.begin);
+        default:
+            return "None";
     }
 }
