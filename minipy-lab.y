@@ -591,7 +591,7 @@ atom_expr:
                     case ListSlice:
                         if ($3.listValue.size() == 1) // append 有且仅有1个参数
                         {
-                            $1.listValue.push_back(*$3.listValue.begin());
+                            $1.listValue.push_back(*$3.listValue.begin()); // 这里的意义不是很大
                         }
                         else
                         {
@@ -1146,15 +1146,40 @@ atom_expr:
             }
             else if ($1.attributeName == "reverse")
             {
-                if (Symbol.at($1.variableName).type == List)
+                switch ($1.type)
                 {
-                    yyerror("TypeError: append() takes no arguments ("+ to_string($3.listValue.size()) +" given)");
-                    YYERROR;
-                }
-                else
-                {
-                    yyerror("AttributeError: '" + TypeString(Symbol.at($1.variableName)) + "' object has no attribute 'reverse'");
-                    YYERROR;
+                    case List:
+                    case ListSlice:
+                        yyerror("TypeError: reverse() takes no arguments ("+ to_string($3.listValue.size()) +" given)");
+                            YYERROR;
+                        break;
+                    case ListItem:
+                        if ((*$1.begin).type == List)
+                        {
+                            yyerror("TypeError: reverse() takes no arguments ("+ to_string($3.listValue.size()) +" given)");
+                            YYERROR;
+                        }
+                        else
+                        {
+                            yyerror("AttributeError: '" + TypeString(*$1.begin) + "' object has no attribute 'reverse'");
+                            YYERROR;
+                        }
+                        break;
+                    case Variable:
+                        if (Symbol.at($1.variableName).type == List)
+                        {
+                            yyerror("TypeError: reverse() takes no arguments ("+ to_string($3.listValue.size()) +" given)");
+                            YYERROR;
+                        }
+                        else
+                        {
+                            yyerror("AttributeError: '" + TypeString(Symbol.at($1.variableName)) + "' object has no attribute 'reverse'");
+                            YYERROR;
+                        }
+                        break;
+                    default:
+                        yyerror("AttributeError: '" + TypeString($1) + "' object has no attribute 'reverse'");
+                        YYERROR;
                 }
             }
             else if ($1.variableName == "print") // print函数
@@ -1450,14 +1475,37 @@ atom_expr:
             else if ($1.attributeName == "reverse") // reverse方法
             {
                 $$.type = None;
-                if (Symbol.at($1.variableName).type == List)
+                switch ($1.type)
                 {
-                    reverse(Symbol.at($1.variableName).listValue.begin(), Symbol.at($1.variableName).listValue.end()); // 调用algorithm中的reverse
-                }
-                else
-                {
-                    yyerror("AttributeError: '" + TypeString(Symbol.at($1.variableName)) + "' object has no attribute 'reverse'");
-                    YYERROR;
+                    case List:
+                    case ListSlice:
+                        reverse($1.listValue.begin(), $1.listValue.end()); // 没有意义
+                        break;
+                    case ListItem:
+                        if ((*$1.begin).type == List)
+                        {
+                            reverse((*$1.begin).listValue.begin(), (*$1.begin).listValue.end()); // 调用algorithm中的reverse
+                        }
+                        else
+                        {
+                            yyerror("AttributeError: '" + TypeString(*$1.begin) + "' object has no attribute 'reverse'");
+                            YYERROR;
+                        }
+                        break;
+                    case Variable:
+                        if (Symbol.at($1.variableName).type == List)
+                        {
+                            reverse(Symbol.at($1.variableName).listValue.begin(), Symbol.at($1.variableName).listValue.end()); // 调用algorithm中的reverse
+                        }
+                        else
+                        {
+                            yyerror("AttributeError: '" + TypeString(Symbol.at($1.variableName)) + "' object has no attribute 'reverse'");
+                            YYERROR;
+                        }
+                        break;
+                    default:
+                        yyerror("AttributeError: '" + TypeString($1) + "' object has no attribute 'reverse'");
+                        YYERROR;
                 }
             }
             else if ($1.variableName == "print") // print函数

@@ -509,8 +509,8 @@ static const yytype_uint16 yyrline[] =
        0,    88,    88,    93,    92,   105,   105,   107,   111,   115,
      119,   168,   172,   173,   177,   190,   203,   237,   238,   239,
      240,   245,   248,   263,   266,   270,   271,   527,   576,   583,
-    1288,  1487,  1492,  1501,  1506,  1513,  1515,  1519,  1524,  1533,
-    1625,  1668,  1672,  1753,  1770,  1789,  1819,  1820,  1821
+    1313,  1535,  1540,  1549,  1554,  1561,  1563,  1567,  1572,  1581,
+    1673,  1716,  1720,  1801,  1818,  1837,  1867,  1868,  1869
 };
 #endif
 
@@ -1851,7 +1851,7 @@ yyreduce:
                     case ListSlice:
                         if ((yyvsp[-2]).listValue.size() == 1) // append 有且仅有1个参数
                         {
-                            (yyvsp[-4]).listValue.push_back(*(yyvsp[-2]).listValue.begin());
+                            (yyvsp[-4]).listValue.push_back(*(yyvsp[-2]).listValue.begin()); // 这里的意义不是很大
                         }
                         else
                         {
@@ -2406,15 +2406,40 @@ yyreduce:
             }
             else if ((yyvsp[-4]).attributeName == "reverse")
             {
-                if (Symbol.at((yyvsp[-4]).variableName).type == List)
+                switch ((yyvsp[-4]).type)
                 {
-                    yyerror("TypeError: append() takes no arguments ("+ to_string((yyvsp[-2]).listValue.size()) +" given)");
-                    YYERROR;
-                }
-                else
-                {
-                    yyerror("AttributeError: '" + TypeString(Symbol.at((yyvsp[-4]).variableName)) + "' object has no attribute 'reverse'");
-                    YYERROR;
+                    case List:
+                    case ListSlice:
+                        yyerror("TypeError: reverse() takes no arguments ("+ to_string((yyvsp[-2]).listValue.size()) +" given)");
+                            YYERROR;
+                        break;
+                    case ListItem:
+                        if ((*(yyvsp[-4]).begin).type == List)
+                        {
+                            yyerror("TypeError: reverse() takes no arguments ("+ to_string((yyvsp[-2]).listValue.size()) +" given)");
+                            YYERROR;
+                        }
+                        else
+                        {
+                            yyerror("AttributeError: '" + TypeString(*(yyvsp[-4]).begin) + "' object has no attribute 'reverse'");
+                            YYERROR;
+                        }
+                        break;
+                    case Variable:
+                        if (Symbol.at((yyvsp[-4]).variableName).type == List)
+                        {
+                            yyerror("TypeError: reverse() takes no arguments ("+ to_string((yyvsp[-2]).listValue.size()) +" given)");
+                            YYERROR;
+                        }
+                        else
+                        {
+                            yyerror("AttributeError: '" + TypeString(Symbol.at((yyvsp[-4]).variableName)) + "' object has no attribute 'reverse'");
+                            YYERROR;
+                        }
+                        break;
+                    default:
+                        yyerror("AttributeError: '" + TypeString((yyvsp[-4])) + "' object has no attribute 'reverse'");
+                        YYERROR;
                 }
             }
             else if ((yyvsp[-4]).variableName == "print") // print函数
@@ -2545,11 +2570,11 @@ yyreduce:
             }
 
         }
-#line 2549 "y.tab.c" /* yacc.c:1646  */
+#line 2574 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 30:
-#line 1289 "minipy-lab.y" /* yacc.c:1646  */
+#line 1314 "minipy-lab.y" /* yacc.c:1646  */
     {
             if ((yyvsp[-2]).variableName == "quit") // quit函数
                 exit(0);
@@ -2714,14 +2739,37 @@ yyreduce:
             else if ((yyvsp[-2]).attributeName == "reverse") // reverse方法
             {
                 (yyval).type = None;
-                if (Symbol.at((yyvsp[-2]).variableName).type == List)
+                switch ((yyvsp[-2]).type)
                 {
-                    reverse(Symbol.at((yyvsp[-2]).variableName).listValue.begin(), Symbol.at((yyvsp[-2]).variableName).listValue.end()); // 调用algorithm中的reverse
-                }
-                else
-                {
-                    yyerror("AttributeError: '" + TypeString(Symbol.at((yyvsp[-2]).variableName)) + "' object has no attribute 'reverse'");
-                    YYERROR;
+                    case List:
+                    case ListSlice:
+                        reverse((yyvsp[-2]).listValue.begin(), (yyvsp[-2]).listValue.end()); // 没有意义
+                        break;
+                    case ListItem:
+                        if ((*(yyvsp[-2]).begin).type == List)
+                        {
+                            reverse((*(yyvsp[-2]).begin).listValue.begin(), (*(yyvsp[-2]).begin).listValue.end()); // 调用algorithm中的reverse
+                        }
+                        else
+                        {
+                            yyerror("AttributeError: '" + TypeString(*(yyvsp[-2]).begin) + "' object has no attribute 'reverse'");
+                            YYERROR;
+                        }
+                        break;
+                    case Variable:
+                        if (Symbol.at((yyvsp[-2]).variableName).type == List)
+                        {
+                            reverse(Symbol.at((yyvsp[-2]).variableName).listValue.begin(), Symbol.at((yyvsp[-2]).variableName).listValue.end()); // 调用algorithm中的reverse
+                        }
+                        else
+                        {
+                            yyerror("AttributeError: '" + TypeString(Symbol.at((yyvsp[-2]).variableName)) + "' object has no attribute 'reverse'");
+                            YYERROR;
+                        }
+                        break;
+                    default:
+                        yyerror("AttributeError: '" + TypeString((yyvsp[-2])) + "' object has no attribute 'reverse'");
+                        YYERROR;
                 }
             }
             else if ((yyvsp[-2]).variableName == "print") // print函数
@@ -2745,67 +2793,67 @@ yyreduce:
                 YYERROR;
             }
         }
-#line 2749 "y.tab.c" /* yacc.c:1646  */
+#line 2797 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 31:
-#line 1488 "minipy-lab.y" /* yacc.c:1646  */
+#line 1536 "minipy-lab.y" /* yacc.c:1646  */
     {
         (yyval).type = List;
         (yyval).listValue = vector<struct value>(1, (yyvsp[0])); // 用列表“框柱”参数
     }
-#line 2758 "y.tab.c" /* yacc.c:1646  */
+#line 2806 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 32:
-#line 1493 "minipy-lab.y" /* yacc.c:1646  */
+#line 1541 "minipy-lab.y" /* yacc.c:1646  */
     {
         (yyval).type = List;
         (yyvsp[-2]).listValue.push_back((yyvsp[0]));
         (yyval).listValue = vector<struct value>((yyvsp[-2]).listValue);
     }
-#line 2768 "y.tab.c" /* yacc.c:1646  */
+#line 2816 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 33:
-#line 1502 "minipy-lab.y" /* yacc.c:1646  */
+#line 1550 "minipy-lab.y" /* yacc.c:1646  */
     {
         (yyval).type = List;
         (yyval).listValue = vector<struct value>();
     }
-#line 2777 "y.tab.c" /* yacc.c:1646  */
+#line 2825 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 34:
-#line 1507 "minipy-lab.y" /* yacc.c:1646  */
+#line 1555 "minipy-lab.y" /* yacc.c:1646  */
     {
         (yyval).type = List;
         (yyval).listValue = vector<struct value>((yyvsp[-2]).listValue);
     }
-#line 2786 "y.tab.c" /* yacc.c:1646  */
+#line 2834 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 37:
-#line 1520 "minipy-lab.y" /* yacc.c:1646  */
+#line 1568 "minipy-lab.y" /* yacc.c:1646  */
     {
         (yyval).type = List;
         (yyval).listValue = vector<struct value>(1, (yyvsp[0])); // 用列表“框柱”变量
     }
-#line 2795 "y.tab.c" /* yacc.c:1646  */
+#line 2843 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 38:
-#line 1525 "minipy-lab.y" /* yacc.c:1646  */
+#line 1573 "minipy-lab.y" /* yacc.c:1646  */
     {
         (yyval).type = List;
         (yyvsp[-2]).listValue.push_back((yyvsp[0]));
         (yyval).listValue = vector<struct value>((yyvsp[-2]).listValue);
     }
-#line 2805 "y.tab.c" /* yacc.c:1646  */
+#line 2853 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 39:
-#line 1534 "minipy-lab.y" /* yacc.c:1646  */
+#line 1582 "minipy-lab.y" /* yacc.c:1646  */
     {
             switch((yyvsp[-2]).type)
             {
@@ -2897,11 +2945,11 @@ yyreduce:
                     YYERROR;
             }
         }
-#line 2901 "y.tab.c" /* yacc.c:1646  */
+#line 2949 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 40:
-#line 1626 "minipy-lab.y" /* yacc.c:1646  */
+#line 1674 "minipy-lab.y" /* yacc.c:1646  */
     {
             switch((yyvsp[-2]).type)
             {
@@ -2944,11 +2992,11 @@ yyreduce:
                     YYERROR;
             }
         }
-#line 2948 "y.tab.c" /* yacc.c:1646  */
+#line 2996 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 42:
-#line 1673 "minipy-lab.y" /* yacc.c:1646  */
+#line 1721 "minipy-lab.y" /* yacc.c:1646  */
     {
             switch((yyvsp[-2]).type)
             {
@@ -3029,11 +3077,11 @@ yyreduce:
                     YYERROR;
             }
         }
-#line 3033 "y.tab.c" /* yacc.c:1646  */
+#line 3081 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 43:
-#line 1754 "minipy-lab.y" /* yacc.c:1646  */
+#line 1802 "minipy-lab.y" /* yacc.c:1646  */
     {
             (yyval).type = Real;
             if (((yyvsp[-2]).type == Integer || (yyvsp[-2]).type == Real) && ((yyvsp[0]).type == Integer || (yyvsp[0]).type == Real))
@@ -3050,11 +3098,11 @@ yyreduce:
                 YYERROR;
             }
         }
-#line 3054 "y.tab.c" /* yacc.c:1646  */
+#line 3102 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 44:
-#line 1771 "minipy-lab.y" /* yacc.c:1646  */
+#line 1819 "minipy-lab.y" /* yacc.c:1646  */
     {
             // 整除
             (yyval).type = Integer;
@@ -3073,11 +3121,11 @@ yyreduce:
             }
 
         }
-#line 3077 "y.tab.c" /* yacc.c:1646  */
+#line 3125 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 45:
-#line 1790 "minipy-lab.y" /* yacc.c:1646  */
+#line 1838 "minipy-lab.y" /* yacc.c:1646  */
     {
             if (((yyvsp[-2]).type == Integer || (yyvsp[-2]).type == Real) && ((yyvsp[0]).type == Integer || (yyvsp[0]).type == Real))
             {
@@ -3107,23 +3155,23 @@ yyreduce:
                 YYERROR;
             }
         }
-#line 3111 "y.tab.c" /* yacc.c:1646  */
+#line 3159 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 46:
-#line 1819 "minipy-lab.y" /* yacc.c:1646  */
+#line 1867 "minipy-lab.y" /* yacc.c:1646  */
     { (yyval) = (yyvsp[-1]); }
-#line 3117 "y.tab.c" /* yacc.c:1646  */
+#line 3165 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 47:
-#line 1820 "minipy-lab.y" /* yacc.c:1646  */
+#line 1868 "minipy-lab.y" /* yacc.c:1646  */
     { (yyval) = (yyvsp[-1]); }
-#line 3123 "y.tab.c" /* yacc.c:1646  */
+#line 3171 "y.tab.c" /* yacc.c:1646  */
     break;
 
 
-#line 3127 "y.tab.c" /* yacc.c:1646  */
+#line 3175 "y.tab.c" /* yacc.c:1646  */
       default: break;
     }
   /* User semantic actions sometimes alter yychar, and that requires
@@ -3351,7 +3399,7 @@ yyreturn:
 #endif
   return yyresult;
 }
-#line 1824 "minipy-lab.y" /* yacc.c:1906  */
+#line 1872 "minipy-lab.y" /* yacc.c:1906  */
 
 
 int main()
