@@ -509,8 +509,8 @@ static const yytype_uint16 yyrline[] =
        0,    88,    88,    93,    92,   105,   105,   107,   111,   115,
      119,   168,   172,   173,   177,   190,   203,   237,   238,   239,
      240,   245,   248,   263,   266,   270,   271,   527,   576,   583,
-    1313,  1535,  1540,  1549,  1554,  1561,  1563,  1567,  1572,  1581,
-    1673,  1716,  1720,  1801,  1818,  1837,  1867,  1868,  1869
+    1318,  1545,  1550,  1559,  1564,  1571,  1573,  1577,  1582,  1591,
+    1683,  1726,  1730,  1811,  1828,  1847,  1877,  1878,  1879
 };
 #endif
 
@@ -2568,13 +2568,18 @@ yyreduce:
                     YYERROR;
                 }
             }
+            else
+            {
+                yyerror("AttributeError: '" + TypeString((yyvsp[-4])) + "' object has no attribute '"+ (yyvsp[-4]).attributeName +"\'");
+                YYERROR;
+            }
 
         }
-#line 2574 "y.tab.c" /* yacc.c:1646  */
+#line 2579 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 30:
-#line 1314 "minipy-lab.y" /* yacc.c:1646  */
+#line 1319 "minipy-lab.y" /* yacc.c:1646  */
     {
             if ((yyvsp[-2]).variableName == "quit") // quit函数
                 exit(0);
@@ -2792,68 +2797,73 @@ yyreduce:
                 yyerror("TypeError: type() takes 1 or 3 arguments");
                 YYERROR;
             }
+            else
+            {
+                yyerror("AttributeError: '" + TypeString((yyvsp[-2])) + "' object has no attribute '"+ (yyvsp[-2]).attributeName +"\'");
+                YYERROR;
+            }
         }
-#line 2797 "y.tab.c" /* yacc.c:1646  */
+#line 2807 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 31:
-#line 1536 "minipy-lab.y" /* yacc.c:1646  */
+#line 1546 "minipy-lab.y" /* yacc.c:1646  */
     {
         (yyval).type = List;
         (yyval).listValue = vector<struct value>(1, (yyvsp[0])); // 用列表“框柱”参数
     }
-#line 2806 "y.tab.c" /* yacc.c:1646  */
+#line 2816 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 32:
-#line 1541 "minipy-lab.y" /* yacc.c:1646  */
+#line 1551 "minipy-lab.y" /* yacc.c:1646  */
     {
         (yyval).type = List;
         (yyvsp[-2]).listValue.push_back((yyvsp[0]));
         (yyval).listValue = vector<struct value>((yyvsp[-2]).listValue);
     }
-#line 2816 "y.tab.c" /* yacc.c:1646  */
+#line 2826 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 33:
-#line 1550 "minipy-lab.y" /* yacc.c:1646  */
+#line 1560 "minipy-lab.y" /* yacc.c:1646  */
     {
         (yyval).type = List;
         (yyval).listValue = vector<struct value>();
     }
-#line 2825 "y.tab.c" /* yacc.c:1646  */
+#line 2835 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 34:
-#line 1555 "minipy-lab.y" /* yacc.c:1646  */
+#line 1565 "minipy-lab.y" /* yacc.c:1646  */
     {
         (yyval).type = List;
         (yyval).listValue = vector<struct value>((yyvsp[-2]).listValue);
     }
-#line 2834 "y.tab.c" /* yacc.c:1646  */
+#line 2844 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 37:
-#line 1568 "minipy-lab.y" /* yacc.c:1646  */
+#line 1578 "minipy-lab.y" /* yacc.c:1646  */
     {
         (yyval).type = List;
         (yyval).listValue = vector<struct value>(1, (yyvsp[0])); // 用列表“框柱”变量
     }
-#line 2843 "y.tab.c" /* yacc.c:1646  */
+#line 2853 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 38:
-#line 1573 "minipy-lab.y" /* yacc.c:1646  */
+#line 1583 "minipy-lab.y" /* yacc.c:1646  */
     {
         (yyval).type = List;
         (yyvsp[-2]).listValue.push_back((yyvsp[0]));
         (yyval).listValue = vector<struct value>((yyvsp[-2]).listValue);
     }
-#line 2853 "y.tab.c" /* yacc.c:1646  */
+#line 2863 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 39:
-#line 1582 "minipy-lab.y" /* yacc.c:1646  */
+#line 1592 "minipy-lab.y" /* yacc.c:1646  */
     {
             switch((yyvsp[-2]).type)
             {
@@ -2945,11 +2955,11 @@ yyreduce:
                     YYERROR;
             }
         }
-#line 2949 "y.tab.c" /* yacc.c:1646  */
+#line 2959 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 40:
-#line 1674 "minipy-lab.y" /* yacc.c:1646  */
+#line 1684 "minipy-lab.y" /* yacc.c:1646  */
     {
             switch((yyvsp[-2]).type)
             {
@@ -2992,11 +3002,11 @@ yyreduce:
                     YYERROR;
             }
         }
-#line 2996 "y.tab.c" /* yacc.c:1646  */
+#line 3006 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 42:
-#line 1721 "minipy-lab.y" /* yacc.c:1646  */
+#line 1731 "minipy-lab.y" /* yacc.c:1646  */
     {
             switch((yyvsp[-2]).type)
             {
@@ -3077,11 +3087,11 @@ yyreduce:
                     YYERROR;
             }
         }
-#line 3081 "y.tab.c" /* yacc.c:1646  */
+#line 3091 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 43:
-#line 1802 "minipy-lab.y" /* yacc.c:1646  */
+#line 1812 "minipy-lab.y" /* yacc.c:1646  */
     {
             (yyval).type = Real;
             if (((yyvsp[-2]).type == Integer || (yyvsp[-2]).type == Real) && ((yyvsp[0]).type == Integer || (yyvsp[0]).type == Real))
@@ -3098,11 +3108,11 @@ yyreduce:
                 YYERROR;
             }
         }
-#line 3102 "y.tab.c" /* yacc.c:1646  */
+#line 3112 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 44:
-#line 1819 "minipy-lab.y" /* yacc.c:1646  */
+#line 1829 "minipy-lab.y" /* yacc.c:1646  */
     {
             // 整除
             (yyval).type = Integer;
@@ -3121,11 +3131,11 @@ yyreduce:
             }
 
         }
-#line 3125 "y.tab.c" /* yacc.c:1646  */
+#line 3135 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 45:
-#line 1838 "minipy-lab.y" /* yacc.c:1646  */
+#line 1848 "minipy-lab.y" /* yacc.c:1646  */
     {
             if (((yyvsp[-2]).type == Integer || (yyvsp[-2]).type == Real) && ((yyvsp[0]).type == Integer || (yyvsp[0]).type == Real))
             {
@@ -3155,23 +3165,23 @@ yyreduce:
                 YYERROR;
             }
         }
-#line 3159 "y.tab.c" /* yacc.c:1646  */
+#line 3169 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 46:
-#line 1867 "minipy-lab.y" /* yacc.c:1646  */
+#line 1877 "minipy-lab.y" /* yacc.c:1646  */
     { (yyval) = (yyvsp[-1]); }
-#line 3165 "y.tab.c" /* yacc.c:1646  */
+#line 3175 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 47:
-#line 1868 "minipy-lab.y" /* yacc.c:1646  */
+#line 1878 "minipy-lab.y" /* yacc.c:1646  */
     { (yyval) = (yyvsp[-1]); }
-#line 3171 "y.tab.c" /* yacc.c:1646  */
+#line 3181 "y.tab.c" /* yacc.c:1646  */
     break;
 
 
-#line 3175 "y.tab.c" /* yacc.c:1646  */
+#line 3185 "y.tab.c" /* yacc.c:1646  */
       default: break;
     }
   /* User semantic actions sometimes alter yychar, and that requires
@@ -3399,7 +3409,7 @@ yyreturn:
 #endif
   return yyresult;
 }
-#line 1872 "minipy-lab.y" /* yacc.c:1906  */
+#line 1882 "minipy-lab.y" /* yacc.c:1906  */
 
 
 int main()

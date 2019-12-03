@@ -1308,6 +1308,11 @@ atom_expr:
                     YYERROR;
                 }
             }
+            else
+            {
+                yyerror("AttributeError: '" + TypeString($1) + "' object has no attribute '"+ $1.attributeName +"\'");
+                YYERROR;
+            }
 
         } |
     atom_expr  '('  ')'
@@ -1526,6 +1531,11 @@ atom_expr:
             else if ($1.variableName == "type")
             {
                 yyerror("TypeError: type() takes 1 or 3 arguments");
+                YYERROR;
+            }
+            else
+            {
+                yyerror("AttributeError: '" + TypeString($1) + "' object has no attribute '"+ $1.attributeName +"\'");
                 YYERROR;
             }
         }
