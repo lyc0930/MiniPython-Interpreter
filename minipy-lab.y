@@ -678,6 +678,89 @@ atom_expr:
                     YYERROR;
                 }
             }
+            else if ($1.stringValue == "index")
+            {
+                if ((Symbol.at($1.variableName).type == List) || (Symbol.at($1.variableName).type == String))
+                {
+                    if ($3.listValue.size() > 3)
+                    {
+                        yyerror("TypeError: range expected at most 3 arguments, got " + to_string($3.listValue.size()));
+                        YYERROR;
+                    }
+                    else
+                    {
+                        Value object = $3.listValue[0];
+
+                        if (Symbol.at($1.variableName).type == List)
+                        {
+                            vector<struct value>::iterator begin, end;
+                            if ($3.listValue.size() == 1) // 默认起始
+                                begin = Symbol.at($1.variableName).listValue.begin();
+                            else if ($3.listValue.size() == 2 || $3.listValue.size() == 3)
+                                begin = Symbol.at($1.variableName).listValue.begin() + $3.listValue[1].integerValue; // 第二个参数
+
+                            if ($3.listValue.size() == 1 || $3.listValue.size() == 2) // 默认结尾
+                                end = Symbol.at($1.variableName).listValue.end();
+                            else if ($3.listValue.size() == 3)
+                                end = Symbol.at($1.variableName).listValue.begin() + $3.listValue[2].integerValue; // 第三个参数
+
+                            vector<struct value>::iterator pos = find(begin, end, object); // 使用algorithm 中的find
+                            if (pos == end)
+                            {
+                                cout << "ValueError: "; // 这里的错误信息处理的不太好
+                                Print(object);
+                                yyerror(" is not in list");
+                                YYERROR;
+                            }
+                            else
+                            {
+                                $$.type = Integer;
+                                $$.integerValue = distance(Symbol.at($1.variableName).listValue.begin(), pos); // 使用algorithm中的distance
+                            }
+                        }
+                        else if (Symbol.at($1.variableName).type == String)
+                        {
+                            if (object.type == String)
+                            {
+                                int begin;
+                                string temp;
+
+                                if ($3.listValue.size() == 1) // 默认起始
+                                    begin = 0;
+                                else if ($3.listValue.size() == 2 || $3.listValue.size() == 3)
+                                    begin = $3.listValue[1].integerValue; // 第二个参数
+
+                                if ($3.listValue.size() == 1 || $3.listValue.size() == 2) // 默认结尾
+                                    temp = Symbol.at($1.variableName).stringValue;
+                                else if ($3.listValue.size() == 3)
+                                    temp = Symbol.at($1.variableName).stringValue.substr(0, $3.listValue[2].integerValue); // 第三个参数
+
+                                int pos = temp.find(object.stringValue, begin); // 使用string的find
+                                if (pos == temp.npos)
+                                {
+                                    yyerror("ValueError: substring not found");
+                                    YYERROR;
+                                }
+                                else
+                                {
+                                    $$.type = Integer;
+                                    $$.integerValue = pos;
+                                }
+                            }
+                            else
+                            {
+                                yyerror("TypeError: must be str, not " + TypeString(object));
+                                YYERROR;
+                            }
+                        }
+                    }
+                }
+                else
+                {
+                    yyerror("AttributeError: '" + TypeString(Symbol.at($1.variableName)) + "' object has no attribute 'index'");
+                    YYERROR;
+                }
+            }
             else if ($1.stringValue == "reverse")
             {
                 if (Symbol.at($1.variableName).type == List)
@@ -868,6 +951,20 @@ atom_expr:
                 else
                 {
                     yyerror("AttributeError: '" + TypeString(Symbol.at($1.variableName)) + "' object has no attribute 'extend'");
+                    YYERROR;
+                }
+            }
+            else if ($1.stringValue == "index")
+            {
+                $$.type = None;
+                if ((Symbol.at($1.variableName).type == List) || (Symbol.at($1.variableName).type == String))
+                {
+                    yyerror("TypeError: index() takes at least 1 argument (0 given)");
+                    YYERROR;
+                }
+                else
+                {
+                    yyerror("AttributeError: '" + TypeString(Symbol.at($1.variableName)) + "' object has no attribute 'index'");
                     YYERROR;
                 }
             }
