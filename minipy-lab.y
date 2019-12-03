@@ -21,9 +21,10 @@
         Type type;
         int integerValue;               /* value for int type */
         double realValue;               /* value for real type */
-        string stringValue;             /* value for string type 或 方法 函数名称*/
+        string stringValue;             /* value for string type */
         vector<struct value> listValue; /* value for list type */
         string variableName;            /* name of the Variable */
+        string attributeName;           /* name of the attribute */
 
         // slice or item of List
         vector<struct value>::iterator begin; // slice 起始位置 或 item 坐标
@@ -572,58 +573,204 @@ atom_expr:
                 YYERROR;
             }
         }|
+    atom_expr '.' ID
+        {
+            $$.type = $1.type;
+
+            $$.variableName = $1.variableName; // 变量名
+            $$.attributeName = $3.variableName; // 属性或方法名
+        } |
     atom_expr '(' arglist opt_comma ')'
         {
-            if ($1.stringValue == "append") // append方法
+            if ($1.attributeName == "append") // append方法
             {
                 $$.type = None;
-                if (Symbol.at($1.variableName).type == List)
+                switch ($1.type)
                 {
-                    if ($3.listValue.size() == 1) // append 有且仅有1个参数
-                    {
-                        Symbol.at($1.variableName).listValue.push_back(*$3.listValue.begin());
-                    }
-                    else
-                    {
-                        yyerror("TypeError: append() takes exactly one argument ("+ to_string($3.listValue.size()) +" given)");
+                    case List:
+                    case ListSlice:
+                        if ($3.listValue.size() == 1) // append 有且仅有1个参数
+                        {
+                            $1.listValue.push_back(*$3.listValue.begin());
+                        }
+                        else
+                        {
+                            yyerror("TypeError: append() takes exactly one argument ("+ to_string($3.listValue.size()) +" given)");
+                            YYERROR;
+                        }
+                        break;
+                    case ListItem:
+                        if ((*$1.begin).type == List)
+                        {
+                            (*$1.begin).listValue.push_back(*$3.listValue.begin());
+                        }
+                        else
+                        {
+                            yyerror("AttributeError: '" + TypeString(*$1.begin) + "' object has no attribute 'append'");
+                            YYERROR;
+                        }
+                        break;
+                    case Variable:
+                        if (Symbol.at($1.variableName).type == List)
+                        {
+                            if ($3.listValue.size() == 1) // append 有且仅有1个参数
+                            {
+                                Symbol.at($1.variableName).listValue.push_back(*$3.listValue.begin());
+                            }
+                            else
+                            {
+                                yyerror("TypeError: append() takes exactly one argument ("+ to_string($3.listValue.size()) +" given)");
+                                YYERROR;
+                            }
+                        }
+                        else
+                        {
+                            yyerror("AttributeError: '" + TypeString(Symbol.at($1.variableName)) + "' object has no attribute 'append'");
+                            YYERROR;
+                        }
+                        break;
+                    default:
+                        yyerror("AttributeError: '" + TypeString($1) + "' object has no attribute 'append'");
                         YYERROR;
-                    }
-                }
-                else
-                {
-                    yyerror("AttributeError: '" + TypeString(Symbol.at($1.variableName)) + "' object has no attribute 'append'");
-                    YYERROR;
                 }
 
             }
-            else if ($1.stringValue == "count") // count方法
+            else if ($1.attributeName == "count") // count方法
             {
-                $$.type = Integer;
-                if (Symbol.at($1.variableName).type == List)
+                switch ($1.type)
                 {
-                    if ($3.listValue.size() == 1)
-                    {
-                        if (Symbol.at($1.variableName).type == List)
+                    case String:
+                        if ($3.listValue.size() == 1) // count 有且仅有1个参数
                         {
-                            if ($3.listValue.size() == 1) // count 有且仅有1个参数
+                            if ((*$3.listValue.begin()).type == String)
                             {
-                                $$.integerValue = count(Symbol.at($1.variableName).listValue.begin(), Symbol.at($1.variableName).listValue.end(), *$3.listValue.begin()); // 调用algorithm中的count
+                                $$.type = Integer;
+                                $$.integerValue = 0;
+                                size_t len = (*$3.listValue.begin()).stringValue.length();
+	                            if (len == 0)
+                                    len = 1; // 空子串调用
+	                            for (size_t i = 0; (i = $1.stringValue.find((*$3.listValue.begin()).stringValue,i)) != $1.stringValue.npos; $$.integerValue++, i+=len);
+                            }
+                            else
+                            {
+                                yyerror("TypeError: must be str, not " + TypeString(*$3.listValue.begin()));
+                                YYERROR;
                             }
                         }
-                    }
-                    else
-                    {
-                        yyerror("TypeError: count() takes exactly one argument ("+ to_string($3.listValue.size()) +" given)");
+                        else
+                        {
+                            yyerror("TypeError: count() takes exactly one argument ("+ to_string($3.listValue.size()) +" given)");
+                            YYERROR;
+                        }
+                        break;
+                    case List:
+                    case ListSlice:
+                        if ($3.listValue.size() == 1) // count 有且仅有1个参数
+                        {
+                            $$.type = Integer;
+                            $$.integerValue = count($1.listValue.begin(), $1.listValue.end(), *$3.listValue.begin()); // 调用algorithm中的count
+                        }
+                        else
+                        {
+                            yyerror("TypeError: count() takes exactly one argument ("+ to_string($3.listValue.size()) +" given)");
+                            YYERROR;
+                        }
+                        break;
+                    case ListItem:
+                        switch ((*$1.begin).type)
+                        {
+                            case String:
+                                if ($3.listValue.size() == 1) // count 有且仅有1个参数
+                                {
+                                    if ((*$3.listValue.begin()).type == String)
+                                    {
+                                        $$.type = Integer;
+                                        $$.integerValue = 0;
+                                        size_t len = (*$3.listValue.begin()).stringValue.length();
+                                        if (len == 0)
+                                            len = 1; // 空子串调用
+                                        for (size_t i = 0; (i = (*$1.begin).stringValue.find((*$3.listValue.begin()).stringValue,i)) != (*$1.begin).stringValue.npos; $$.integerValue++, i+=len);
+                                    }
+                                    else
+                                    {
+                                        yyerror("TypeError: must be str, not " + TypeString(*$3.listValue.begin()));
+                                        YYERROR;
+                                    }
+                                }
+                                else
+                                {
+                                    yyerror("TypeError: count() takes exactly one argument ("+ to_string($3.listValue.size()) +" given)");
+                                    YYERROR;
+                                }
+                                break;
+                            case List:
+                                if ($3.listValue.size() == 1) // count 有且仅有1个参数
+                                {
+                                    $$.type = Integer;
+                                    $$.integerValue = count((*$1.begin).listValue.begin(), (*$1.begin).listValue.end(), *$3.listValue.begin()); // 调用algorithm中的count
+                                }
+
+                                else
+                                {
+                                    yyerror("TypeError: count() takes exactly one argument ("+ to_string($3.listValue.size()) +" given)");
+                                    YYERROR;
+                                }
+                                break;
+                            default:
+                                yyerror("AttributeError: '" + TypeString(*$1.begin) + "' object has no attribute 'count'");
+                                YYERROR;
+                        }
+                        break;
+                    case Variable:
+                        switch (Symbol.at($1.variableName).type)
+                        {
+                            case String:
+                                if ($3.listValue.size() == 1) // count 有且仅有1个参数
+                                {
+                                    if ((*$3.listValue.begin()).type == String)
+                                    {
+                                        $$.type = Integer;
+                                        $$.integerValue = 0;
+                                        size_t len = (*$3.listValue.begin()).stringValue.length();
+                                        if (len == 0)
+                                            len = 1; // 空子串调用
+                                        for (size_t i = 0; (i = Symbol.at($1.variableName).stringValue.find((*$3.listValue.begin()).stringValue,i)) != Symbol.at($1.variableName).stringValue.npos; $$.integerValue++, i+=len);
+                                    }
+                                    else
+                                    {
+                                        yyerror("TypeError: must be str, not " + TypeString(*$3.listValue.begin()));
+                                        YYERROR;
+                                    }
+                                }
+                                else
+                                {
+                                    yyerror("TypeError: count() takes exactly one argument ("+ to_string($3.listValue.size()) +" given)");
+                                    YYERROR;
+                                }
+                                break;
+                            case List:
+                                if ($3.listValue.size() == 1) // count 有且仅有1个参数
+                                {
+                                    $$.type = Integer;
+                                    $$.integerValue = count(Symbol.at($1.variableName).listValue.begin(), Symbol.at($1.variableName).listValue.end(), *$3.listValue.begin()); // 调用algorithm中的count
+                                }
+                                else
+                                {
+                                    yyerror("TypeError: count() takes exactly one argument ("+ to_string($3.listValue.size()) +" given)");
+                                    YYERROR;
+                                }
+                                break;
+                            default:
+                                yyerror("AttributeError: '" + TypeString(Symbol.at($1.variableName)) + "' object has no attribute 'count'");
+                                YYERROR;
+                        }
+                        break;
+                    default:
+                        yyerror("AttributeError: '" + TypeString($1) + "' object has no attribute 'count'");
                         YYERROR;
-                    }
-                }
-                else
-                {
-                    yyerror("AttributeError: '" + TypeString(Symbol.at($1.variableName)) + "' object has no attribute 'count'");
-                    YYERROR;
                 }
             }
-            else if ($1.stringValue == "extend") // extend方法
+            else if ($1.attributeName == "extend") // extend方法
             {
                 $$.type = None;
                 if (Symbol.at($1.variableName).type == List)
@@ -678,7 +825,7 @@ atom_expr:
                     YYERROR;
                 }
             }
-            else if ($1.stringValue == "index")
+            else if ($1.attributeName == "index")
             {
                 if ((Symbol.at($1.variableName).type == List) || (Symbol.at($1.variableName).type == String))
                 {
@@ -761,7 +908,7 @@ atom_expr:
                     YYERROR;
                 }
             }
-            else if ($1.stringValue == "reverse")
+            else if ($1.attributeName == "reverse")
             {
                 if (Symbol.at($1.variableName).type == List)
                 {
@@ -902,45 +1049,90 @@ atom_expr:
             }
 
         } |
-    atom_expr '.' ID
-        {
-            $$.type = None;
-            $$.variableName = $1.variableName; // 变量名
-            $$.stringValue = $3.variableName; // 属性或方法名
-        } |
     atom_expr  '('  ')'
         {
             if ($1.variableName == "quit") // quit函数
                 exit(0);
-            else if ($1.stringValue == "append")
+            else if ($1.attributeName == "append")
             {
                 $$.type = None;
-                if (Symbol.at($1.variableName).type == List)
+                switch ($1.type)
                 {
-                    yyerror("TypeError: append() takes exactly one argument (0 given)");
-                    YYERROR;
-                }
-                else
-                {
-                    yyerror("AttributeError: '" + TypeString(Symbol.at($1.variableName)) + "' object has no attribute 'append'");
-                    YYERROR;
+                    case List:
+                    case ListSlice:
+                        yyerror("TypeError: append() takes exactly one argument (0 given)");
+                        YYERROR;
+                        break;
+                    case ListItem:
+                        if ((*$1.begin).type == List)
+                        {
+                            yyerror("TypeError: append() takes exactly one argument (0 given)");
+                            YYERROR;
+                        }
+                        else
+                        {
+                            yyerror("AttributeError: '" + TypeString(*$1.begin) + "' object has no attribute 'append'");
+                            YYERROR;
+                        }
+                        break;
+                    case Variable:
+                        if (Symbol.at($1.variableName).type == List)
+                        {
+                            yyerror("TypeError: append() takes exactly one argument (0 given)");
+                            YYERROR;
+                        }
+                        else
+                        {
+                            yyerror("AttributeError: '" + TypeString(Symbol.at($1.variableName)) + "' object has no attribute 'append'");
+                            YYERROR;
+                        }
+                        break;
+                    default:
+                        yyerror("AttributeError: '" + TypeString($1) + "' object has no attribute 'append'");
+                        YYERROR;
                 }
             }
-            else if ($1.stringValue == "count")
+            else if ($1.attributeName == "count")
             {
                 $$.type = None;
-                if (Symbol.at($1.variableName).type == List)
+                switch ($1.type)
                 {
-                    yyerror("TypeError: append() takes exactly one argument (0 given)");
-                    YYERROR;
-                }
-                else
-                {
-                    yyerror("AttributeError: '" + TypeString(Symbol.at($1.variableName)) + "' object has no attribute 'count'");
-                    YYERROR;
+                    case String:
+                    case List:
+                    case ListSlice:
+                        yyerror("TypeError: count() takes exactly one argument (0 given)");
+                        YYERROR;
+                        break;
+                    case ListItem:
+                        if ((*$1.begin).type == List || (*$1.begin).type == String)
+                        {
+                            yyerror("TypeError: count() takes exactly one argument (0 given)");
+                            YYERROR;
+                        }
+                        else
+                        {
+                            yyerror("AttributeError: '" + TypeString(*$1.begin) + "' object has no attribute 'count'");
+                            YYERROR;
+                        }
+                        break;
+                    case Variable:
+                        if (Symbol.at($1.variableName).type == List)
+                        {
+                            yyerror("TypeError: count() takes exactly one argument (0 given)");
+                            YYERROR;
+                        }
+                        else
+                        {
+                            yyerror("AttributeError: '" + TypeString(Symbol.at($1.variableName)) + "' object has no attribute 'count'");
+                            YYERROR;
+                        }
+                        break;
+                    default:
+                        yyerror("AttributeError: '" + TypeString($1) + "' object has no attribute 'count'");
+                        YYERROR;
                 }
             }
-            else if ($1.stringValue == "extend")
+            else if ($1.attributeName == "extend")
             {
                 $$.type = None;
                 if (Symbol.at($1.variableName).type == List)
@@ -954,7 +1146,7 @@ atom_expr:
                     YYERROR;
                 }
             }
-            else if ($1.stringValue == "index")
+            else if ($1.attributeName == "index")
             {
                 $$.type = None;
                 if ((Symbol.at($1.variableName).type == List) || (Symbol.at($1.variableName).type == String))
@@ -968,7 +1160,7 @@ atom_expr:
                     YYERROR;
                 }
             }
-            else if ($1.stringValue == "reverse") // reverse方法
+            else if ($1.attributeName == "reverse") // reverse方法
             {
                 $$.type = None;
                 if (Symbol.at($1.variableName).type == List)

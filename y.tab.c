@@ -86,9 +86,10 @@
         Type type;
         int integerValue;               /* value for int type */
         double realValue;               /* value for real type */
-        string stringValue;             /* value for string type 或 方法 函数名称*/
+        string stringValue;             /* value for string type */
         vector<struct value> listValue; /* value for list type */
         string variableName;            /* name of the Variable */
+        string attributeName;           /* name of the attribute */
 
         // slice or item of List
         vector<struct value>::iterator begin; // slice 起始位置 或 item 坐标
@@ -140,7 +141,7 @@
     // 返回变量类型的字符串
     string TypeString(Value);
 
-#line 144 "y.tab.c" /* yacc.c:339  */
+#line 145 "y.tab.c" /* yacc.c:339  */
 
 # ifndef YY_NULLPTR
 #  if defined __cplusplus && 201103L <= __cplusplus
@@ -207,7 +208,7 @@ int yyparse (void);
 
 /* Copy the second part of user declarations.  */
 
-#line 211 "y.tab.c" /* yacc.c:358  */
+#line 212 "y.tab.c" /* yacc.c:358  */
 
 #ifdef short
 # undef short
@@ -476,7 +477,7 @@ static const yytype_uint8 yytranslate[] =
       14,     2,     2,     2,     2,     2,     2,     2,     2,     2,
        2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
        2,     2,     2,     2,     2,     2,     2,    12,     2,     2,
-      19,    20,    10,     8,    22,     9,    21,    11,     2,     2,
+      20,    21,    10,     8,    22,     9,    19,    11,     2,     2,
        2,     2,     2,     2,     2,     2,     2,     2,    16,     2,
        2,    15,     2,     2,     2,     2,     2,     2,     2,     2,
        2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
@@ -505,11 +506,11 @@ static const yytype_uint8 yytranslate[] =
   /* YYRLINE[YYN] -- Source line where rule number YYN was defined.  */
 static const yytype_uint16 yyrline[] =
 {
-       0,    87,    87,    92,    91,   104,   104,   106,   110,   114,
-     118,   167,   171,   172,   176,   189,   202,   236,   237,   238,
-     239,   244,   247,   262,   265,   269,   270,   526,   575,   905,
-     911,  1008,  1013,  1022,  1027,  1034,  1036,  1040,  1045,  1054,
-    1146,  1189,  1193,  1274,  1291,  1310,  1340,  1341,  1342
+       0,    88,    88,    93,    92,   105,   105,   107,   111,   115,
+     119,   168,   172,   173,   177,   190,   203,   237,   238,   239,
+     240,   245,   248,   263,   266,   270,   271,   527,   576,   583,
+    1052,  1200,  1205,  1214,  1219,  1226,  1228,  1232,  1237,  1246,
+    1338,  1381,  1385,  1466,  1483,  1502,  1532,  1533,  1534
 };
 #endif
 
@@ -520,7 +521,7 @@ static const char *const yytname[] =
 {
   "$end", "error", "$undefined", "ID", "INT", "REAL", "STRING_LITERAL",
   "DIV", "'+'", "'-'", "'*'", "'/'", "'%'", "UMINUS", "'\\n'", "'='",
-  "':'", "'['", "']'", "'('", "')'", "'.'", "','", "$accept", "Start",
+  "':'", "'['", "']'", "'.'", "'('", "')'", "','", "$accept", "Start",
   "Lines", "$@1", "prompt", "stat", "assignExpr", "number", "factor",
   "atom", "slice_op", "sub_expr", "atom_expr", "arglist", "List",
   "opt_comma", "List_items", "add_expr", "mul_expr", YY_NULLPTR
@@ -533,8 +534,8 @@ static const char *const yytname[] =
 static const yytype_uint16 yytoknum[] =
 {
        0,   256,   257,   258,   259,   260,   261,   262,    43,    45,
-      42,    47,    37,   263,    10,    61,    58,    91,    93,    40,
-      41,    46,    44
+      42,    47,    37,   263,    10,    61,    58,    91,    93,    46,
+      40,    41,    44
 };
 # endif
 
@@ -552,14 +553,14 @@ static const yytype_uint16 yytoknum[] =
      STATE-NUM.  */
 static const yytype_int8 yypact[] =
 {
-     -15,    19,    58,   -15,    -6,    65,   -15,   -15,   -15,   -15,
-     -15,    89,    89,   -15,     8,    82,    10,   -15,   -15,   -15,
-     -15,    34,   -15,    20,    97,   -15,    59,   -15,   -15,   -15,
-      12,    20,    94,    25,   -15,    82,    82,     1,    27,    82,
-      82,    82,    82,    82,    82,    82,    30,   -15,   -15,   -15,
-     -15,    41,    38,   -15,    28,    20,   -15,    97,    97,   -15,
-     -15,   -15,   -15,    20,   -15,   -15,    82,   -15,    82,    45,
-      67,    20,    20,   -15,    82,    63,    20,   -15
+     -15,    20,    58,   -15,    -6,    65,   -15,   -15,   -15,   -15,
+     -15,    90,    90,   -15,     1,    83,     9,   -15,   -15,   -15,
+     -15,    36,   -15,    18,    98,   -15,    64,   -15,   -15,   -15,
+      12,    18,    93,    25,   -15,    83,    83,    27,     8,    83,
+      83,    83,    83,    83,    83,    83,    47,   -15,   -15,   -15,
+     -15,    29,    39,   -15,   -15,    54,    18,    98,    98,   -15,
+     -15,   -15,   -15,    18,   -15,   -15,    83,   -15,    83,    56,
+      74,    18,    18,   -15,    83,    62,    18,   -15
 };
 
   /* YYDEFACT[STATE-NUM] -- Default reduction number in state STATE-NUM.
@@ -572,23 +573,23 @@ static const yytype_uint8 yydefact[] =
       25,    16,    19,    11,    41,    14,    16,    15,     5,    33,
       35,    37,     0,    41,     3,     0,    23,     0,     0,     0,
        0,     0,     0,     0,     0,    36,     0,    46,    47,     8,
-      10,     0,    24,    30,    35,    31,    29,    39,    40,    44,
+      10,     0,    24,    28,    30,    35,    31,    39,    40,    44,
       42,    43,    45,    38,    34,     4,    23,    27,    36,     0,
-      21,    24,    32,    28,     0,     0,    22,    26
+      21,    24,    32,    29,     0,     0,    22,    26
 };
 
   /* YYPGOTO[NTERM-NUM].  */
 static const yytype_int8 yypgoto[] =
 {
-     -15,   -15,   -15,   -15,   -11,   -15,    54,   -15,    99,   -15,
-     -15,    39,    -2,   -15,   -15,    42,   -15,   -14,     0
+     -15,   -15,   -15,   -15,   -11,   -15,    69,   -15,    38,   -15,
+     -15,    31,    -2,   -15,   -15,    51,   -15,   -14,     0
 };
 
   /* YYDEFGOTO[NTERM-NUM].  */
 static const yytype_int8 yydefgoto[] =
 {
       -1,     1,     5,    49,     2,    16,    17,    18,    19,    20,
-      75,    51,    26,    54,    22,    46,    30,    23,    24
+      75,    51,    26,    55,    22,    46,    30,    23,    24
 };
 
   /* YYTABLE[YYPACT[STATE-NUM]] -- What to do in state STATE-NUM.  If
@@ -597,33 +598,33 @@ static const yytype_int8 yydefgoto[] =
 static const yytype_int8 yytable[] =
 {
       31,    32,    28,    21,     7,     8,     9,    10,     6,    11,
-      12,     7,     8,     9,    10,    33,    11,    12,    14,     3,
-      15,    53,    52,    55,    34,    14,    29,    15,    39,    40,
-      56,    63,    41,    21,    45,    42,    43,    44,    65,    57,
-      58,    59,    60,    61,    62,    48,    39,    40,    64,    35,
-      68,    36,    71,    37,    72,    38,    67,    66,    -6,     4,
-      76,    -6,    -6,    -6,    -6,    73,    -6,    -6,     7,     8,
-       9,    10,    -6,    11,    12,    -6,    36,    -6,    37,    13,
-      38,    77,    14,    74,    15,     7,     8,     9,    10,    50,
-      11,    12,     7,     8,     9,    10,    69,    11,    12,    14,
-       0,    15,    39,    40,    41,    70,    14,    42,    43,    44,
-      25,    27,     0,     0,    47
+      12,     7,     8,     9,    10,    33,    11,    12,    14,    29,
+       3,    15,    52,    34,    56,    14,    39,    40,    15,    54,
+      53,    63,    41,    21,    45,    42,    43,    44,    65,    57,
+      58,    59,    60,    61,    62,    66,    48,    39,    40,    25,
+      27,    35,    71,    36,    72,    37,    38,    67,    -6,     4,
+      76,    -6,    -6,    -6,    -6,    64,    -6,    -6,     7,     8,
+       9,    10,    -6,    11,    12,    -6,    68,    73,    -6,    13,
+      77,    36,    14,    37,    38,    15,     7,     8,     9,    10,
+      74,    11,    12,     7,     8,     9,    10,    70,    11,    12,
+      14,    39,    40,    15,    50,    41,    69,    14,    42,    43,
+      44,     0,     0,     0,    47
 };
 
 static const yytype_int8 yycheck[] =
 {
       14,    15,    13,     5,     3,     4,     5,     6,    14,     8,
-       9,     3,     4,     5,     6,    15,     8,     9,    17,     0,
-      19,    20,    36,    37,    14,    17,    18,    19,     8,     9,
+       9,     3,     4,     5,     6,    15,     8,     9,    17,    18,
+       0,    20,    36,    14,    38,    17,     8,     9,    20,    21,
        3,    45,     7,    35,    22,    10,    11,    12,    49,    39,
-      40,    41,    42,    43,    44,    20,     8,     9,    18,    15,
-      22,    17,    66,    19,    68,    21,    18,    16,     0,     1,
-      74,     3,     4,     5,     6,    20,     8,     9,     3,     4,
-       5,     6,    14,     8,     9,    17,    17,    19,    19,    14,
-      21,    18,    17,    16,    19,     3,     4,     5,     6,    35,
-       8,     9,     3,     4,     5,     6,    54,     8,     9,    17,
-      -1,    19,     8,     9,     7,    66,    17,    10,    11,    12,
-      11,    12,    -1,    -1,    20
+      40,    41,    42,    43,    44,    16,    21,     8,     9,    11,
+      12,    15,    66,    17,    68,    19,    20,    18,     0,     1,
+      74,     3,     4,     5,     6,    18,     8,     9,     3,     4,
+       5,     6,    14,     8,     9,    17,    22,    21,    20,    14,
+      18,    17,    17,    19,    20,    20,     3,     4,     5,     6,
+      16,     8,     9,     3,     4,     5,     6,    66,     8,     9,
+      17,     8,     9,    20,    35,     7,    55,    17,    10,    11,
+      12,    -1,    -1,    -1,    21
 };
 
   /* YYSTOS[STATE-NUM] -- The (internal number of the) accessing
@@ -631,13 +632,13 @@ static const yytype_int8 yycheck[] =
 static const yytype_uint8 yystos[] =
 {
        0,    24,    27,     0,     1,    25,    14,     3,     4,     5,
-       6,     8,     9,    14,    17,    19,    28,    29,    30,    31,
+       6,     8,     9,    14,    17,    20,    28,    29,    30,    31,
       32,    35,    37,    40,    41,    31,    35,    31,    27,    18,
-      39,    40,    40,    41,    14,    15,    17,    19,    21,     8,
-       9,     7,    10,    11,    12,    22,    38,    20,    20,    26,
-      29,    34,    40,    20,    36,    40,     3,    41,    41,    41,
+      39,    40,    40,    41,    14,    15,    17,    19,    20,     8,
+       9,     7,    10,    11,    12,    22,    38,    21,    21,    26,
+      29,    34,    40,     3,    21,    36,    40,    41,    41,    41,
       41,    41,    41,    40,    18,    27,    16,    18,    22,    38,
-      34,    40,    40,    20,    16,    33,    40,    18
+      34,    40,    40,    21,    16,    33,    40,    18
 };
 
   /* YYR1[YYN] -- Symbol number of symbol that rule YYN derives.  */
@@ -655,7 +656,7 @@ static const yytype_uint8 yyr2[] =
 {
        0,     2,     2,     0,     5,     3,     0,     2,     0,     1,
        3,     1,     1,     1,     2,     2,     1,     1,     1,     1,
-       1,     0,     2,     0,     1,     1,     7,     4,     5,     3,
+       1,     0,     2,     0,     1,     1,     7,     4,     3,     5,
        3,     1,     3,     2,     4,     0,     1,     1,     3,     3,
        3,     1,     3,     3,     3,     3,     3,     3,     1
 };
@@ -1334,7 +1335,7 @@ yyreduce:
   switch (yyn)
     {
         case 3:
-#line 92 "minipy-lab.y" /* yacc.c:1646  */
+#line 93 "minipy-lab.y" /* yacc.c:1646  */
     {
             Value temp;
             if ((yyvsp[-1]).type != None)
@@ -1346,23 +1347,23 @@ yyreduce:
                 cout << endl;
             }
         }
-#line 1350 "y.tab.c" /* yacc.c:1646  */
+#line 1351 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 7:
-#line 106 "minipy-lab.y" /* yacc.c:1646  */
+#line 107 "minipy-lab.y" /* yacc.c:1646  */
     { yyerrok; }
-#line 1356 "y.tab.c" /* yacc.c:1646  */
+#line 1357 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 8:
-#line 110 "minipy-lab.y" /* yacc.c:1646  */
+#line 111 "minipy-lab.y" /* yacc.c:1646  */
     { cout << "miniPy> "; }
-#line 1362 "y.tab.c" /* yacc.c:1646  */
+#line 1363 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 10:
-#line 119 "minipy-lab.y" /* yacc.c:1646  */
+#line 120 "minipy-lab.y" /* yacc.c:1646  */
     {
             (yyval).type = None;
             Value temp;
@@ -1411,11 +1412,11 @@ yyreduce:
                     YYERROR;
             }
         }
-#line 1415 "y.tab.c" /* yacc.c:1646  */
+#line 1416 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 14:
-#line 177 "minipy-lab.y" /* yacc.c:1646  */
+#line 178 "minipy-lab.y" /* yacc.c:1646  */
     {
             (yyval).type = (yyvsp[0]).type;
             if ((yyvsp[0]).type == Integer)
@@ -1428,11 +1429,11 @@ yyreduce:
                 YYERROR;
             }
         }
-#line 1432 "y.tab.c" /* yacc.c:1646  */
+#line 1433 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 15:
-#line 190 "minipy-lab.y" /* yacc.c:1646  */
+#line 191 "minipy-lab.y" /* yacc.c:1646  */
     {
             (yyval).type = (yyvsp[0]).type;
             if ((yyvsp[0]).type == Integer)
@@ -1445,11 +1446,11 @@ yyreduce:
                 YYERROR;
             }
         }
-#line 1449 "y.tab.c" /* yacc.c:1646  */
+#line 1450 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 16:
-#line 203 "minipy-lab.y" /* yacc.c:1646  */
+#line 204 "minipy-lab.y" /* yacc.c:1646  */
     {
             switch ((yyvsp[0]).type)
             {
@@ -1480,19 +1481,19 @@ yyreduce:
                 //     YYERROR;
             }
         }
-#line 1484 "y.tab.c" /* yacc.c:1646  */
+#line 1485 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 21:
-#line 244 "minipy-lab.y" /* yacc.c:1646  */
+#line 245 "minipy-lab.y" /* yacc.c:1646  */
     {
             (yyval).type = None;
         }
-#line 1492 "y.tab.c" /* yacc.c:1646  */
+#line 1493 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 22:
-#line 248 "minipy-lab.y" /* yacc.c:1646  */
+#line 249 "minipy-lab.y" /* yacc.c:1646  */
     {
             (yyval).type = Integer;
             if ((yyvsp[0]).type == Integer)
@@ -1503,19 +1504,19 @@ yyreduce:
                 YYERROR;
             }
         }
-#line 1507 "y.tab.c" /* yacc.c:1646  */
+#line 1508 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 23:
-#line 262 "minipy-lab.y" /* yacc.c:1646  */
+#line 263 "minipy-lab.y" /* yacc.c:1646  */
     {
             (yyval).type = None;
         }
-#line 1515 "y.tab.c" /* yacc.c:1646  */
+#line 1516 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 26:
-#line 271 "minipy-lab.y" /* yacc.c:1646  */
+#line 272 "minipy-lab.y" /* yacc.c:1646  */
     {
             int begin, end, step;
 
@@ -1771,11 +1772,11 @@ yyreduce:
                     YYERROR;
             }
         }
-#line 1775 "y.tab.c" /* yacc.c:1646  */
+#line 1776 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 27:
-#line 527 "minipy-lab.y" /* yacc.c:1646  */
+#line 528 "minipy-lab.y" /* yacc.c:1646  */
     {
             if ((yyvsp[-1]).type == Integer)
             {
@@ -1824,62 +1825,212 @@ yyreduce:
                 YYERROR;
             }
         }
-#line 1828 "y.tab.c" /* yacc.c:1646  */
+#line 1829 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 28:
-#line 576 "minipy-lab.y" /* yacc.c:1646  */
+#line 577 "minipy-lab.y" /* yacc.c:1646  */
     {
-            if ((yyvsp[-4]).stringValue == "append") // append方法
+            (yyval).type = (yyvsp[-2]).type;
+
+            (yyval).variableName = (yyvsp[-2]).variableName; // 变量名
+            (yyval).attributeName = (yyvsp[0]).variableName; // 属性或方法名
+        }
+#line 1840 "y.tab.c" /* yacc.c:1646  */
+    break;
+
+  case 29:
+#line 584 "minipy-lab.y" /* yacc.c:1646  */
+    {
+            if ((yyvsp[-4]).attributeName == "append") // append方法
             {
                 (yyval).type = None;
-                if (Symbol.at((yyvsp[-4]).variableName).type == List)
+                switch ((yyvsp[-4]).type)
                 {
-                    if ((yyvsp[-2]).listValue.size() == 1) // append 有且仅有1个参数
-                    {
-                        Symbol.at((yyvsp[-4]).variableName).listValue.push_back(*(yyvsp[-2]).listValue.begin());
-                    }
-                    else
-                    {
-                        yyerror("TypeError: append() takes exactly one argument ("+ to_string((yyvsp[-2]).listValue.size()) +" given)");
+                    case List:
+                    case ListSlice:
+                        if ((yyvsp[-2]).listValue.size() == 1) // append 有且仅有1个参数
+                        {
+                            (yyvsp[-4]).listValue.push_back(*(yyvsp[-2]).listValue.begin());
+                        }
+                        else
+                        {
+                            yyerror("TypeError: append() takes exactly one argument ("+ to_string((yyvsp[-2]).listValue.size()) +" given)");
+                            YYERROR;
+                        }
+                        break;
+                    case ListItem:
+                        if ((*(yyvsp[-4]).begin).type == List)
+                        {
+                            (*(yyvsp[-4]).begin).listValue.push_back(*(yyvsp[-2]).listValue.begin());
+                        }
+                        else
+                        {
+                            yyerror("AttributeError: '" + TypeString(*(yyvsp[-4]).begin) + "' object has no attribute 'append'");
+                            YYERROR;
+                        }
+                        break;
+                    case Variable:
+                        if (Symbol.at((yyvsp[-4]).variableName).type == List)
+                        {
+                            if ((yyvsp[-2]).listValue.size() == 1) // append 有且仅有1个参数
+                            {
+                                Symbol.at((yyvsp[-4]).variableName).listValue.push_back(*(yyvsp[-2]).listValue.begin());
+                            }
+                            else
+                            {
+                                yyerror("TypeError: append() takes exactly one argument ("+ to_string((yyvsp[-2]).listValue.size()) +" given)");
+                                YYERROR;
+                            }
+                        }
+                        else
+                        {
+                            yyerror("AttributeError: '" + TypeString(Symbol.at((yyvsp[-4]).variableName)) + "' object has no attribute 'append'");
+                            YYERROR;
+                        }
+                        break;
+                    default:
+                        yyerror("AttributeError: '" + TypeString((yyvsp[-4])) + "' object has no attribute 'append'");
                         YYERROR;
-                    }
-                }
-                else
-                {
-                    yyerror("AttributeError: '" + TypeString(Symbol.at((yyvsp[-4]).variableName)) + "' object has no attribute 'append'");
-                    YYERROR;
                 }
 
             }
-            else if ((yyvsp[-4]).stringValue == "count") // count方法
+            else if ((yyvsp[-4]).attributeName == "count") // count方法
             {
-                (yyval).type = Integer;
-                if (Symbol.at((yyvsp[-4]).variableName).type == List)
+                switch ((yyvsp[-4]).type)
                 {
-                    if ((yyvsp[-2]).listValue.size() == 1)
-                    {
-                        if (Symbol.at((yyvsp[-4]).variableName).type == List)
+                    case String:
+                        if ((yyvsp[-2]).listValue.size() == 1) // count 有且仅有1个参数
                         {
-                            if ((yyvsp[-2]).listValue.size() == 1) // count 有且仅有1个参数
+                            if ((*(yyvsp[-2]).listValue.begin()).type == String)
                             {
-                                (yyval).integerValue = count(Symbol.at((yyvsp[-4]).variableName).listValue.begin(), Symbol.at((yyvsp[-4]).variableName).listValue.end(), *(yyvsp[-2]).listValue.begin()); // 调用algorithm中的count
+                                (yyval).type = Integer;
+                                (yyval).integerValue = 0;
+                                size_t len = (*(yyvsp[-2]).listValue.begin()).stringValue.length();
+	                            if (len == 0)
+                                    len = 1; // 空子串调用
+	                            for (size_t i = 0; (i = (yyvsp[-4]).stringValue.find((*(yyvsp[-2]).listValue.begin()).stringValue,i)) != (yyvsp[-4]).stringValue.npos; (yyval).integerValue++, i+=len);
+                            }
+                            else
+                            {
+                                yyerror("TypeError: must be str, not " + TypeString(*(yyvsp[-2]).listValue.begin()));
+                                YYERROR;
                             }
                         }
-                    }
-                    else
-                    {
-                        yyerror("TypeError: count() takes exactly one argument ("+ to_string((yyvsp[-2]).listValue.size()) +" given)");
+                        else
+                        {
+                            yyerror("TypeError: count() takes exactly one argument ("+ to_string((yyvsp[-2]).listValue.size()) +" given)");
+                            YYERROR;
+                        }
+                        break;
+                    case List:
+                    case ListSlice:
+                        if ((yyvsp[-2]).listValue.size() == 1) // count 有且仅有1个参数
+                        {
+                            (yyval).type = Integer;
+                            (yyval).integerValue = count((yyvsp[-4]).listValue.begin(), (yyvsp[-4]).listValue.end(), *(yyvsp[-2]).listValue.begin()); // 调用algorithm中的count
+                        }
+                        else
+                        {
+                            yyerror("TypeError: count() takes exactly one argument ("+ to_string((yyvsp[-2]).listValue.size()) +" given)");
+                            YYERROR;
+                        }
+                        break;
+                    case ListItem:
+                        switch ((*(yyvsp[-4]).begin).type)
+                        {
+                            case String:
+                                if ((yyvsp[-2]).listValue.size() == 1) // count 有且仅有1个参数
+                                {
+                                    if ((*(yyvsp[-2]).listValue.begin()).type == String)
+                                    {
+                                        (yyval).type = Integer;
+                                        (yyval).integerValue = 0;
+                                        size_t len = (*(yyvsp[-2]).listValue.begin()).stringValue.length();
+                                        if (len == 0)
+                                            len = 1; // 空子串调用
+                                        for (size_t i = 0; (i = (*(yyvsp[-4]).begin).stringValue.find((*(yyvsp[-2]).listValue.begin()).stringValue,i)) != (*(yyvsp[-4]).begin).stringValue.npos; (yyval).integerValue++, i+=len);
+                                    }
+                                    else
+                                    {
+                                        yyerror("TypeError: must be str, not " + TypeString(*(yyvsp[-2]).listValue.begin()));
+                                        YYERROR;
+                                    }
+                                }
+                                else
+                                {
+                                    yyerror("TypeError: count() takes exactly one argument ("+ to_string((yyvsp[-2]).listValue.size()) +" given)");
+                                    YYERROR;
+                                }
+                                break;
+                            case List:
+                                if ((yyvsp[-2]).listValue.size() == 1) // count 有且仅有1个参数
+                                {
+                                    (yyval).type = Integer;
+                                    (yyval).integerValue = count((*(yyvsp[-4]).begin).listValue.begin(), (*(yyvsp[-4]).begin).listValue.end(), *(yyvsp[-2]).listValue.begin()); // 调用algorithm中的count
+                                }
+
+                                else
+                                {
+                                    yyerror("TypeError: count() takes exactly one argument ("+ to_string((yyvsp[-2]).listValue.size()) +" given)");
+                                    YYERROR;
+                                }
+                                break;
+                            default:
+                                yyerror("AttributeError: '" + TypeString(*(yyvsp[-4]).begin) + "' object has no attribute 'count'");
+                                YYERROR;
+                        }
+                        break;
+                    case Variable:
+                        switch (Symbol.at((yyvsp[-4]).variableName).type)
+                        {
+                            case String:
+                                if ((yyvsp[-2]).listValue.size() == 1) // count 有且仅有1个参数
+                                {
+                                    if ((*(yyvsp[-2]).listValue.begin()).type == String)
+                                    {
+                                        (yyval).type = Integer;
+                                        (yyval).integerValue = 0;
+                                        size_t len = (*(yyvsp[-2]).listValue.begin()).stringValue.length();
+                                        if (len == 0)
+                                            len = 1; // 空子串调用
+                                        for (size_t i = 0; (i = Symbol.at((yyvsp[-4]).variableName).stringValue.find((*(yyvsp[-2]).listValue.begin()).stringValue,i)) != Symbol.at((yyvsp[-4]).variableName).stringValue.npos; (yyval).integerValue++, i+=len);
+                                    }
+                                    else
+                                    {
+                                        yyerror("TypeError: must be str, not " + TypeString(*(yyvsp[-2]).listValue.begin()));
+                                        YYERROR;
+                                    }
+                                }
+                                else
+                                {
+                                    yyerror("TypeError: count() takes exactly one argument ("+ to_string((yyvsp[-2]).listValue.size()) +" given)");
+                                    YYERROR;
+                                }
+                                break;
+                            case List:
+                                if ((yyvsp[-2]).listValue.size() == 1) // count 有且仅有1个参数
+                                {
+                                    (yyval).type = Integer;
+                                    (yyval).integerValue = count(Symbol.at((yyvsp[-4]).variableName).listValue.begin(), Symbol.at((yyvsp[-4]).variableName).listValue.end(), *(yyvsp[-2]).listValue.begin()); // 调用algorithm中的count
+                                }
+                                else
+                                {
+                                    yyerror("TypeError: count() takes exactly one argument ("+ to_string((yyvsp[-2]).listValue.size()) +" given)");
+                                    YYERROR;
+                                }
+                                break;
+                            default:
+                                yyerror("AttributeError: '" + TypeString(Symbol.at((yyvsp[-4]).variableName)) + "' object has no attribute 'count'");
+                                YYERROR;
+                        }
+                        break;
+                    default:
+                        yyerror("AttributeError: '" + TypeString((yyvsp[-4])) + "' object has no attribute 'count'");
                         YYERROR;
-                    }
-                }
-                else
-                {
-                    yyerror("AttributeError: '" + TypeString(Symbol.at((yyvsp[-4]).variableName)) + "' object has no attribute 'count'");
-                    YYERROR;
                 }
             }
-            else if ((yyvsp[-4]).stringValue == "extend") // extend方法
+            else if ((yyvsp[-4]).attributeName == "extend") // extend方法
             {
                 (yyval).type = None;
                 if (Symbol.at((yyvsp[-4]).variableName).type == List)
@@ -1934,7 +2085,7 @@ yyreduce:
                     YYERROR;
                 }
             }
-            else if ((yyvsp[-4]).stringValue == "index")
+            else if ((yyvsp[-4]).attributeName == "index")
             {
                 if ((Symbol.at((yyvsp[-4]).variableName).type == List) || (Symbol.at((yyvsp[-4]).variableName).type == String))
                 {
@@ -2017,7 +2168,7 @@ yyreduce:
                     YYERROR;
                 }
             }
-            else if ((yyvsp[-4]).stringValue == "reverse")
+            else if ((yyvsp[-4]).attributeName == "reverse")
             {
                 if (Symbol.at((yyvsp[-4]).variableName).type == List)
                 {
@@ -2158,53 +2309,94 @@ yyreduce:
             }
 
         }
-#line 2162 "y.tab.c" /* yacc.c:1646  */
-    break;
-
-  case 29:
-#line 906 "minipy-lab.y" /* yacc.c:1646  */
-    {
-            (yyval).type = None;
-            (yyval).variableName = (yyvsp[-2]).variableName; // 变量名
-            (yyval).stringValue = (yyvsp[0]).variableName; // 属性或方法名
-        }
-#line 2172 "y.tab.c" /* yacc.c:1646  */
+#line 2313 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 30:
-#line 912 "minipy-lab.y" /* yacc.c:1646  */
+#line 1053 "minipy-lab.y" /* yacc.c:1646  */
     {
             if ((yyvsp[-2]).variableName == "quit") // quit函数
                 exit(0);
-            else if ((yyvsp[-2]).stringValue == "append")
+            else if ((yyvsp[-2]).attributeName == "append")
             {
                 (yyval).type = None;
-                if (Symbol.at((yyvsp[-2]).variableName).type == List)
+                switch ((yyvsp[-2]).type)
                 {
-                    yyerror("TypeError: append() takes exactly one argument (0 given)");
-                    YYERROR;
-                }
-                else
-                {
-                    yyerror("AttributeError: '" + TypeString(Symbol.at((yyvsp[-2]).variableName)) + "' object has no attribute 'append'");
-                    YYERROR;
+                    case List:
+                    case ListSlice:
+                        yyerror("TypeError: append() takes exactly one argument (0 given)");
+                        YYERROR;
+                        break;
+                    case ListItem:
+                        if ((*(yyvsp[-2]).begin).type == List)
+                        {
+                            yyerror("TypeError: append() takes exactly one argument (0 given)");
+                            YYERROR;
+                        }
+                        else
+                        {
+                            yyerror("AttributeError: '" + TypeString(*(yyvsp[-2]).begin) + "' object has no attribute 'append'");
+                            YYERROR;
+                        }
+                        break;
+                    case Variable:
+                        if (Symbol.at((yyvsp[-2]).variableName).type == List)
+                        {
+                            yyerror("TypeError: append() takes exactly one argument (0 given)");
+                            YYERROR;
+                        }
+                        else
+                        {
+                            yyerror("AttributeError: '" + TypeString(Symbol.at((yyvsp[-2]).variableName)) + "' object has no attribute 'append'");
+                            YYERROR;
+                        }
+                        break;
+                    default:
+                        yyerror("AttributeError: '" + TypeString((yyvsp[-2])) + "' object has no attribute 'append'");
+                        YYERROR;
                 }
             }
-            else if ((yyvsp[-2]).stringValue == "count")
+            else if ((yyvsp[-2]).attributeName == "count")
             {
                 (yyval).type = None;
-                if (Symbol.at((yyvsp[-2]).variableName).type == List)
+                switch ((yyvsp[-2]).type)
                 {
-                    yyerror("TypeError: append() takes exactly one argument (0 given)");
-                    YYERROR;
-                }
-                else
-                {
-                    yyerror("AttributeError: '" + TypeString(Symbol.at((yyvsp[-2]).variableName)) + "' object has no attribute 'count'");
-                    YYERROR;
+                    case String:
+                    case List:
+                    case ListSlice:
+                        yyerror("TypeError: count() takes exactly one argument (0 given)");
+                        YYERROR;
+                        break;
+                    case ListItem:
+                        if ((*(yyvsp[-2]).begin).type == List || (*(yyvsp[-2]).begin).type == String)
+                        {
+                            yyerror("TypeError: count() takes exactly one argument (0 given)");
+                            YYERROR;
+                        }
+                        else
+                        {
+                            yyerror("AttributeError: '" + TypeString(*(yyvsp[-2]).begin) + "' object has no attribute 'count'");
+                            YYERROR;
+                        }
+                        break;
+                    case Variable:
+                        if (Symbol.at((yyvsp[-2]).variableName).type == List)
+                        {
+                            yyerror("TypeError: count() takes exactly one argument (0 given)");
+                            YYERROR;
+                        }
+                        else
+                        {
+                            yyerror("AttributeError: '" + TypeString(Symbol.at((yyvsp[-2]).variableName)) + "' object has no attribute 'count'");
+                            YYERROR;
+                        }
+                        break;
+                    default:
+                        yyerror("AttributeError: '" + TypeString((yyvsp[-2])) + "' object has no attribute 'count'");
+                        YYERROR;
                 }
             }
-            else if ((yyvsp[-2]).stringValue == "extend")
+            else if ((yyvsp[-2]).attributeName == "extend")
             {
                 (yyval).type = None;
                 if (Symbol.at((yyvsp[-2]).variableName).type == List)
@@ -2218,7 +2410,7 @@ yyreduce:
                     YYERROR;
                 }
             }
-            else if ((yyvsp[-2]).stringValue == "index")
+            else if ((yyvsp[-2]).attributeName == "index")
             {
                 (yyval).type = None;
                 if ((Symbol.at((yyvsp[-2]).variableName).type == List) || (Symbol.at((yyvsp[-2]).variableName).type == String))
@@ -2232,7 +2424,7 @@ yyreduce:
                     YYERROR;
                 }
             }
-            else if ((yyvsp[-2]).stringValue == "reverse") // reverse方法
+            else if ((yyvsp[-2]).attributeName == "reverse") // reverse方法
             {
                 (yyval).type = None;
                 if (Symbol.at((yyvsp[-2]).variableName).type == List)
@@ -2266,67 +2458,67 @@ yyreduce:
                 YYERROR;
             }
         }
-#line 2270 "y.tab.c" /* yacc.c:1646  */
+#line 2462 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 31:
-#line 1009 "minipy-lab.y" /* yacc.c:1646  */
+#line 1201 "minipy-lab.y" /* yacc.c:1646  */
     {
         (yyval).type = List;
         (yyval).listValue = vector<struct value>(1, (yyvsp[0])); // 用列表“框柱”参数
     }
-#line 2279 "y.tab.c" /* yacc.c:1646  */
+#line 2471 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 32:
-#line 1014 "minipy-lab.y" /* yacc.c:1646  */
+#line 1206 "minipy-lab.y" /* yacc.c:1646  */
     {
         (yyval).type = List;
         (yyvsp[-2]).listValue.push_back((yyvsp[0]));
         (yyval).listValue = vector<struct value>((yyvsp[-2]).listValue);
     }
-#line 2289 "y.tab.c" /* yacc.c:1646  */
+#line 2481 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 33:
-#line 1023 "minipy-lab.y" /* yacc.c:1646  */
+#line 1215 "minipy-lab.y" /* yacc.c:1646  */
     {
         (yyval).type = List;
         (yyval).listValue = vector<struct value>();
     }
-#line 2298 "y.tab.c" /* yacc.c:1646  */
+#line 2490 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 34:
-#line 1028 "minipy-lab.y" /* yacc.c:1646  */
+#line 1220 "minipy-lab.y" /* yacc.c:1646  */
     {
         (yyval).type = List;
         (yyval).listValue = vector<struct value>((yyvsp[-2]).listValue);
     }
-#line 2307 "y.tab.c" /* yacc.c:1646  */
+#line 2499 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 37:
-#line 1041 "minipy-lab.y" /* yacc.c:1646  */
+#line 1233 "minipy-lab.y" /* yacc.c:1646  */
     {
         (yyval).type = List;
         (yyval).listValue = vector<struct value>(1, (yyvsp[0])); // 用列表“框柱”变量
     }
-#line 2316 "y.tab.c" /* yacc.c:1646  */
+#line 2508 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 38:
-#line 1046 "minipy-lab.y" /* yacc.c:1646  */
+#line 1238 "minipy-lab.y" /* yacc.c:1646  */
     {
         (yyval).type = List;
         (yyvsp[-2]).listValue.push_back((yyvsp[0]));
         (yyval).listValue = vector<struct value>((yyvsp[-2]).listValue);
     }
-#line 2326 "y.tab.c" /* yacc.c:1646  */
+#line 2518 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 39:
-#line 1055 "minipy-lab.y" /* yacc.c:1646  */
+#line 1247 "minipy-lab.y" /* yacc.c:1646  */
     {
             switch((yyvsp[-2]).type)
             {
@@ -2418,11 +2610,11 @@ yyreduce:
                     YYERROR;
             }
         }
-#line 2422 "y.tab.c" /* yacc.c:1646  */
+#line 2614 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 40:
-#line 1147 "minipy-lab.y" /* yacc.c:1646  */
+#line 1339 "minipy-lab.y" /* yacc.c:1646  */
     {
             switch((yyvsp[-2]).type)
             {
@@ -2465,11 +2657,11 @@ yyreduce:
                     YYERROR;
             }
         }
-#line 2469 "y.tab.c" /* yacc.c:1646  */
+#line 2661 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 42:
-#line 1194 "minipy-lab.y" /* yacc.c:1646  */
+#line 1386 "minipy-lab.y" /* yacc.c:1646  */
     {
             switch((yyvsp[-2]).type)
             {
@@ -2550,11 +2742,11 @@ yyreduce:
                     YYERROR;
             }
         }
-#line 2554 "y.tab.c" /* yacc.c:1646  */
+#line 2746 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 43:
-#line 1275 "minipy-lab.y" /* yacc.c:1646  */
+#line 1467 "minipy-lab.y" /* yacc.c:1646  */
     {
             (yyval).type = Real;
             if (((yyvsp[-2]).type == Integer || (yyvsp[-2]).type == Real) && ((yyvsp[0]).type == Integer || (yyvsp[0]).type == Real))
@@ -2571,11 +2763,11 @@ yyreduce:
                 YYERROR;
             }
         }
-#line 2575 "y.tab.c" /* yacc.c:1646  */
+#line 2767 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 44:
-#line 1292 "minipy-lab.y" /* yacc.c:1646  */
+#line 1484 "minipy-lab.y" /* yacc.c:1646  */
     {
             // 整除
             (yyval).type = Integer;
@@ -2594,11 +2786,11 @@ yyreduce:
             }
 
         }
-#line 2598 "y.tab.c" /* yacc.c:1646  */
+#line 2790 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 45:
-#line 1311 "minipy-lab.y" /* yacc.c:1646  */
+#line 1503 "minipy-lab.y" /* yacc.c:1646  */
     {
             if (((yyvsp[-2]).type == Integer || (yyvsp[-2]).type == Real) && ((yyvsp[0]).type == Integer || (yyvsp[0]).type == Real))
             {
@@ -2628,23 +2820,23 @@ yyreduce:
                 YYERROR;
             }
         }
-#line 2632 "y.tab.c" /* yacc.c:1646  */
+#line 2824 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 46:
-#line 1340 "minipy-lab.y" /* yacc.c:1646  */
+#line 1532 "minipy-lab.y" /* yacc.c:1646  */
     { (yyval) = (yyvsp[-1]); }
-#line 2638 "y.tab.c" /* yacc.c:1646  */
+#line 2830 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 47:
-#line 1341 "minipy-lab.y" /* yacc.c:1646  */
+#line 1533 "minipy-lab.y" /* yacc.c:1646  */
     { (yyval) = (yyvsp[-1]); }
-#line 2644 "y.tab.c" /* yacc.c:1646  */
+#line 2836 "y.tab.c" /* yacc.c:1646  */
     break;
 
 
-#line 2648 "y.tab.c" /* yacc.c:1646  */
+#line 2840 "y.tab.c" /* yacc.c:1646  */
       default: break;
     }
   /* User semantic actions sometimes alter yychar, and that requires
@@ -2872,7 +3064,7 @@ yyreturn:
 #endif
   return yyresult;
 }
-#line 1345 "minipy-lab.y" /* yacc.c:1906  */
+#line 1537 "minipy-lab.y" /* yacc.c:1906  */
 
 
 int main()
