@@ -509,8 +509,8 @@ static const yytype_uint16 yyrline[] =
        0,    88,    88,    93,    92,   105,   105,   107,   111,   115,
      119,   168,   172,   173,   177,   190,   203,   237,   238,   239,
      240,   245,   248,   263,   266,   270,   271,   527,   576,   583,
-    1052,  1200,  1205,  1214,  1219,  1226,  1228,  1232,  1237,  1246,
-    1338,  1381,  1385,  1466,  1483,  1502,  1532,  1533,  1534
+    1288,  1487,  1492,  1501,  1506,  1513,  1515,  1519,  1524,  1533,
+    1625,  1668,  1672,  1753,  1770,  1789,  1819,  1820,  1821
 };
 #endif
 
@@ -1893,7 +1893,6 @@ yyreduce:
                         yyerror("AttributeError: '" + TypeString((yyvsp[-4])) + "' object has no attribute 'append'");
                         YYERROR;
                 }
-
             }
             else if ((yyvsp[-4]).attributeName == "count") // count方法
             {
@@ -1994,7 +1993,7 @@ yyreduce:
                                         size_t len = (*(yyvsp[-2]).listValue.begin()).stringValue.length();
                                         if (len == 0)
                                             len = 1; // 空子串调用
-                                        for (size_t i = 0; (i = Symbol.at((yyvsp[-4]).variableName).stringValue.find((*(yyvsp[-2]).listValue.begin()).stringValue,i)) != Symbol.at((yyvsp[-4]).variableName).stringValue.npos; (yyval).integerValue++, i+=len);
+                                        for (size_t i = 0; (i = Symbol.at((yyvsp[-4]).variableName).stringValue.find((*(yyvsp[-2]).listValue.begin()).stringValue,i)) != Symbol.at((yyvsp[-4]).variableName).stringValue.npos; (yyval).integerValue++, i+=len); // 不计算重复
                                     }
                                     else
                                     {
@@ -2033,99 +2032,144 @@ yyreduce:
             else if ((yyvsp[-4]).attributeName == "extend") // extend方法
             {
                 (yyval).type = None;
-                if (Symbol.at((yyvsp[-4]).variableName).type == List)
+                switch ((yyvsp[-4]).type)
                 {
-                    if ((yyvsp[-2]).listValue.size() == 1) // list 有且仅有1个参数
-                    {
-                        Value temp;
-                        Value temp_2; // 拆分字符串
-
-                        if ((*(yyvsp[-2]).listValue.begin()).type == Variable) // 变量替换为实体
+                    case List:
+                    case ListSlice:
+                        if ((yyvsp[-2]).listValue.size() == 1) // append 有且仅有1个参数
                         {
-                            if (Symbol.count((*(yyvsp[-2]).listValue.begin()).variableName) == 1) // 已在变量表中
-                                temp = Symbol.at((*(yyvsp[-2]).listValue.begin()).variableName);
+                            // 这里的代码没有什么意义
+                        }
+                        else
+                        {
+                            yyerror("TypeError: append() takes exactly one argument ("+ to_string((yyvsp[-2]).listValue.size()) +" given)");
+                            YYERROR;
+                        }
+                        break;
+                    case ListItem:
+                        if ((*(yyvsp[-4]).begin).type == List)
+                        {
+                            if ((yyvsp[-2]).listValue.size() == 1) // list 有且仅有1个参数
+                            {
+                                Value temp;
+                                Value temp_2; // 拆分字符串
+
+                                if ((*(yyvsp[-2]).listValue.begin()).type == Variable) // 变量替换为实体
+                                {
+                                    if (Symbol.count((*(yyvsp[-2]).listValue.begin()).variableName) == 1) // 已在变量表中
+                                        temp = Symbol.at((*(yyvsp[-2]).listValue.begin()).variableName);
+                                    else
+                                    {
+                                        yyerror("NameError: name '" + (*(yyvsp[-2]).listValue.begin()).variableName + "' is not defined");
+                                        YYERROR;
+                                    }
+                                }
+                                else
+                                    temp = (*(yyvsp[-2]).listValue.begin());
+
+                                switch (temp.type)
+                                {
+                                    case String:
+                                        temp_2.type = String;
+                                        for (int i = 0; i < temp.stringValue.length(); i++)
+                                        {
+                                            temp_2.stringValue = temp.stringValue[i];
+                                            (*(yyvsp[-4]).begin).listValue.push_back(temp_2);
+                                        }
+                                        break;
+                                    case List:
+                                        (*(yyvsp[-4]).begin).listValue.insert((*(yyvsp[-4]).begin).listValue.end(), temp.listValue.begin(), temp.listValue.end());
+                                        break;
+                                    default:
+                                    {
+                                        yyerror("TypeError: '"+TypeString(temp)+"' object is not iterable");
+                                        YYERROR;
+                                    }
+                                }
+                            }
                             else
                             {
-                                yyerror("NameError: name '" + (*(yyvsp[-2]).listValue.begin()).variableName + "' is not defined");
+                                yyerror("TypeError: extend() takes exactly one argument ("+ to_string((yyvsp[-2]).listValue.size()) +" given)");
                                 YYERROR;
                             }
                         }
                         else
-                            temp = (*(yyvsp[-2]).listValue.begin());
-
-                        switch (temp.type)
                         {
-                            case String:
-                                temp_2.type = String;
-                                for (int i = 0; i < temp.stringValue.length(); i++)
-                                {
-                                    temp_2.stringValue = temp.stringValue[i];
-                                    Symbol.at((yyvsp[-4]).variableName).listValue.push_back(temp_2);
-                                }
-                                break;
-                            case List:
-                                Symbol.at((yyvsp[-4]).variableName).listValue.insert(Symbol.at((yyvsp[-4]).variableName).listValue.end(), temp.listValue.begin(), temp.listValue.end());
-                                break;
-                            default:
-                            {
-                                yyerror("TypeError: '"+TypeString(temp)+"' object is not iterable");
-                                YYERROR;
-                            }
+                            yyerror("AttributeError: '" + TypeString(*(yyvsp[-4]).begin) + "' object has no attribute 'append'");
+                            YYERROR;
                         }
-                    }
-                    else
-                    {
-                        yyerror("TypeError: extend() takes exactly one argument ("+ to_string((yyvsp[-2]).listValue.size()) +" given)");
-                        YYERROR;
-                    }
-                }
-                else
-                {
-                    yyerror("AttributeError: '" + TypeString(Symbol.at((yyvsp[-4]).variableName)) + "' object has no attribute 'extend'");
-                    YYERROR;
-                }
-            }
-            else if ((yyvsp[-4]).attributeName == "index")
-            {
-                if ((Symbol.at((yyvsp[-4]).variableName).type == List) || (Symbol.at((yyvsp[-4]).variableName).type == String))
-                {
-                    if ((yyvsp[-2]).listValue.size() > 3)
-                    {
-                        yyerror("TypeError: range expected at most 3 arguments, got " + to_string((yyvsp[-2]).listValue.size()));
-                        YYERROR;
-                    }
-                    else
-                    {
-                        Value object = (yyvsp[-2]).listValue[0];
-
+                        break;
+                    case Variable:
                         if (Symbol.at((yyvsp[-4]).variableName).type == List)
                         {
-                            vector<struct value>::iterator begin, end;
-                            if ((yyvsp[-2]).listValue.size() == 1) // 默认起始
-                                begin = Symbol.at((yyvsp[-4]).variableName).listValue.begin();
-                            else if ((yyvsp[-2]).listValue.size() == 2 || (yyvsp[-2]).listValue.size() == 3)
-                                begin = Symbol.at((yyvsp[-4]).variableName).listValue.begin() + (yyvsp[-2]).listValue[1].integerValue; // 第二个参数
-
-                            if ((yyvsp[-2]).listValue.size() == 1 || (yyvsp[-2]).listValue.size() == 2) // 默认结尾
-                                end = Symbol.at((yyvsp[-4]).variableName).listValue.end();
-                            else if ((yyvsp[-2]).listValue.size() == 3)
-                                end = Symbol.at((yyvsp[-4]).variableName).listValue.begin() + (yyvsp[-2]).listValue[2].integerValue; // 第三个参数
-
-                            vector<struct value>::iterator pos = find(begin, end, object); // 使用algorithm 中的find
-                            if (pos == end)
+                            if ((yyvsp[-2]).listValue.size() == 1) // list 有且仅有1个参数
                             {
-                                cout << "ValueError: "; // 这里的错误信息处理的不太好
-                                Print(object);
-                                yyerror(" is not in list");
-                                YYERROR;
+                                Value temp;
+                                Value temp_2; // 拆分字符串
+
+                                if ((*(yyvsp[-2]).listValue.begin()).type == Variable) // 变量替换为实体
+                                {
+                                    if (Symbol.count((*(yyvsp[-2]).listValue.begin()).variableName) == 1) // 已在变量表中
+                                        temp = Symbol.at((*(yyvsp[-2]).listValue.begin()).variableName);
+                                    else
+                                    {
+                                        yyerror("NameError: name '" + (*(yyvsp[-2]).listValue.begin()).variableName + "' is not defined");
+                                        YYERROR;
+                                    }
+                                }
+                                else
+                                    temp = (*(yyvsp[-2]).listValue.begin());
+
+                                switch (temp.type)
+                                {
+                                    case String:
+                                        temp_2.type = String;
+                                        for (int i = 0; i < temp.stringValue.length(); i++)
+                                        {
+                                            temp_2.stringValue = temp.stringValue[i];
+                                            Symbol.at((yyvsp[-4]).variableName).listValue.push_back(temp_2);
+                                        }
+                                        break;
+                                    case List:
+                                        Symbol.at((yyvsp[-4]).variableName).listValue.insert(Symbol.at((yyvsp[-4]).variableName).listValue.end(), temp.listValue.begin(), temp.listValue.end());
+                                        break;
+                                    default:
+                                    {
+                                        yyerror("TypeError: '"+TypeString(temp)+"' object is not iterable");
+                                        YYERROR;
+                                    }
+                                }
                             }
                             else
                             {
-                                (yyval).type = Integer;
-                                (yyval).integerValue = distance(Symbol.at((yyvsp[-4]).variableName).listValue.begin(), pos); // 使用algorithm中的distance
+                                yyerror("TypeError: extend() takes exactly one argument ("+ to_string((yyvsp[-2]).listValue.size()) +" given)");
+                                YYERROR;
                             }
                         }
-                        else if (Symbol.at((yyvsp[-4]).variableName).type == String)
+                        else
+                        {
+                            yyerror("AttributeError: '" + TypeString(Symbol.at((yyvsp[-4]).variableName)) + "' object has no attribute 'extend'");
+                            YYERROR;
+                        }
+                        break;
+                    default:
+                        yyerror("AttributeError: '" + TypeString((yyvsp[-4])) + "' object has no attribute 'append'");
+                        YYERROR;
+                }
+
+            }
+            else if ((yyvsp[-4]).attributeName == "index")
+            {
+                Value object = (yyvsp[-2]).listValue[0];
+                switch ((yyvsp[-4]).type)
+                {
+                    case String:
+                        if ((yyvsp[-2]).listValue.size() > 3)
+                        {
+                            yyerror("TypeError: index() expected at most 3 arguments, got " + to_string((yyvsp[-2]).listValue.size()));
+                            YYERROR;
+                        }
+                        else
                         {
                             if (object.type == String)
                             {
@@ -2138,9 +2182,9 @@ yyreduce:
                                     begin = (yyvsp[-2]).listValue[1].integerValue; // 第二个参数
 
                                 if ((yyvsp[-2]).listValue.size() == 1 || (yyvsp[-2]).listValue.size() == 2) // 默认结尾
-                                    temp = Symbol.at((yyvsp[-4]).variableName).stringValue;
+                                    temp = (yyvsp[-4]).stringValue;
                                 else if ((yyvsp[-2]).listValue.size() == 3)
-                                    temp = Symbol.at((yyvsp[-4]).variableName).stringValue.substr(0, (yyvsp[-2]).listValue[2].integerValue); // 第三个参数
+                                    temp = (yyvsp[-4]).stringValue.substr(0, (yyvsp[-2]).listValue[2].integerValue); // 第三个参数
 
                                 int pos = temp.find(object.stringValue, begin); // 使用string的find
                                 if (pos == temp.npos)
@@ -2160,12 +2204,204 @@ yyreduce:
                                 YYERROR;
                             }
                         }
+                        break;
+                    case List:
+                    case ListSlice:
+                    {
+                        vector<struct value>::iterator begin, end;
+                        if ((yyvsp[-2]).listValue.size() == 1) // 默认起始
+                            begin = (yyvsp[-4]).listValue.begin();
+                        else if ((yyvsp[-2]).listValue.size() == 2 || (yyvsp[-2]).listValue.size() == 3)
+                            begin = (yyvsp[-4]).listValue.begin() + (yyvsp[-2]).listValue[1].integerValue; // 第二个参数
+
+                        if ((yyvsp[-2]).listValue.size() == 1 || (yyvsp[-2]).listValue.size() == 2) // 默认结尾
+                            end = (yyvsp[-4]).listValue.end();
+                        else if ((yyvsp[-2]).listValue.size() == 3)
+                            end = (yyvsp[-4]).listValue.begin() + (yyvsp[-2]).listValue[2].integerValue; // 第三个参数
+
+                        vector<struct value>::iterator pos = find(begin, end, object); // 使用algorithm 中的find
+                        if (pos == end)
+                        {
+                            cout << "ValueError: "; // 这里的错误信息处理的不太好
+                            Print(object);
+                            yyerror(" is not in list");
+                            YYERROR;
+                        }
+                        else
+                        {
+                            (yyval).type = Integer;
+                            (yyval).integerValue = distance((yyvsp[-4]).listValue.begin(), pos); // 使用algorithm中的distance
+                        }
+                        break;
                     }
-                }
-                else
-                {
-                    yyerror("AttributeError: '" + TypeString(Symbol.at((yyvsp[-4]).variableName)) + "' object has no attribute 'index'");
-                    YYERROR;
+                    case ListItem:
+                        switch ((*(yyvsp[-4]).begin).type)
+                        {
+                            case String:
+                                if ((yyvsp[-2]).listValue.size() > 3)
+                                {
+                                    yyerror("TypeError: index() expected at most 3 arguments, got " + to_string((yyvsp[-2]).listValue.size()));
+                                    YYERROR;
+                                }
+                                else
+                                {
+                                    if (object.type == String)
+                                    {
+                                        int begin;
+                                        string temp;
+
+                                        if ((yyvsp[-2]).listValue.size() == 1) // 默认起始
+                                            begin = 0;
+                                        else if ((yyvsp[-2]).listValue.size() == 2 || (yyvsp[-2]).listValue.size() == 3)
+                                            begin = (yyvsp[-2]).listValue[1].integerValue; // 第二个参数
+
+                                        if ((yyvsp[-2]).listValue.size() == 1 || (yyvsp[-2]).listValue.size() == 2) // 默认结尾
+                                            temp = (*(yyvsp[-4]).begin).stringValue;
+                                        else if ((yyvsp[-2]).listValue.size() == 3)
+                                            temp = (*(yyvsp[-4]).begin).stringValue.substr(0, (yyvsp[-2]).listValue[2].integerValue); // 第三个参数
+
+                                        int pos = temp.find(object.stringValue, begin); // 使用string的find
+                                        if (pos == temp.npos)
+                                        {
+                                            yyerror("ValueError: substring not found");
+                                            YYERROR;
+                                        }
+                                        else
+                                        {
+                                            (yyval).type = Integer;
+                                            (yyval).integerValue = pos;
+                                        }
+                                    }
+                                    else
+                                    {
+                                        yyerror("TypeError: must be str, not " + TypeString(object));
+                                        YYERROR;
+                                    }
+                                }
+                                break;
+                            case List:
+                            {
+                                vector<struct value>::iterator begin, end;
+                                if ((yyvsp[-2]).listValue.size() == 1) // 默认起始
+                                    begin = (yyvsp[-4]).listValue.begin();
+                                else if ((yyvsp[-2]).listValue.size() == 2 || (yyvsp[-2]).listValue.size() == 3)
+                                    begin = (yyvsp[-4]).listValue.begin() + (yyvsp[-2]).listValue[1].integerValue; // 第二个参数
+
+                                if ((yyvsp[-2]).listValue.size() == 1 || (yyvsp[-2]).listValue.size() == 2) // 默认结尾
+                                    end = (*(yyvsp[-4]).begin).listValue.end();
+                                else if ((yyvsp[-2]).listValue.size() == 3)
+                                    end = (*(yyvsp[-4]).begin).listValue.begin() + (yyvsp[-2]).listValue[2].integerValue; // 第三个参数
+
+                                vector<struct value>::iterator pos = find(begin, end, object); // 使用algorithm 中的find
+                                if (pos == end)
+                                {
+                                    cout << "ValueError: "; // 这里的错误信息处理的不太好
+                                    Print(object);
+                                    yyerror(" is not in list");
+                                    YYERROR;
+                                }
+                                else
+                                {
+                                    (yyval).type = Integer;
+                                    (yyval).integerValue = distance((*(yyvsp[-4]).begin).listValue.begin(), pos); // 使用algorithm中的distance
+                                }
+                                break;
+                            }
+                            default:
+                                yyerror("AttributeError: '" + TypeString(*(yyvsp[-4]).begin) + "' object has no attribute 'count'");
+                                YYERROR;
+                        }
+                        break;
+                    case Variable:
+                        switch (Symbol.at((yyvsp[-4]).variableName).type)
+                        {
+                            case String:
+                                if ((yyvsp[-2]).listValue.size() > 3)
+                                {
+                                    yyerror("TypeError: range expected at most 3 arguments, got " + to_string((yyvsp[-2]).listValue.size()));
+                                    YYERROR;
+                                }
+                                else
+                                {
+                                    if (object.type == String)
+                                    {
+                                        int begin;
+                                        string temp;
+
+                                        if ((yyvsp[-2]).listValue.size() == 1) // 默认起始
+                                            begin = 0;
+                                        else if ((yyvsp[-2]).listValue.size() == 2 || (yyvsp[-2]).listValue.size() == 3)
+                                            begin = (yyvsp[-2]).listValue[1].integerValue; // 第二个参数
+
+                                        if ((yyvsp[-2]).listValue.size() == 1 || (yyvsp[-2]).listValue.size() == 2) // 默认结尾
+                                            temp = Symbol.at((yyvsp[-4]).variableName).stringValue;
+                                        else if ((yyvsp[-2]).listValue.size() == 3)
+                                            temp = Symbol.at((yyvsp[-4]).variableName).stringValue.substr(0, (yyvsp[-2]).listValue[2].integerValue); // 第三个参数
+
+                                        int pos = temp.find(object.stringValue, begin); // 使用string的find
+                                        if (pos == temp.npos)
+                                        {
+                                            yyerror("ValueError: substring not found");
+                                            YYERROR;
+                                        }
+                                        else
+                                        {
+                                            (yyval).type = Integer;
+                                            (yyval).integerValue = pos;
+                                        }
+                                    }
+                                    else
+                                    {
+                                        yyerror("TypeError: must be str, not " + TypeString(object));
+                                        YYERROR;
+                                    }
+                                }
+                                break;
+                            case List:
+                            {
+                                if ((yyvsp[-2]).listValue.size() > 3)
+                                {
+                                    yyerror("TypeError: index() expected at most 3 arguments, got " + to_string((yyvsp[-2]).listValue.size()));
+                                    YYERROR;
+                                }
+                                else
+                                {
+                                    vector<struct value>::iterator begin, end;
+                                    if ((yyvsp[-2]).listValue.size() == 1) // 默认起始
+                                        begin = Symbol.at((yyvsp[-4]).variableName).listValue.begin();
+                                    else if ((yyvsp[-2]).listValue.size() == 2 || (yyvsp[-2]).listValue.size() == 3)
+                                        begin = Symbol.at((yyvsp[-4]).variableName).listValue.begin() + (yyvsp[-2]).listValue[1].integerValue; // 第二个参数
+
+                                    if ((yyvsp[-2]).listValue.size() == 1 || (yyvsp[-2]).listValue.size() == 2) // 默认结尾
+                                        end = Symbol.at((yyvsp[-4]).variableName).listValue.end();
+                                    else if ((yyvsp[-2]).listValue.size() == 3)
+                                        end = Symbol.at((yyvsp[-4]).variableName).listValue.begin() + (yyvsp[-2]).listValue[2].integerValue; // 第三个参数
+
+                                    vector<struct value>::iterator pos = find(begin, end, object); // 使用algorithm 中的find
+                                    if (pos == end)
+                                    {
+                                        cout << "ValueError: "; // 这里的错误信息处理的不太好
+                                        Print(object);
+                                        yyerror(" is not in list");
+                                        YYERROR;
+                                    }
+                                    else
+                                    {
+                                        (yyval).type = Integer;
+                                        (yyval).integerValue = distance(Symbol.at((yyvsp[-4]).variableName).listValue.begin(), pos); // 使用algorithm中的distance
+                                    }
+                                }
+                                break;
+                            }
+
+                            default:
+                                yyerror("AttributeError: '" + TypeString(Symbol.at((yyvsp[-4]).variableName)) + "' object has no attribute 'index'");
+                                YYERROR;
+                        }
+                        break;
+                    default:
+                        yyerror("AttributeError: '" + TypeString((yyvsp[-4])) + "' object has no attribute 'index'");
+                        YYERROR;
                 }
             }
             else if ((yyvsp[-4]).attributeName == "reverse")
@@ -2309,11 +2545,11 @@ yyreduce:
             }
 
         }
-#line 2313 "y.tab.c" /* yacc.c:1646  */
+#line 2549 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 30:
-#line 1053 "minipy-lab.y" /* yacc.c:1646  */
+#line 1289 "minipy-lab.y" /* yacc.c:1646  */
     {
             if ((yyvsp[-2]).variableName == "quit") // quit函数
                 exit(0);
@@ -2380,7 +2616,7 @@ yyreduce:
                         }
                         break;
                     case Variable:
-                        if (Symbol.at((yyvsp[-2]).variableName).type == List)
+                        if (Symbol.at((yyvsp[-2]).variableName).type == List || Symbol.at((yyvsp[-2]).variableName).type == String)
                         {
                             yyerror("TypeError: count() takes exactly one argument (0 given)");
                             YYERROR;
@@ -2399,29 +2635,80 @@ yyreduce:
             else if ((yyvsp[-2]).attributeName == "extend")
             {
                 (yyval).type = None;
-                if (Symbol.at((yyvsp[-2]).variableName).type == List)
+                switch ((yyvsp[-2]).type)
                 {
-                    yyerror("TypeError: extend() takes exactly one argument (0 given)");
-                    YYERROR;
-                }
-                else
-                {
-                    yyerror("AttributeError: '" + TypeString(Symbol.at((yyvsp[-2]).variableName)) + "' object has no attribute 'extend'");
-                    YYERROR;
+                    case List:
+                    case ListSlice:
+                        yyerror("TypeError: extend() takes exactly one argument (0 given)");
+                        YYERROR;
+                        break;
+                    case ListItem:
+                        if ((*(yyvsp[-2]).begin).type == List)
+                        {
+                            yyerror("TypeError: extend() takes exactly one argument (0 given)");
+                            YYERROR;
+                        }
+                        else
+                        {
+                            yyerror("AttributeError: '" + TypeString(*(yyvsp[-2]).begin) + "' object has no attribute 'extend'");
+                            YYERROR;
+                        }
+                        break;
+                    case Variable:
+                        if (Symbol.at((yyvsp[-2]).variableName).type == List)
+                        {
+                            yyerror("TypeError: extend() takes exactly one argument (0 given)");
+                            YYERROR;
+                        }
+                        else
+                        {
+                            yyerror("AttributeError: '" + TypeString(Symbol.at((yyvsp[-2]).variableName)) + "' object has no attribute 'extend'");
+                            YYERROR;
+                        }
+                        break;
+                    default:
+                        yyerror("AttributeError: '" + TypeString((yyvsp[-2])) + "' object has no attribute 'extend'");
+                        YYERROR;
                 }
             }
             else if ((yyvsp[-2]).attributeName == "index")
             {
                 (yyval).type = None;
-                if ((Symbol.at((yyvsp[-2]).variableName).type == List) || (Symbol.at((yyvsp[-2]).variableName).type == String))
+                switch ((yyvsp[-2]).type)
                 {
-                    yyerror("TypeError: index() takes at least 1 argument (0 given)");
-                    YYERROR;
-                }
-                else
-                {
-                    yyerror("AttributeError: '" + TypeString(Symbol.at((yyvsp[-2]).variableName)) + "' object has no attribute 'index'");
-                    YYERROR;
+                    case String:
+                    case List:
+                    case ListSlice:
+                        yyerror("TypeError: index() takes at least 1 argument (0 given)");
+                        YYERROR;
+                        break;
+                    case ListItem:
+                        if ((*(yyvsp[-2]).begin).type == List || (*(yyvsp[-2]).begin).type == String)
+                        {
+                            yyerror("TypeError: index() takes at least 1 argument (0 given)");
+                            YYERROR;
+                        }
+                        else
+                        {
+                            yyerror("AttributeError: '" + TypeString(*(yyvsp[-2]).begin) + "' object has no attribute 'index'");
+                            YYERROR;
+                        }
+                        break;
+                    case Variable:
+                        if (Symbol.at((yyvsp[-2]).variableName).type == List || Symbol.at((yyvsp[-2]).variableName).type == String)
+                        {
+                            yyerror("TypeError: index() takes at least 1 argument (0 given)");
+                            YYERROR;
+                        }
+                        else
+                        {
+                            yyerror("AttributeError: '" + TypeString(Symbol.at((yyvsp[-2]).variableName)) + "' object has no attribute 'index'");
+                            YYERROR;
+                        }
+                        break;
+                    default:
+                        yyerror("AttributeError: '" + TypeString((yyvsp[-2])) + "' object has no attribute 'index'");
+                        YYERROR;
                 }
             }
             else if ((yyvsp[-2]).attributeName == "reverse") // reverse方法
@@ -2458,67 +2745,67 @@ yyreduce:
                 YYERROR;
             }
         }
-#line 2462 "y.tab.c" /* yacc.c:1646  */
+#line 2749 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 31:
-#line 1201 "minipy-lab.y" /* yacc.c:1646  */
+#line 1488 "minipy-lab.y" /* yacc.c:1646  */
     {
         (yyval).type = List;
         (yyval).listValue = vector<struct value>(1, (yyvsp[0])); // 用列表“框柱”参数
     }
-#line 2471 "y.tab.c" /* yacc.c:1646  */
+#line 2758 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 32:
-#line 1206 "minipy-lab.y" /* yacc.c:1646  */
+#line 1493 "minipy-lab.y" /* yacc.c:1646  */
     {
         (yyval).type = List;
         (yyvsp[-2]).listValue.push_back((yyvsp[0]));
         (yyval).listValue = vector<struct value>((yyvsp[-2]).listValue);
     }
-#line 2481 "y.tab.c" /* yacc.c:1646  */
+#line 2768 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 33:
-#line 1215 "minipy-lab.y" /* yacc.c:1646  */
+#line 1502 "minipy-lab.y" /* yacc.c:1646  */
     {
         (yyval).type = List;
         (yyval).listValue = vector<struct value>();
     }
-#line 2490 "y.tab.c" /* yacc.c:1646  */
+#line 2777 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 34:
-#line 1220 "minipy-lab.y" /* yacc.c:1646  */
+#line 1507 "minipy-lab.y" /* yacc.c:1646  */
     {
         (yyval).type = List;
         (yyval).listValue = vector<struct value>((yyvsp[-2]).listValue);
     }
-#line 2499 "y.tab.c" /* yacc.c:1646  */
+#line 2786 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 37:
-#line 1233 "minipy-lab.y" /* yacc.c:1646  */
+#line 1520 "minipy-lab.y" /* yacc.c:1646  */
     {
         (yyval).type = List;
         (yyval).listValue = vector<struct value>(1, (yyvsp[0])); // 用列表“框柱”变量
     }
-#line 2508 "y.tab.c" /* yacc.c:1646  */
+#line 2795 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 38:
-#line 1238 "minipy-lab.y" /* yacc.c:1646  */
+#line 1525 "minipy-lab.y" /* yacc.c:1646  */
     {
         (yyval).type = List;
         (yyvsp[-2]).listValue.push_back((yyvsp[0]));
         (yyval).listValue = vector<struct value>((yyvsp[-2]).listValue);
     }
-#line 2518 "y.tab.c" /* yacc.c:1646  */
+#line 2805 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 39:
-#line 1247 "minipy-lab.y" /* yacc.c:1646  */
+#line 1534 "minipy-lab.y" /* yacc.c:1646  */
     {
             switch((yyvsp[-2]).type)
             {
@@ -2610,11 +2897,11 @@ yyreduce:
                     YYERROR;
             }
         }
-#line 2614 "y.tab.c" /* yacc.c:1646  */
+#line 2901 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 40:
-#line 1339 "minipy-lab.y" /* yacc.c:1646  */
+#line 1626 "minipy-lab.y" /* yacc.c:1646  */
     {
             switch((yyvsp[-2]).type)
             {
@@ -2657,11 +2944,11 @@ yyreduce:
                     YYERROR;
             }
         }
-#line 2661 "y.tab.c" /* yacc.c:1646  */
+#line 2948 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 42:
-#line 1386 "minipy-lab.y" /* yacc.c:1646  */
+#line 1673 "minipy-lab.y" /* yacc.c:1646  */
     {
             switch((yyvsp[-2]).type)
             {
@@ -2742,11 +3029,11 @@ yyreduce:
                     YYERROR;
             }
         }
-#line 2746 "y.tab.c" /* yacc.c:1646  */
+#line 3033 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 43:
-#line 1467 "minipy-lab.y" /* yacc.c:1646  */
+#line 1754 "minipy-lab.y" /* yacc.c:1646  */
     {
             (yyval).type = Real;
             if (((yyvsp[-2]).type == Integer || (yyvsp[-2]).type == Real) && ((yyvsp[0]).type == Integer || (yyvsp[0]).type == Real))
@@ -2763,11 +3050,11 @@ yyreduce:
                 YYERROR;
             }
         }
-#line 2767 "y.tab.c" /* yacc.c:1646  */
+#line 3054 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 44:
-#line 1484 "minipy-lab.y" /* yacc.c:1646  */
+#line 1771 "minipy-lab.y" /* yacc.c:1646  */
     {
             // 整除
             (yyval).type = Integer;
@@ -2786,11 +3073,11 @@ yyreduce:
             }
 
         }
-#line 2790 "y.tab.c" /* yacc.c:1646  */
+#line 3077 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 45:
-#line 1503 "minipy-lab.y" /* yacc.c:1646  */
+#line 1790 "minipy-lab.y" /* yacc.c:1646  */
     {
             if (((yyvsp[-2]).type == Integer || (yyvsp[-2]).type == Real) && ((yyvsp[0]).type == Integer || (yyvsp[0]).type == Real))
             {
@@ -2820,23 +3107,23 @@ yyreduce:
                 YYERROR;
             }
         }
-#line 2824 "y.tab.c" /* yacc.c:1646  */
+#line 3111 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 46:
-#line 1532 "minipy-lab.y" /* yacc.c:1646  */
+#line 1819 "minipy-lab.y" /* yacc.c:1646  */
     { (yyval) = (yyvsp[-1]); }
-#line 2830 "y.tab.c" /* yacc.c:1646  */
+#line 3117 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 47:
-#line 1533 "minipy-lab.y" /* yacc.c:1646  */
+#line 1820 "minipy-lab.y" /* yacc.c:1646  */
     { (yyval) = (yyvsp[-1]); }
-#line 2836 "y.tab.c" /* yacc.c:1646  */
+#line 3123 "y.tab.c" /* yacc.c:1646  */
     break;
 
 
-#line 2840 "y.tab.c" /* yacc.c:1646  */
+#line 3127 "y.tab.c" /* yacc.c:1646  */
       default: break;
     }
   /* User semantic actions sometimes alter yychar, and that requires
@@ -3064,7 +3351,7 @@ yyreturn:
 #endif
   return yyresult;
 }
-#line 1537 "minipy-lab.y" /* yacc.c:1906  */
+#line 1824 "minipy-lab.y" /* yacc.c:1906  */
 
 
 int main()

@@ -633,7 +633,6 @@ atom_expr:
                         yyerror("AttributeError: '" + TypeString($1) + "' object has no attribute 'append'");
                         YYERROR;
                 }
-
             }
             else if ($1.attributeName == "count") // count方法
             {
@@ -734,7 +733,7 @@ atom_expr:
                                         size_t len = (*$3.listValue.begin()).stringValue.length();
                                         if (len == 0)
                                             len = 1; // 空子串调用
-                                        for (size_t i = 0; (i = Symbol.at($1.variableName).stringValue.find((*$3.listValue.begin()).stringValue,i)) != Symbol.at($1.variableName).stringValue.npos; $$.integerValue++, i+=len);
+                                        for (size_t i = 0; (i = Symbol.at($1.variableName).stringValue.find((*$3.listValue.begin()).stringValue,i)) != Symbol.at($1.variableName).stringValue.npos; $$.integerValue++, i+=len); // 不计算重复
                                     }
                                     else
                                     {
@@ -773,99 +772,144 @@ atom_expr:
             else if ($1.attributeName == "extend") // extend方法
             {
                 $$.type = None;
-                if (Symbol.at($1.variableName).type == List)
+                switch ($1.type)
                 {
-                    if ($3.listValue.size() == 1) // list 有且仅有1个参数
-                    {
-                        Value temp;
-                        Value temp_2; // 拆分字符串
-
-                        if ((*$3.listValue.begin()).type == Variable) // 变量替换为实体
+                    case List:
+                    case ListSlice:
+                        if ($3.listValue.size() == 1) // append 有且仅有1个参数
                         {
-                            if (Symbol.count((*$3.listValue.begin()).variableName) == 1) // 已在变量表中
-                                temp = Symbol.at((*$3.listValue.begin()).variableName);
+                            // 这里的代码没有什么意义
+                        }
+                        else
+                        {
+                            yyerror("TypeError: append() takes exactly one argument ("+ to_string($3.listValue.size()) +" given)");
+                            YYERROR;
+                        }
+                        break;
+                    case ListItem:
+                        if ((*$1.begin).type == List)
+                        {
+                            if ($3.listValue.size() == 1) // list 有且仅有1个参数
+                            {
+                                Value temp;
+                                Value temp_2; // 拆分字符串
+
+                                if ((*$3.listValue.begin()).type == Variable) // 变量替换为实体
+                                {
+                                    if (Symbol.count((*$3.listValue.begin()).variableName) == 1) // 已在变量表中
+                                        temp = Symbol.at((*$3.listValue.begin()).variableName);
+                                    else
+                                    {
+                                        yyerror("NameError: name '" + (*$3.listValue.begin()).variableName + "' is not defined");
+                                        YYERROR;
+                                    }
+                                }
+                                else
+                                    temp = (*$3.listValue.begin());
+
+                                switch (temp.type)
+                                {
+                                    case String:
+                                        temp_2.type = String;
+                                        for (int i = 0; i < temp.stringValue.length(); i++)
+                                        {
+                                            temp_2.stringValue = temp.stringValue[i];
+                                            (*$1.begin).listValue.push_back(temp_2);
+                                        }
+                                        break;
+                                    case List:
+                                        (*$1.begin).listValue.insert((*$1.begin).listValue.end(), temp.listValue.begin(), temp.listValue.end());
+                                        break;
+                                    default:
+                                    {
+                                        yyerror("TypeError: '"+TypeString(temp)+"' object is not iterable");
+                                        YYERROR;
+                                    }
+                                }
+                            }
                             else
                             {
-                                yyerror("NameError: name '" + (*$3.listValue.begin()).variableName + "' is not defined");
+                                yyerror("TypeError: extend() takes exactly one argument ("+ to_string($3.listValue.size()) +" given)");
                                 YYERROR;
                             }
                         }
                         else
-                            temp = (*$3.listValue.begin());
-
-                        switch (temp.type)
                         {
-                            case String:
-                                temp_2.type = String;
-                                for (int i = 0; i < temp.stringValue.length(); i++)
-                                {
-                                    temp_2.stringValue = temp.stringValue[i];
-                                    Symbol.at($1.variableName).listValue.push_back(temp_2);
-                                }
-                                break;
-                            case List:
-                                Symbol.at($1.variableName).listValue.insert(Symbol.at($1.variableName).listValue.end(), temp.listValue.begin(), temp.listValue.end());
-                                break;
-                            default:
-                            {
-                                yyerror("TypeError: '"+TypeString(temp)+"' object is not iterable");
-                                YYERROR;
-                            }
+                            yyerror("AttributeError: '" + TypeString(*$1.begin) + "' object has no attribute 'append'");
+                            YYERROR;
                         }
-                    }
-                    else
-                    {
-                        yyerror("TypeError: extend() takes exactly one argument ("+ to_string($3.listValue.size()) +" given)");
-                        YYERROR;
-                    }
-                }
-                else
-                {
-                    yyerror("AttributeError: '" + TypeString(Symbol.at($1.variableName)) + "' object has no attribute 'extend'");
-                    YYERROR;
-                }
-            }
-            else if ($1.attributeName == "index")
-            {
-                if ((Symbol.at($1.variableName).type == List) || (Symbol.at($1.variableName).type == String))
-                {
-                    if ($3.listValue.size() > 3)
-                    {
-                        yyerror("TypeError: range expected at most 3 arguments, got " + to_string($3.listValue.size()));
-                        YYERROR;
-                    }
-                    else
-                    {
-                        Value object = $3.listValue[0];
-
+                        break;
+                    case Variable:
                         if (Symbol.at($1.variableName).type == List)
                         {
-                            vector<struct value>::iterator begin, end;
-                            if ($3.listValue.size() == 1) // 默认起始
-                                begin = Symbol.at($1.variableName).listValue.begin();
-                            else if ($3.listValue.size() == 2 || $3.listValue.size() == 3)
-                                begin = Symbol.at($1.variableName).listValue.begin() + $3.listValue[1].integerValue; // 第二个参数
-
-                            if ($3.listValue.size() == 1 || $3.listValue.size() == 2) // 默认结尾
-                                end = Symbol.at($1.variableName).listValue.end();
-                            else if ($3.listValue.size() == 3)
-                                end = Symbol.at($1.variableName).listValue.begin() + $3.listValue[2].integerValue; // 第三个参数
-
-                            vector<struct value>::iterator pos = find(begin, end, object); // 使用algorithm 中的find
-                            if (pos == end)
+                            if ($3.listValue.size() == 1) // list 有且仅有1个参数
                             {
-                                cout << "ValueError: "; // 这里的错误信息处理的不太好
-                                Print(object);
-                                yyerror(" is not in list");
-                                YYERROR;
+                                Value temp;
+                                Value temp_2; // 拆分字符串
+
+                                if ((*$3.listValue.begin()).type == Variable) // 变量替换为实体
+                                {
+                                    if (Symbol.count((*$3.listValue.begin()).variableName) == 1) // 已在变量表中
+                                        temp = Symbol.at((*$3.listValue.begin()).variableName);
+                                    else
+                                    {
+                                        yyerror("NameError: name '" + (*$3.listValue.begin()).variableName + "' is not defined");
+                                        YYERROR;
+                                    }
+                                }
+                                else
+                                    temp = (*$3.listValue.begin());
+
+                                switch (temp.type)
+                                {
+                                    case String:
+                                        temp_2.type = String;
+                                        for (int i = 0; i < temp.stringValue.length(); i++)
+                                        {
+                                            temp_2.stringValue = temp.stringValue[i];
+                                            Symbol.at($1.variableName).listValue.push_back(temp_2);
+                                        }
+                                        break;
+                                    case List:
+                                        Symbol.at($1.variableName).listValue.insert(Symbol.at($1.variableName).listValue.end(), temp.listValue.begin(), temp.listValue.end());
+                                        break;
+                                    default:
+                                    {
+                                        yyerror("TypeError: '"+TypeString(temp)+"' object is not iterable");
+                                        YYERROR;
+                                    }
+                                }
                             }
                             else
                             {
-                                $$.type = Integer;
-                                $$.integerValue = distance(Symbol.at($1.variableName).listValue.begin(), pos); // 使用algorithm中的distance
+                                yyerror("TypeError: extend() takes exactly one argument ("+ to_string($3.listValue.size()) +" given)");
+                                YYERROR;
                             }
                         }
-                        else if (Symbol.at($1.variableName).type == String)
+                        else
+                        {
+                            yyerror("AttributeError: '" + TypeString(Symbol.at($1.variableName)) + "' object has no attribute 'extend'");
+                            YYERROR;
+                        }
+                        break;
+                    default:
+                        yyerror("AttributeError: '" + TypeString($1) + "' object has no attribute 'append'");
+                        YYERROR;
+                }
+
+            }
+            else if ($1.attributeName == "index")
+            {
+                Value object = $3.listValue[0];
+                switch ($1.type)
+                {
+                    case String:
+                        if ($3.listValue.size() > 3)
+                        {
+                            yyerror("TypeError: index() expected at most 3 arguments, got " + to_string($3.listValue.size()));
+                            YYERROR;
+                        }
+                        else
                         {
                             if (object.type == String)
                             {
@@ -878,9 +922,9 @@ atom_expr:
                                     begin = $3.listValue[1].integerValue; // 第二个参数
 
                                 if ($3.listValue.size() == 1 || $3.listValue.size() == 2) // 默认结尾
-                                    temp = Symbol.at($1.variableName).stringValue;
+                                    temp = $1.stringValue;
                                 else if ($3.listValue.size() == 3)
-                                    temp = Symbol.at($1.variableName).stringValue.substr(0, $3.listValue[2].integerValue); // 第三个参数
+                                    temp = $1.stringValue.substr(0, $3.listValue[2].integerValue); // 第三个参数
 
                                 int pos = temp.find(object.stringValue, begin); // 使用string的find
                                 if (pos == temp.npos)
@@ -900,12 +944,204 @@ atom_expr:
                                 YYERROR;
                             }
                         }
+                        break;
+                    case List:
+                    case ListSlice:
+                    {
+                        vector<struct value>::iterator begin, end;
+                        if ($3.listValue.size() == 1) // 默认起始
+                            begin = $1.listValue.begin();
+                        else if ($3.listValue.size() == 2 || $3.listValue.size() == 3)
+                            begin = $1.listValue.begin() + $3.listValue[1].integerValue; // 第二个参数
+
+                        if ($3.listValue.size() == 1 || $3.listValue.size() == 2) // 默认结尾
+                            end = $1.listValue.end();
+                        else if ($3.listValue.size() == 3)
+                            end = $1.listValue.begin() + $3.listValue[2].integerValue; // 第三个参数
+
+                        vector<struct value>::iterator pos = find(begin, end, object); // 使用algorithm 中的find
+                        if (pos == end)
+                        {
+                            cout << "ValueError: "; // 这里的错误信息处理的不太好
+                            Print(object);
+                            yyerror(" is not in list");
+                            YYERROR;
+                        }
+                        else
+                        {
+                            $$.type = Integer;
+                            $$.integerValue = distance($1.listValue.begin(), pos); // 使用algorithm中的distance
+                        }
+                        break;
                     }
-                }
-                else
-                {
-                    yyerror("AttributeError: '" + TypeString(Symbol.at($1.variableName)) + "' object has no attribute 'index'");
-                    YYERROR;
+                    case ListItem:
+                        switch ((*$1.begin).type)
+                        {
+                            case String:
+                                if ($3.listValue.size() > 3)
+                                {
+                                    yyerror("TypeError: index() expected at most 3 arguments, got " + to_string($3.listValue.size()));
+                                    YYERROR;
+                                }
+                                else
+                                {
+                                    if (object.type == String)
+                                    {
+                                        int begin;
+                                        string temp;
+
+                                        if ($3.listValue.size() == 1) // 默认起始
+                                            begin = 0;
+                                        else if ($3.listValue.size() == 2 || $3.listValue.size() == 3)
+                                            begin = $3.listValue[1].integerValue; // 第二个参数
+
+                                        if ($3.listValue.size() == 1 || $3.listValue.size() == 2) // 默认结尾
+                                            temp = (*$1.begin).stringValue;
+                                        else if ($3.listValue.size() == 3)
+                                            temp = (*$1.begin).stringValue.substr(0, $3.listValue[2].integerValue); // 第三个参数
+
+                                        int pos = temp.find(object.stringValue, begin); // 使用string的find
+                                        if (pos == temp.npos)
+                                        {
+                                            yyerror("ValueError: substring not found");
+                                            YYERROR;
+                                        }
+                                        else
+                                        {
+                                            $$.type = Integer;
+                                            $$.integerValue = pos;
+                                        }
+                                    }
+                                    else
+                                    {
+                                        yyerror("TypeError: must be str, not " + TypeString(object));
+                                        YYERROR;
+                                    }
+                                }
+                                break;
+                            case List:
+                            {
+                                vector<struct value>::iterator begin, end;
+                                if ($3.listValue.size() == 1) // 默认起始
+                                    begin = $1.listValue.begin();
+                                else if ($3.listValue.size() == 2 || $3.listValue.size() == 3)
+                                    begin = $1.listValue.begin() + $3.listValue[1].integerValue; // 第二个参数
+
+                                if ($3.listValue.size() == 1 || $3.listValue.size() == 2) // 默认结尾
+                                    end = (*$1.begin).listValue.end();
+                                else if ($3.listValue.size() == 3)
+                                    end = (*$1.begin).listValue.begin() + $3.listValue[2].integerValue; // 第三个参数
+
+                                vector<struct value>::iterator pos = find(begin, end, object); // 使用algorithm 中的find
+                                if (pos == end)
+                                {
+                                    cout << "ValueError: "; // 这里的错误信息处理的不太好
+                                    Print(object);
+                                    yyerror(" is not in list");
+                                    YYERROR;
+                                }
+                                else
+                                {
+                                    $$.type = Integer;
+                                    $$.integerValue = distance((*$1.begin).listValue.begin(), pos); // 使用algorithm中的distance
+                                }
+                                break;
+                            }
+                            default:
+                                yyerror("AttributeError: '" + TypeString(*$1.begin) + "' object has no attribute 'count'");
+                                YYERROR;
+                        }
+                        break;
+                    case Variable:
+                        switch (Symbol.at($1.variableName).type)
+                        {
+                            case String:
+                                if ($3.listValue.size() > 3)
+                                {
+                                    yyerror("TypeError: range expected at most 3 arguments, got " + to_string($3.listValue.size()));
+                                    YYERROR;
+                                }
+                                else
+                                {
+                                    if (object.type == String)
+                                    {
+                                        int begin;
+                                        string temp;
+
+                                        if ($3.listValue.size() == 1) // 默认起始
+                                            begin = 0;
+                                        else if ($3.listValue.size() == 2 || $3.listValue.size() == 3)
+                                            begin = $3.listValue[1].integerValue; // 第二个参数
+
+                                        if ($3.listValue.size() == 1 || $3.listValue.size() == 2) // 默认结尾
+                                            temp = Symbol.at($1.variableName).stringValue;
+                                        else if ($3.listValue.size() == 3)
+                                            temp = Symbol.at($1.variableName).stringValue.substr(0, $3.listValue[2].integerValue); // 第三个参数
+
+                                        int pos = temp.find(object.stringValue, begin); // 使用string的find
+                                        if (pos == temp.npos)
+                                        {
+                                            yyerror("ValueError: substring not found");
+                                            YYERROR;
+                                        }
+                                        else
+                                        {
+                                            $$.type = Integer;
+                                            $$.integerValue = pos;
+                                        }
+                                    }
+                                    else
+                                    {
+                                        yyerror("TypeError: must be str, not " + TypeString(object));
+                                        YYERROR;
+                                    }
+                                }
+                                break;
+                            case List:
+                            {
+                                if ($3.listValue.size() > 3)
+                                {
+                                    yyerror("TypeError: index() expected at most 3 arguments, got " + to_string($3.listValue.size()));
+                                    YYERROR;
+                                }
+                                else
+                                {
+                                    vector<struct value>::iterator begin, end;
+                                    if ($3.listValue.size() == 1) // 默认起始
+                                        begin = Symbol.at($1.variableName).listValue.begin();
+                                    else if ($3.listValue.size() == 2 || $3.listValue.size() == 3)
+                                        begin = Symbol.at($1.variableName).listValue.begin() + $3.listValue[1].integerValue; // 第二个参数
+
+                                    if ($3.listValue.size() == 1 || $3.listValue.size() == 2) // 默认结尾
+                                        end = Symbol.at($1.variableName).listValue.end();
+                                    else if ($3.listValue.size() == 3)
+                                        end = Symbol.at($1.variableName).listValue.begin() + $3.listValue[2].integerValue; // 第三个参数
+
+                                    vector<struct value>::iterator pos = find(begin, end, object); // 使用algorithm 中的find
+                                    if (pos == end)
+                                    {
+                                        cout << "ValueError: "; // 这里的错误信息处理的不太好
+                                        Print(object);
+                                        yyerror(" is not in list");
+                                        YYERROR;
+                                    }
+                                    else
+                                    {
+                                        $$.type = Integer;
+                                        $$.integerValue = distance(Symbol.at($1.variableName).listValue.begin(), pos); // 使用algorithm中的distance
+                                    }
+                                }
+                                break;
+                            }
+
+                            default:
+                                yyerror("AttributeError: '" + TypeString(Symbol.at($1.variableName)) + "' object has no attribute 'index'");
+                                YYERROR;
+                        }
+                        break;
+                    default:
+                        yyerror("AttributeError: '" + TypeString($1) + "' object has no attribute 'index'");
+                        YYERROR;
                 }
             }
             else if ($1.attributeName == "reverse")
@@ -1116,7 +1352,7 @@ atom_expr:
                         }
                         break;
                     case Variable:
-                        if (Symbol.at($1.variableName).type == List)
+                        if (Symbol.at($1.variableName).type == List || Symbol.at($1.variableName).type == String)
                         {
                             yyerror("TypeError: count() takes exactly one argument (0 given)");
                             YYERROR;
@@ -1135,29 +1371,80 @@ atom_expr:
             else if ($1.attributeName == "extend")
             {
                 $$.type = None;
-                if (Symbol.at($1.variableName).type == List)
+                switch ($1.type)
                 {
-                    yyerror("TypeError: extend() takes exactly one argument (0 given)");
-                    YYERROR;
-                }
-                else
-                {
-                    yyerror("AttributeError: '" + TypeString(Symbol.at($1.variableName)) + "' object has no attribute 'extend'");
-                    YYERROR;
+                    case List:
+                    case ListSlice:
+                        yyerror("TypeError: extend() takes exactly one argument (0 given)");
+                        YYERROR;
+                        break;
+                    case ListItem:
+                        if ((*$1.begin).type == List)
+                        {
+                            yyerror("TypeError: extend() takes exactly one argument (0 given)");
+                            YYERROR;
+                        }
+                        else
+                        {
+                            yyerror("AttributeError: '" + TypeString(*$1.begin) + "' object has no attribute 'extend'");
+                            YYERROR;
+                        }
+                        break;
+                    case Variable:
+                        if (Symbol.at($1.variableName).type == List)
+                        {
+                            yyerror("TypeError: extend() takes exactly one argument (0 given)");
+                            YYERROR;
+                        }
+                        else
+                        {
+                            yyerror("AttributeError: '" + TypeString(Symbol.at($1.variableName)) + "' object has no attribute 'extend'");
+                            YYERROR;
+                        }
+                        break;
+                    default:
+                        yyerror("AttributeError: '" + TypeString($1) + "' object has no attribute 'extend'");
+                        YYERROR;
                 }
             }
             else if ($1.attributeName == "index")
             {
                 $$.type = None;
-                if ((Symbol.at($1.variableName).type == List) || (Symbol.at($1.variableName).type == String))
+                switch ($1.type)
                 {
-                    yyerror("TypeError: index() takes at least 1 argument (0 given)");
-                    YYERROR;
-                }
-                else
-                {
-                    yyerror("AttributeError: '" + TypeString(Symbol.at($1.variableName)) + "' object has no attribute 'index'");
-                    YYERROR;
+                    case String:
+                    case List:
+                    case ListSlice:
+                        yyerror("TypeError: index() takes at least 1 argument (0 given)");
+                        YYERROR;
+                        break;
+                    case ListItem:
+                        if ((*$1.begin).type == List || (*$1.begin).type == String)
+                        {
+                            yyerror("TypeError: index() takes at least 1 argument (0 given)");
+                            YYERROR;
+                        }
+                        else
+                        {
+                            yyerror("AttributeError: '" + TypeString(*$1.begin) + "' object has no attribute 'index'");
+                            YYERROR;
+                        }
+                        break;
+                    case Variable:
+                        if (Symbol.at($1.variableName).type == List || Symbol.at($1.variableName).type == String)
+                        {
+                            yyerror("TypeError: index() takes at least 1 argument (0 given)");
+                            YYERROR;
+                        }
+                        else
+                        {
+                            yyerror("AttributeError: '" + TypeString(Symbol.at($1.variableName)) + "' object has no attribute 'index'");
+                            YYERROR;
+                        }
+                        break;
+                    default:
+                        yyerror("AttributeError: '" + TypeString($1) + "' object has no attribute 'index'");
+                        YYERROR;
                 }
             }
             else if ($1.attributeName == "reverse") // reverse方法
