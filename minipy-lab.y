@@ -1335,7 +1335,14 @@ atom_expr:
                     case ListSlice:
                         if ($3.listValue.size() == 2) // insert 有且仅有2个参数
                         {
-                            $1.listValue.insert($1.listValue.begin() + $3.listValue[0].integerValue, $3.listValue[1]); // 这里的意义不是很大
+                            int index = $3.listValue[0].integerValue;
+                            if (index < 0)
+                                index += Length($1);
+                            if (index < 0)
+                                index = 0;
+                            else if (index > Length($1))
+                                index = Length($1);
+                            $1.listValue.insert($1.listValue.begin() + index, $3.listValue[1]); // 这里的意义不是很大
                         }
                         else
                         {
@@ -1348,7 +1355,14 @@ atom_expr:
                         {
                             if ($3.listValue.size() == 2) // insert 有且仅有2个参数
                             {
-                                (*$1.begin).listValue.insert((*$1.begin).listValue.begin() + $3.listValue[0].integerValue, $3.listValue[1]);
+                                int index = $3.listValue[0].integerValue;
+                                if (index < 0)
+                                    index += Length(*$1.begin);
+                                if (index < 0)
+                                    index = 0;
+                                else if (index > Length(*$1.begin))
+                                    index = Length(*$1.begin);
+                                (*$1.begin).listValue.insert((*$1.begin).listValue.begin() + index, $3.listValue[1]);
                             }
                             else
                             {
@@ -1367,7 +1381,14 @@ atom_expr:
                         {
                             if ($3.listValue.size() == 2) // insert 有且仅有2个参数
                             {
-                                Symbol.at($1.variableName).listValue.insert(Symbol.at($1.variableName).listValue.begin() + $3.listValue[0].integerValue, $3.listValue[1]);
+                                int index = $3.listValue[0].integerValue;
+                                if (index < 0)
+                                    index += Length(Symbol.at($1.variableName));
+                                if (index < 0)
+                                    index = 0;
+                                else if (index > Length(Symbol.at($1.variableName)))
+                                    index = Length(Symbol.at($1.variableName));
+                                Symbol.at($1.variableName).listValue.insert(Symbol.at($1.variableName).listValue.begin() + index, $3.listValue[1]);
                             }
                             else
                             {
