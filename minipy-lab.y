@@ -531,15 +531,36 @@ atom_expr:
         {
             if ($3.type == Integer)
             {
+                int index = $3.integerValue;
                 switch ($1.type)
                 {
                     case String:
-                        $$.type = String;
-                        $$.stringValue = $1.stringValue[$3.integerValue]; // 字符和字符串同等
+                        if (index < 0)
+                            index += $1.stringValue.length();
+                        if (index > $1.stringValue.length() || index < 0)
+                        {
+                            yyerror("IndexError: string index out of range");
+                            YYERROR;
+                        }
+                        else
+                        {
+                            $$.type = String;
+                            $$.stringValue = $1.stringValue[index]; // 字符和字符串同等
+                        }
                         break;
                     case List:
-                        $$.type = ListItem; // 列表元素类型
-                        $$.begin = $1.listValue.begin() + $3.integerValue; // 取列表元素地址
+                        if (index < 0)
+                            index += $1.listValue.size();
+                        if (index > $1.listValue.size() || index < 0)
+                        {
+                            yyerror("IndexError: list index out of range");
+                            YYERROR;
+                        }
+                        else
+                        {
+                            $$.type = ListItem; // 列表元素类型
+                            $$.begin = $1.listValue.begin() + index; // 取列表元素地址
+                        }
                         break;
                     case Variable:
                         if ((Symbol.count($1.variableName) == 1)) // 已在变量表内
@@ -547,12 +568,32 @@ atom_expr:
                             switch (Symbol.at($1.variableName).type)
                             {
                                 case String:
-                                    $$.type = String;
-                                    $$.stringValue = Symbol.at($1.variableName).stringValue[$3.integerValue]; // 字符和字符串同等
+                                    if (index < 0)
+                                        index += Symbol.at($1.variableName).stringValue.length();
+                                    if (index > Symbol.at($1.variableName).stringValue.length() || index < 0)
+                                    {
+                                        yyerror("IndexError: string index out of range");
+                                        YYERROR;
+                                    }
+                                    else
+                                    {
+                                        $$.type = String;
+                                        $$.stringValue = Symbol.at($1.variableName).stringValue[index]; // 字符和字符串同等
+                                    }
                                     break;
                                 case List:
-                                    $$.type = ListItem; // 列表元素类型
-                                    $$.begin = Symbol.at($1.variableName).listValue.begin() + $3.integerValue; // 取列表元素地址
+                                    if (index < 0)
+                                        index += Symbol.at($1.variableName).listValue.size();
+                                    if (index > Symbol.at($1.variableName).listValue.size() || index < 0)
+                                    {
+                                        yyerror("IndexError: list index out of range");
+                                        YYERROR;
+                                    }
+                                    else
+                                    {
+                                        $$.type = ListItem; // 列表元素类型
+                                        $$.begin = Symbol.at($1.variableName).listValue.begin() + index; // 取列表元素地址
+                                    }
                                     break;
                                 default:
                                     yyerror("TypeError: '"+ TypeString(Symbol.at($1.variableName)) +"' object is not subscriptable");
