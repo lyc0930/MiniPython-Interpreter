@@ -511,9 +511,9 @@ static const yytype_uint16 yyrline[] =
 {
        0,    91,    91,    96,    95,   108,   108,   110,   114,   118,
      122,   171,   175,   176,   180,   193,   206,   240,   241,   242,
-     243,   248,   251,   266,   269,   273,   274,   530,   620,   627,
-    1459,  1730,  1735,  1744,  1749,  1756,  1758,  1762,  1767,  1776,
-    1868,  1911,  1915,  1996,  2013,  2032,  2062,  2063,  2064
+     243,   248,   251,   266,   269,   273,   274,   661,   751,   758,
+    1590,  1861,  1866,  1875,  1880,  1887,  1889,  1893,  1898,  1907,
+    1999,  2042,  2046,  2127,  2144,  2163,  2193,  2194,  2195
 };
 #endif
 
@@ -1544,7 +1544,15 @@ yyreduce:
                         if ((yyvsp[-4]).type == None) // 默认起始
                             begin = 0;
                         else if ((yyvsp[-4]).type == Integer)
+                        {
                             begin = (yyvsp[-4]).integerValue;
+                            if (begin < 0)
+                                begin += (yyvsp[-6]).stringValue.length();
+                            if (begin < 0)
+                                begin = 0;
+                            else if (begin >= (yyvsp[-6]).stringValue.length())
+                                begin = (yyvsp[-6]).stringValue.length();
+                        }
                         else
                         {
                             yyerror("TypeError: slice indices must be integers or None");
@@ -1554,13 +1562,20 @@ yyreduce:
                         if ((yyvsp[-2]).type == None) // 默认结束
                             end = (yyvsp[-6]).stringValue.length();
                         else if ((yyvsp[-2]).type == Integer)
+                        {
                             end = (yyvsp[-2]).integerValue;
+                            if (end < 0)
+                                end += (yyvsp[-6]).stringValue.length();
+                            if (end < 0)
+                                end = 0;
+                            else if (end >= (yyvsp[-6]).stringValue.length())
+                                end = (yyvsp[-6]).stringValue.length();
+                        }
                         else
                         {
                             yyerror("TypeError: slice indices must be integers or None");
                             YYERROR;
                         }
-
                         for (int i = begin; i < end; i += step)
                             (yyval).stringValue += (yyvsp[-6]).stringValue[i]; // 逐个取子串
                     }
@@ -1569,7 +1584,15 @@ yyreduce:
                         if ((yyvsp[-4]).type == None) // 默认起始
                             begin = (yyvsp[-6]).stringValue.length() - 1;
                         else if ((yyvsp[-4]).type == Integer)
+                        {
                             begin = (yyvsp[-4]).integerValue;
+                            if (begin < 0)
+                                begin += (yyvsp[-6]).stringValue.length();
+                            if (begin < 0)
+                                begin = 0;
+                            else if (begin >= (yyvsp[-6]).stringValue.length())
+                                begin = (yyvsp[-6]).stringValue.length() - 1;
+                        }
                         else
                         {
                             yyerror("TypeError: slice indices must be integers or None");
@@ -1579,7 +1602,15 @@ yyreduce:
                         if ((yyvsp[-2]).type == None) // 默认结束
                             end = -1;
                         else if ((yyvsp[-2]).type == Integer)
+                        {
                             end = (yyvsp[-2]).integerValue;
+                            if (end < 0)
+                                end += (yyvsp[-6]).stringValue.length();
+                            if (end < 0)
+                                end = -1;
+                            else if (end >= (yyvsp[-6]).stringValue.length())
+                                end = (yyvsp[-6]).stringValue.length();
+                        }
                         else
                         {
                             yyerror("TypeError: slice indices must be integers or None");
@@ -1598,7 +1629,15 @@ yyreduce:
                         if ((yyvsp[-4]).type == None) // 默认起始
                             begin = 0;
                         else if ((yyvsp[-4]).type == Integer)
+                        {
                             begin = (yyvsp[-4]).integerValue;
+                            if (begin < 0)
+                                begin += (yyvsp[-6]).listValue.size();
+                            if (begin < 0)
+                                begin = 0;
+                            else if (begin >= (yyvsp[-6]).listValue.size())
+                                begin = (yyvsp[-6]).listValue.size();
+                        }
                         else
                         {
                             yyerror("TypeError: slice indices must be integers or None");
@@ -1608,7 +1647,15 @@ yyreduce:
                         if ((yyvsp[-2]).type == None) // 默认结束
                             end = (yyvsp[-6]).listValue.size();
                         else if ((yyvsp[-2]).type == Integer)
+                        {
                             end = (yyvsp[-2]).integerValue;
+                            if (end < 0)
+                                end += (yyvsp[-6]).listValue.size();
+                            if (end < 0)
+                                end = 0;
+                            else if (end >= (yyvsp[-6]).listValue.size())
+                                end = (yyvsp[-6]).listValue.size();
+                        }
                         else
                         {
                             yyerror("TypeError: slice indices must be integers or None");
@@ -1623,7 +1670,15 @@ yyreduce:
                         if ((yyvsp[-4]).type == None) // 默认起始
                             begin = (yyvsp[-6]).listValue.size() - 1;
                         else if ((yyvsp[-4]).type == Integer)
+                        {
                             begin = (yyvsp[-4]).integerValue;
+                            if (begin < 0)
+                                begin += (yyvsp[-6]).listValue.size();
+                            if (begin < 0)
+                                begin = 0;
+                            else if (begin >= (yyvsp[-6]).listValue.size())
+                                begin = (yyvsp[-6]).listValue.size() - 1;
+                        }
                         else
                         {
                             yyerror("TypeError: slice indices must be integers or None");
@@ -1633,7 +1688,15 @@ yyreduce:
                         if ((yyvsp[-2]).type == None) // 默认结束
                             end = -1;
                         else if ((yyvsp[-2]).type == Integer)
+                        {
                             end = (yyvsp[-2]).integerValue;
+                            if (end < 0)
+                                end += (yyvsp[-6]).listValue.size();
+                            if (end < 0)
+                                end = -1;
+                            else if (end >= (yyvsp[-6]).listValue.size())
+                                end = (yyvsp[-6]).listValue.size();
+                        }
                         else
                         {
                             yyerror("TypeError: slice indices must be integers or None");
@@ -1658,7 +1721,15 @@ yyreduce:
                                     if ((yyvsp[-4]).type == None) // 默认起始
                                         begin = 0;
                                     else if ((yyvsp[-4]).type == Integer)
+                                    {
                                         begin = (yyvsp[-4]).integerValue;
+                                        if (begin < 0)
+                                            begin += Symbol.at((yyvsp[-6]).variableName).stringValue.length();
+                                        if (begin < 0)
+                                            begin = 0;
+                                        else if (begin >= Symbol.at((yyvsp[-6]).variableName).stringValue.length())
+                                            begin = Symbol.at((yyvsp[-6]).variableName).stringValue.length();
+                                    }
                                     else
                                     {
                                         yyerror("TypeError: slice indices must be integers or None");
@@ -1668,7 +1739,15 @@ yyreduce:
                                     if ((yyvsp[-2]).type == None) // 默认结束
                                         end = Symbol.at((yyvsp[-6]).variableName).stringValue.length();
                                     else if ((yyvsp[-2]).type == Integer)
+                                    {
                                         end = (yyvsp[-2]).integerValue;
+                                        if (end < 0)
+                                            end += Symbol.at((yyvsp[-6]).variableName).stringValue.length();
+                                        if (end < 0)
+                                            end = 0;
+                                        else if (end >= Symbol.at((yyvsp[-6]).variableName).stringValue.length())
+                                            end = Symbol.at((yyvsp[-6]).variableName).stringValue.length();
+                                    }
                                     else
                                     {
                                         yyerror("TypeError: slice indices must be integers or None");
@@ -1682,7 +1761,15 @@ yyreduce:
                                     if ((yyvsp[-4]).type == None) // 默认起始
                                         begin = Symbol.at((yyvsp[-6]).variableName).stringValue.length() - 1;
                                     else if ((yyvsp[-4]).type == Integer)
+                                    {
                                         begin = (yyvsp[-4]).integerValue;
+                                        if (begin < 0)
+                                            begin += Symbol.at((yyvsp[-6]).variableName).stringValue.length();
+                                        if (begin < 0)
+                                            begin = 0;
+                                        else if (begin >= Symbol.at((yyvsp[-6]).variableName).stringValue.length())
+                                            begin = Symbol.at((yyvsp[-6]).variableName).stringValue.length() - 1;
+                                    }
                                     else
                                     {
                                         yyerror("TypeError: slice indices must be integers or None");
@@ -1692,7 +1779,15 @@ yyreduce:
                                     if ((yyvsp[-2]).type == None) // 默认结束
                                         end = -1;
                                     else if ((yyvsp[-2]).type == Integer)
+                                    {
                                         end = (yyvsp[-2]).integerValue;
+                                        if (end < 0)
+                                            end += Symbol.at((yyvsp[-6]).variableName).stringValue.length();
+                                        if (end < 0)
+                                            end = -1;
+                                        else if (end >= Symbol.at((yyvsp[-6]).variableName).stringValue.length())
+                                            end = Symbol.at((yyvsp[-6]).variableName).stringValue.length();
+                                    }
                                     else
                                     {
                                         yyerror("TypeError: slice indices must be integers or None");
@@ -1712,7 +1807,16 @@ yyreduce:
                                     if ((yyvsp[-4]).type == None) // 默认起始
                                         (yyval).begin = Symbol.at((yyvsp[-6]).variableName).listValue.begin();
                                     else if ((yyvsp[-4]).type == Integer)
-                                        (yyval).begin = Symbol.at((yyvsp[-6]).variableName).listValue.begin() + (yyvsp[-4]).integerValue;
+                                    {
+                                        begin = (yyvsp[-4]).integerValue;
+                                        if (begin < 0)
+                                            begin += Symbol.at((yyvsp[-6]).variableName).listValue.size();
+                                        if (begin < 0)
+                                            begin = 0;
+                                        else if (begin > Symbol.at((yyvsp[-6]).variableName).listValue.size())
+                                            begin = Symbol.at((yyvsp[-6]).variableName).listValue.size();
+                                        (yyval).begin = Symbol.at((yyvsp[-6]).variableName).listValue.begin() + begin;
+                                    }
                                     else
                                     {
                                         yyerror("TypeError: slice indices must be integers or None");
@@ -1722,7 +1826,16 @@ yyreduce:
                                     if ((yyvsp[-2]).type == None) // 默认结束
                                         (yyval).end = Symbol.at((yyvsp[-6]).variableName).listValue.end();
                                     else if ((yyvsp[-2]).type == Integer)
-                                        (yyval).end = Symbol.at((yyvsp[-6]).variableName).listValue.begin() + (yyvsp[-2]).integerValue;
+                                    {
+                                        end = (yyvsp[-2]).integerValue;
+                                        if (end < 0)
+                                            end += Symbol.at((yyvsp[-6]).variableName).listValue.size();
+                                        if (end < 0)
+                                            end = 0;
+                                        else if (end > Symbol.at((yyvsp[-6]).variableName).listValue.size())
+                                            end = Symbol.at((yyvsp[-6]).variableName).listValue.size();
+                                        (yyval).end = Symbol.at((yyvsp[-6]).variableName).listValue.begin() + end;
+                                    }
                                     else
                                     {
                                         yyerror("TypeError: slice indices must be integers or None");
@@ -1738,7 +1851,16 @@ yyreduce:
                                     if ((yyvsp[-4]).type == None) // 默认起始
                                         (yyval).begin = Symbol.at((yyvsp[-6]).variableName).listValue.end() - 1;
                                     else if ((yyvsp[-4]).type == Integer)
-                                        (yyval).begin = Symbol.at((yyvsp[-6]).variableName).listValue.begin() + (yyvsp[-4]).integerValue;
+                                    {
+                                        begin = (yyvsp[-4]).integerValue;
+                                        if (begin < 0)
+                                            begin += Symbol.at((yyvsp[-6]).variableName).listValue.size();
+                                        if (begin < 0)
+                                            begin = 0;
+                                        else if (begin > Symbol.at((yyvsp[-6]).variableName).listValue.size())
+                                            begin = Symbol.at((yyvsp[-6]).variableName).listValue.size() - 1;
+                                        (yyval).begin = Symbol.at((yyvsp[-6]).variableName).listValue.begin() + begin;
+                                    }
                                     else
                                     {
                                         yyerror("TypeError: slice indices must be integers or None");
@@ -1748,7 +1870,16 @@ yyreduce:
                                     if ((yyvsp[-2]).type == None) // 默认结束
                                         (yyval).end = Symbol.at((yyvsp[-6]).variableName).listValue.begin() - 1;
                                     else if ((yyvsp[-2]).type == Integer)
-                                        (yyval).end = Symbol.at((yyvsp[-6]).variableName).listValue.begin() + (yyvsp[-2]).integerValue;
+                                    {
+                                        end = (yyvsp[-2]).integerValue;
+                                        if (end < 0)
+                                            end += Symbol.at((yyvsp[-6]).variableName).listValue.size();
+                                        if (end < 0)
+                                            end = -1;
+                                        else if (end > Symbol.at((yyvsp[-6]).variableName).listValue.size())
+                                            end = Symbol.at((yyvsp[-6]).variableName).listValue.size();
+                                        (yyval).end = Symbol.at((yyvsp[-6]).variableName).listValue.begin() + end;
+                                    }
                                     else
                                     {
                                         yyerror("TypeError: slice indices must be integers or None");
@@ -1775,11 +1906,11 @@ yyreduce:
                     YYERROR;
             }
         }
-#line 1779 "y.tab.c" /* yacc.c:1646  */
+#line 1910 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 27:
-#line 531 "minipy-lab.y" /* yacc.c:1646  */
+#line 662 "minipy-lab.y" /* yacc.c:1646  */
     {
             if ((yyvsp[-1]).type == Integer)
             {
@@ -1869,22 +2000,22 @@ yyreduce:
                 YYERROR;
             }
         }
-#line 1873 "y.tab.c" /* yacc.c:1646  */
+#line 2004 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 28:
-#line 621 "minipy-lab.y" /* yacc.c:1646  */
+#line 752 "minipy-lab.y" /* yacc.c:1646  */
     {
             (yyval).type = (yyvsp[-2]).type;
 
             (yyval).variableName = (yyvsp[-2]).variableName; // 变量名
             (yyval).attributeName = (yyvsp[0]).variableName; // 属性或方法名
         }
-#line 1884 "y.tab.c" /* yacc.c:1646  */
+#line 2015 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 29:
-#line 628 "minipy-lab.y" /* yacc.c:1646  */
+#line 759 "minipy-lab.y" /* yacc.c:1646  */
     {
             if ((yyvsp[-4]).attributeName == "append") // append方法
             {
@@ -2716,11 +2847,11 @@ yyreduce:
             }
 
         }
-#line 2720 "y.tab.c" /* yacc.c:1646  */
+#line 2851 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 30:
-#line 1460 "minipy-lab.y" /* yacc.c:1646  */
+#line 1591 "minipy-lab.y" /* yacc.c:1646  */
     {
             if ((yyvsp[-2]).variableName == "quit") // quit函数
                 exit(0);
@@ -2988,67 +3119,67 @@ yyreduce:
                 YYERROR;
             }
         }
-#line 2992 "y.tab.c" /* yacc.c:1646  */
+#line 3123 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 31:
-#line 1731 "minipy-lab.y" /* yacc.c:1646  */
+#line 1862 "minipy-lab.y" /* yacc.c:1646  */
     {
         (yyval).type = List;
         (yyval).listValue = vector<struct value>(1, (yyvsp[0])); // 用列表“框柱”参数
     }
-#line 3001 "y.tab.c" /* yacc.c:1646  */
+#line 3132 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 32:
-#line 1736 "minipy-lab.y" /* yacc.c:1646  */
+#line 1867 "minipy-lab.y" /* yacc.c:1646  */
     {
         (yyval).type = List;
         (yyvsp[-2]).listValue.push_back((yyvsp[0]));
         (yyval).listValue = vector<struct value>((yyvsp[-2]).listValue);
     }
-#line 3011 "y.tab.c" /* yacc.c:1646  */
+#line 3142 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 33:
-#line 1745 "minipy-lab.y" /* yacc.c:1646  */
+#line 1876 "minipy-lab.y" /* yacc.c:1646  */
     {
         (yyval).type = List;
         (yyval).listValue = vector<struct value>();
     }
-#line 3020 "y.tab.c" /* yacc.c:1646  */
+#line 3151 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 34:
-#line 1750 "minipy-lab.y" /* yacc.c:1646  */
+#line 1881 "minipy-lab.y" /* yacc.c:1646  */
     {
         (yyval).type = List;
         (yyval).listValue = vector<struct value>((yyvsp[-2]).listValue);
     }
-#line 3029 "y.tab.c" /* yacc.c:1646  */
+#line 3160 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 37:
-#line 1763 "minipy-lab.y" /* yacc.c:1646  */
+#line 1894 "minipy-lab.y" /* yacc.c:1646  */
     {
         (yyval).type = List;
         (yyval).listValue = vector<struct value>(1, (yyvsp[0])); // 用列表“框柱”变量
     }
-#line 3038 "y.tab.c" /* yacc.c:1646  */
+#line 3169 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 38:
-#line 1768 "minipy-lab.y" /* yacc.c:1646  */
+#line 1899 "minipy-lab.y" /* yacc.c:1646  */
     {
         (yyval).type = List;
         (yyvsp[-2]).listValue.push_back((yyvsp[0]));
         (yyval).listValue = vector<struct value>((yyvsp[-2]).listValue);
     }
-#line 3048 "y.tab.c" /* yacc.c:1646  */
+#line 3179 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 39:
-#line 1777 "minipy-lab.y" /* yacc.c:1646  */
+#line 1908 "minipy-lab.y" /* yacc.c:1646  */
     {
             switch((yyvsp[-2]).type)
             {
@@ -3140,11 +3271,11 @@ yyreduce:
                     YYERROR;
             }
         }
-#line 3144 "y.tab.c" /* yacc.c:1646  */
+#line 3275 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 40:
-#line 1869 "minipy-lab.y" /* yacc.c:1646  */
+#line 2000 "minipy-lab.y" /* yacc.c:1646  */
     {
             switch((yyvsp[-2]).type)
             {
@@ -3187,11 +3318,11 @@ yyreduce:
                     YYERROR;
             }
         }
-#line 3191 "y.tab.c" /* yacc.c:1646  */
+#line 3322 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 42:
-#line 1916 "minipy-lab.y" /* yacc.c:1646  */
+#line 2047 "minipy-lab.y" /* yacc.c:1646  */
     {
             switch((yyvsp[-2]).type)
             {
@@ -3272,11 +3403,11 @@ yyreduce:
                     YYERROR;
             }
         }
-#line 3276 "y.tab.c" /* yacc.c:1646  */
+#line 3407 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 43:
-#line 1997 "minipy-lab.y" /* yacc.c:1646  */
+#line 2128 "minipy-lab.y" /* yacc.c:1646  */
     {
             (yyval).type = Real;
             if (((yyvsp[-2]).type == Integer || (yyvsp[-2]).type == Real) && ((yyvsp[0]).type == Integer || (yyvsp[0]).type == Real))
@@ -3293,11 +3424,11 @@ yyreduce:
                 YYERROR;
             }
         }
-#line 3297 "y.tab.c" /* yacc.c:1646  */
+#line 3428 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 44:
-#line 2014 "minipy-lab.y" /* yacc.c:1646  */
+#line 2145 "minipy-lab.y" /* yacc.c:1646  */
     {
             // 整除
             (yyval).type = Integer;
@@ -3316,11 +3447,11 @@ yyreduce:
             }
 
         }
-#line 3320 "y.tab.c" /* yacc.c:1646  */
+#line 3451 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 45:
-#line 2033 "minipy-lab.y" /* yacc.c:1646  */
+#line 2164 "minipy-lab.y" /* yacc.c:1646  */
     {
             if (((yyvsp[-2]).type == Integer || (yyvsp[-2]).type == Real) && ((yyvsp[0]).type == Integer || (yyvsp[0]).type == Real))
             {
@@ -3350,23 +3481,23 @@ yyreduce:
                 YYERROR;
             }
         }
-#line 3354 "y.tab.c" /* yacc.c:1646  */
+#line 3485 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 46:
-#line 2062 "minipy-lab.y" /* yacc.c:1646  */
+#line 2193 "minipy-lab.y" /* yacc.c:1646  */
     { (yyval) = (yyvsp[-1]); }
-#line 3360 "y.tab.c" /* yacc.c:1646  */
+#line 3491 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 47:
-#line 2063 "minipy-lab.y" /* yacc.c:1646  */
+#line 2194 "minipy-lab.y" /* yacc.c:1646  */
     { (yyval) = (yyvsp[-1]); }
-#line 3366 "y.tab.c" /* yacc.c:1646  */
+#line 3497 "y.tab.c" /* yacc.c:1646  */
     break;
 
 
-#line 3370 "y.tab.c" /* yacc.c:1646  */
+#line 3501 "y.tab.c" /* yacc.c:1646  */
       default: break;
     }
   /* User semantic actions sometimes alter yychar, and that requires
@@ -3594,7 +3725,7 @@ yyreturn:
 #endif
   return yyresult;
 }
-#line 2067 "minipy-lab.y" /* yacc.c:1906  */
+#line 2198 "minipy-lab.y" /* yacc.c:1906  */
 
 
 int main()

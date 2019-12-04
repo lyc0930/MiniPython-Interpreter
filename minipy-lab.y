@@ -296,7 +296,15 @@ atom_expr:
                         if ($3.type == None) // 默认起始
                             begin = 0;
                         else if ($3.type == Integer)
+                        {
                             begin = $3.integerValue;
+                            if (begin < 0)
+                                begin += $1.stringValue.length();
+                            if (begin < 0)
+                                begin = 0;
+                            else if (begin >= $1.stringValue.length())
+                                begin = $1.stringValue.length();
+                        }
                         else
                         {
                             yyerror("TypeError: slice indices must be integers or None");
@@ -306,13 +314,20 @@ atom_expr:
                         if ($5.type == None) // 默认结束
                             end = $1.stringValue.length();
                         else if ($5.type == Integer)
+                        {
                             end = $5.integerValue;
+                            if (end < 0)
+                                end += $1.stringValue.length();
+                            if (end < 0)
+                                end = 0;
+                            else if (end >= $1.stringValue.length())
+                                end = $1.stringValue.length();
+                        }
                         else
                         {
                             yyerror("TypeError: slice indices must be integers or None");
                             YYERROR;
                         }
-
                         for (int i = begin; i < end; i += step)
                             $$.stringValue += $1.stringValue[i]; // 逐个取子串
                     }
@@ -321,7 +336,15 @@ atom_expr:
                         if ($3.type == None) // 默认起始
                             begin = $1.stringValue.length() - 1;
                         else if ($3.type == Integer)
+                        {
                             begin = $3.integerValue;
+                            if (begin < 0)
+                                begin += $1.stringValue.length();
+                            if (begin < 0)
+                                begin = 0;
+                            else if (begin >= $1.stringValue.length())
+                                begin = $1.stringValue.length() - 1;
+                        }
                         else
                         {
                             yyerror("TypeError: slice indices must be integers or None");
@@ -331,7 +354,15 @@ atom_expr:
                         if ($5.type == None) // 默认结束
                             end = -1;
                         else if ($5.type == Integer)
+                        {
                             end = $5.integerValue;
+                            if (end < 0)
+                                end += $1.stringValue.length();
+                            if (end < 0)
+                                end = -1;
+                            else if (end >= $1.stringValue.length())
+                                end = $1.stringValue.length();
+                        }
                         else
                         {
                             yyerror("TypeError: slice indices must be integers or None");
@@ -350,7 +381,15 @@ atom_expr:
                         if ($3.type == None) // 默认起始
                             begin = 0;
                         else if ($3.type == Integer)
+                        {
                             begin = $3.integerValue;
+                            if (begin < 0)
+                                begin += $1.listValue.size();
+                            if (begin < 0)
+                                begin = 0;
+                            else if (begin >= $1.listValue.size())
+                                begin = $1.listValue.size();
+                        }
                         else
                         {
                             yyerror("TypeError: slice indices must be integers or None");
@@ -360,7 +399,15 @@ atom_expr:
                         if ($5.type == None) // 默认结束
                             end = $1.listValue.size();
                         else if ($5.type == Integer)
+                        {
                             end = $5.integerValue;
+                            if (end < 0)
+                                end += $1.listValue.size();
+                            if (end < 0)
+                                end = 0;
+                            else if (end >= $1.listValue.size())
+                                end = $1.listValue.size();
+                        }
                         else
                         {
                             yyerror("TypeError: slice indices must be integers or None");
@@ -375,7 +422,15 @@ atom_expr:
                         if ($3.type == None) // 默认起始
                             begin = $1.listValue.size() - 1;
                         else if ($3.type == Integer)
+                        {
                             begin = $3.integerValue;
+                            if (begin < 0)
+                                begin += $1.listValue.size();
+                            if (begin < 0)
+                                begin = 0;
+                            else if (begin >= $1.listValue.size())
+                                begin = $1.listValue.size() - 1;
+                        }
                         else
                         {
                             yyerror("TypeError: slice indices must be integers or None");
@@ -385,7 +440,15 @@ atom_expr:
                         if ($5.type == None) // 默认结束
                             end = -1;
                         else if ($5.type == Integer)
+                        {
                             end = $5.integerValue;
+                            if (end < 0)
+                                end += $1.listValue.size();
+                            if (end < 0)
+                                end = -1;
+                            else if (end >= $1.listValue.size())
+                                end = $1.listValue.size();
+                        }
                         else
                         {
                             yyerror("TypeError: slice indices must be integers or None");
@@ -410,7 +473,15 @@ atom_expr:
                                     if ($3.type == None) // 默认起始
                                         begin = 0;
                                     else if ($3.type == Integer)
+                                    {
                                         begin = $3.integerValue;
+                                        if (begin < 0)
+                                            begin += Symbol.at($1.variableName).stringValue.length();
+                                        if (begin < 0)
+                                            begin = 0;
+                                        else if (begin >= Symbol.at($1.variableName).stringValue.length())
+                                            begin = Symbol.at($1.variableName).stringValue.length();
+                                    }
                                     else
                                     {
                                         yyerror("TypeError: slice indices must be integers or None");
@@ -420,7 +491,15 @@ atom_expr:
                                     if ($5.type == None) // 默认结束
                                         end = Symbol.at($1.variableName).stringValue.length();
                                     else if ($5.type == Integer)
+                                    {
                                         end = $5.integerValue;
+                                        if (end < 0)
+                                            end += Symbol.at($1.variableName).stringValue.length();
+                                        if (end < 0)
+                                            end = 0;
+                                        else if (end >= Symbol.at($1.variableName).stringValue.length())
+                                            end = Symbol.at($1.variableName).stringValue.length();
+                                    }
                                     else
                                     {
                                         yyerror("TypeError: slice indices must be integers or None");
@@ -434,7 +513,15 @@ atom_expr:
                                     if ($3.type == None) // 默认起始
                                         begin = Symbol.at($1.variableName).stringValue.length() - 1;
                                     else if ($3.type == Integer)
+                                    {
                                         begin = $3.integerValue;
+                                        if (begin < 0)
+                                            begin += Symbol.at($1.variableName).stringValue.length();
+                                        if (begin < 0)
+                                            begin = 0;
+                                        else if (begin >= Symbol.at($1.variableName).stringValue.length())
+                                            begin = Symbol.at($1.variableName).stringValue.length() - 1;
+                                    }
                                     else
                                     {
                                         yyerror("TypeError: slice indices must be integers or None");
@@ -444,7 +531,15 @@ atom_expr:
                                     if ($5.type == None) // 默认结束
                                         end = -1;
                                     else if ($5.type == Integer)
+                                    {
                                         end = $5.integerValue;
+                                        if (end < 0)
+                                            end += Symbol.at($1.variableName).stringValue.length();
+                                        if (end < 0)
+                                            end = -1;
+                                        else if (end >= Symbol.at($1.variableName).stringValue.length())
+                                            end = Symbol.at($1.variableName).stringValue.length();
+                                    }
                                     else
                                     {
                                         yyerror("TypeError: slice indices must be integers or None");
@@ -464,7 +559,16 @@ atom_expr:
                                     if ($3.type == None) // 默认起始
                                         $$.begin = Symbol.at($1.variableName).listValue.begin();
                                     else if ($3.type == Integer)
-                                        $$.begin = Symbol.at($1.variableName).listValue.begin() + $3.integerValue;
+                                    {
+                                        begin = $3.integerValue;
+                                        if (begin < 0)
+                                            begin += Symbol.at($1.variableName).listValue.size();
+                                        if (begin < 0)
+                                            begin = 0;
+                                        else if (begin > Symbol.at($1.variableName).listValue.size())
+                                            begin = Symbol.at($1.variableName).listValue.size();
+                                        $$.begin = Symbol.at($1.variableName).listValue.begin() + begin;
+                                    }
                                     else
                                     {
                                         yyerror("TypeError: slice indices must be integers or None");
@@ -474,7 +578,16 @@ atom_expr:
                                     if ($5.type == None) // 默认结束
                                         $$.end = Symbol.at($1.variableName).listValue.end();
                                     else if ($5.type == Integer)
-                                        $$.end = Symbol.at($1.variableName).listValue.begin() + $5.integerValue;
+                                    {
+                                        end = $5.integerValue;
+                                        if (end < 0)
+                                            end += Symbol.at($1.variableName).listValue.size();
+                                        if (end < 0)
+                                            end = 0;
+                                        else if (end > Symbol.at($1.variableName).listValue.size())
+                                            end = Symbol.at($1.variableName).listValue.size();
+                                        $$.end = Symbol.at($1.variableName).listValue.begin() + end;
+                                    }
                                     else
                                     {
                                         yyerror("TypeError: slice indices must be integers or None");
@@ -490,7 +603,16 @@ atom_expr:
                                     if ($3.type == None) // 默认起始
                                         $$.begin = Symbol.at($1.variableName).listValue.end() - 1;
                                     else if ($3.type == Integer)
-                                        $$.begin = Symbol.at($1.variableName).listValue.begin() + $3.integerValue;
+                                    {
+                                        begin = $3.integerValue;
+                                        if (begin < 0)
+                                            begin += Symbol.at($1.variableName).listValue.size();
+                                        if (begin < 0)
+                                            begin = 0;
+                                        else if (begin > Symbol.at($1.variableName).listValue.size())
+                                            begin = Symbol.at($1.variableName).listValue.size() - 1;
+                                        $$.begin = Symbol.at($1.variableName).listValue.begin() + begin;
+                                    }
                                     else
                                     {
                                         yyerror("TypeError: slice indices must be integers or None");
@@ -500,7 +622,16 @@ atom_expr:
                                     if ($5.type == None) // 默认结束
                                         $$.end = Symbol.at($1.variableName).listValue.begin() - 1;
                                     else if ($5.type == Integer)
-                                        $$.end = Symbol.at($1.variableName).listValue.begin() + $5.integerValue;
+                                    {
+                                        end = $5.integerValue;
+                                        if (end < 0)
+                                            end += Symbol.at($1.variableName).listValue.size();
+                                        if (end < 0)
+                                            end = -1;
+                                        else if (end > Symbol.at($1.variableName).listValue.size())
+                                            end = Symbol.at($1.variableName).listValue.size();
+                                        $$.end = Symbol.at($1.variableName).listValue.begin() + end;
+                                    }
                                     else
                                     {
                                         yyerror("TypeError: slice indices must be integers or None");
