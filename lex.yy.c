@@ -360,11 +360,11 @@ struct yy_trans_info
 	flex_int32_t yy_verify;
 	flex_int32_t yy_nxt;
 	};
-static const flex_int16_t yy_accept[22] =
+static const flex_int16_t yy_accept[25] =
     {   0,
-        0,    0,    9,    6,    1,    6,    6,    6,    2,    4,
-        1,    0,    5,    0,    3,    7,    3,    2,    4,    3,
-        0
+        0,    0,    9,    6,    1,    6,    6,    6,    6,    2,
+        4,    1,    0,    5,    0,    0,    0,    3,    7,    3,
+        2,    4,    3,    0
     } ;
 
 static const YY_CHAR yy_ec[256] =
@@ -372,17 +372,17 @@ static const YY_CHAR yy_ec[256] =
         1,    1,    1,    1,    1,    1,    1,    1,    2,    3,
         1,    1,    1,    1,    1,    1,    1,    1,    1,    1,
         1,    1,    1,    1,    1,    1,    1,    1,    1,    1,
-        1,    2,    1,    4,    1,    1,    1,    1,    1,    1,
-        1,    1,    1,    1,    1,    5,    6,    7,    7,    7,
-        7,    7,    7,    7,    7,    7,    7,    1,    1,    1,
-        1,    1,    1,    1,    8,    8,    8,    8,    8,    8,
-        8,    8,    8,    8,    8,    8,    8,    8,    8,    8,
-        8,    8,    8,    8,    8,    8,    8,    8,    8,    8,
-        1,    9,    1,    1,    1,    1,    8,    8,    8,    8,
+        1,    2,    1,    4,    1,    1,    1,    1,    5,    1,
+        1,    1,    1,    1,    1,    6,    7,    8,    8,    8,
+        8,    8,    8,    8,    8,    8,    8,    1,    1,    1,
+        1,    1,    1,    1,    9,    9,    9,    9,    9,    9,
+        9,    9,    9,    9,    9,    9,    9,    9,    9,    9,
+        9,    9,    9,    9,    9,    9,    9,    9,    9,    9,
+        1,   10,    1,    1,    1,    1,    9,    9,    9,    9,
 
-        8,    8,    8,    8,    8,    8,    8,    8,    8,    8,
-        8,    8,    8,    8,    8,    8,    8,    8,    8,    8,
-        8,    8,    1,    1,    1,    1,    1,    1,    1,    1,
+        9,    9,    9,    9,    9,    9,    9,    9,    9,    9,
+        9,    9,    9,    9,    9,    9,    9,    9,    9,    9,
+        9,    9,    1,    1,    1,    1,    1,    1,    1,    1,
         1,    1,    1,    1,    1,    1,    1,    1,    1,    1,
         1,    1,    1,    1,    1,    1,    1,    1,    1,    1,
         1,    1,    1,    1,    1,    1,    1,    1,    1,    1,
@@ -399,39 +399,43 @@ static const YY_CHAR yy_ec[256] =
         1,    1,    1,    1,    1
     } ;
 
-static const YY_CHAR yy_meta[10] =
+static const YY_CHAR yy_meta[11] =
     {   0,
-        1,    1,    1,    1,    1,    1,    1,    1,    1
+        1,    1,    1,    1,    1,    1,    1,    1,    1,    1
     } ;
 
-static const flex_int16_t yy_base[23] =
+static const flex_int16_t yy_base[27] =
     {   0,
-        0,    0,   27,   28,   23,    6,   17,   17,   11,   12,
-       20,   17,   28,   14,    7,   28,    6,    0,    0,    5,
-       28,   10
+        0,    0,   31,   42,   28,    7,   13,   17,   15,   18,
+       19,   19,   25,   42,   17,   31,   16,    8,   42,    7,
+        0,    0,    6,   42,   12,   11
     } ;
 
-static const flex_int16_t yy_def[23] =
+static const flex_int16_t yy_def[27] =
     {   0,
-       21,    1,   21,   21,   21,   22,   21,   21,   21,   21,
-       21,   22,   21,   22,   21,   21,   21,    9,   10,   21,
-        0,   21
+       24,    1,   24,   24,   24,   25,   26,   24,   24,   24,
+       24,   24,   25,   24,   25,   26,   26,   24,   24,   24,
+       10,   11,   24,    0,   24,   24
     } ;
 
-static const flex_int16_t yy_nxt[38] =
+static const flex_int16_t yy_nxt[53] =
     {   0,
-        4,    5,    4,    6,    7,    8,    9,   10,    4,   13,
-       12,   20,   20,   15,   14,   17,   21,   18,   19,   19,
-       13,   11,   16,   15,   11,   14,   21,    3,   21,   21,
-       21,   21,   21,   21,   21,   21,   21
+        4,    5,    4,    6,    7,    8,    9,   10,   11,    4,
+       14,   16,   13,   23,   23,   18,   15,   14,   24,   24,
+       12,   19,   17,   20,   18,   21,   22,   22,   14,   12,
+       24,   24,   24,   24,   15,   14,   24,   24,   24,   24,
+       17,    3,   24,   24,   24,   24,   24,   24,   24,   24,
+       24,   24
     } ;
 
-static const flex_int16_t yy_chk[38] =
+static const flex_int16_t yy_chk[53] =
     {   0,
-        1,    1,    1,    1,    1,    1,    1,    1,    1,    6,
-       22,   20,   17,   15,    6,    9,   14,    9,   10,   10,
-       12,   11,    8,    7,    5,   12,    3,   21,   21,   21,
-       21,   21,   21,   21,   21,   21,   21
+        1,    1,    1,    1,    1,    1,    1,    1,    1,    1,
+        6,   26,   25,   23,   20,   18,    6,    7,   17,   15,
+       12,    9,    7,   10,    8,   10,   11,   11,   13,    5,
+        3,    0,    0,    0,   13,   16,    0,    0,    0,    0,
+       16,   24,   24,   24,   24,   24,   24,   24,   24,   24,
+       24,   24
     } ;
 
 static yy_state_type yy_last_accepting_state;
@@ -459,8 +463,8 @@ using namespace std;
 #include "y.tab.h"
 
 /*  any C declaration  */
-#line 463 "lex.yy.c"
-#line 464 "lex.yy.c"
+#line 467 "lex.yy.c"
+#line 468 "lex.yy.c"
 
 #define INITIAL 0
 
@@ -679,7 +683,7 @@ YY_DECL
 	{
 #line 23 "minipy-lab.l"
 
-#line 683 "lex.yy.c"
+#line 687 "lex.yy.c"
 
 	while ( /*CONSTCOND*/1 )		/* loops until end-of-file is reached */
 		{
@@ -706,13 +710,13 @@ yy_match:
 			while ( yy_chk[yy_base[yy_current_state] + yy_c] != yy_current_state )
 				{
 				yy_current_state = (int) yy_def[yy_current_state];
-				if ( yy_current_state >= 22 )
+				if ( yy_current_state >= 25 )
 					yy_c = yy_meta[yy_c];
 				}
 			yy_current_state = yy_nxt[yy_base[yy_current_state] + yy_c];
 			++yy_cp;
 			}
-		while ( yy_base[yy_current_state] != 28 );
+		while ( yy_base[yy_current_state] != 42 );
 
 yy_find_action:
 		yy_act = yy_accept[yy_current_state];
@@ -745,63 +749,63 @@ case 2:
 YY_RULE_SETUP
 #line 25 "minipy-lab.l"
 {
-                        yylval.type = Integer;
-                        yylval.integerValue = atoi( yytext );
-	                    return INT;
-                    }
+                                            yylval.type = Integer;
+                                            yylval.integerValue = atoi( yytext );
+	                                        return INT;
+                                        }
 	YY_BREAK
 case 3:
 YY_RULE_SETUP
 #line 30 "minipy-lab.l"
 {
-                        yylval.type = Real;
-                        yylval.realValue = atof( yytext );
-                        return REAL;
-                    }
+                                            yylval.type = Real;
+                                            yylval.realValue = atof( yytext );
+                                            return REAL;
+                                        }
 	YY_BREAK
 case 4:
 YY_RULE_SETUP
 #line 35 "minipy-lab.l"
 {
-                        yylval.type = Variable;
-                        yylval.variableName.assign(yytext);
-                        return ID;
-                    }
+                                            yylval.type = Variable;
+                                            yylval.variableName.assign(yytext);
+                                            return ID;
+                                        }
 	YY_BREAK
 case 5:
 /* rule 5 can match eol */
 YY_RULE_SETUP
 #line 40 "minipy-lab.l"
 {
-                        yylval.type = String;
-                        string temp;
-                        temp.assign(yytext);
-                        yylval.stringValue = temp.substr(1, temp.length() - 2); /* 删除“” */
-                        return STRING_LITERAL;
-                    }
+                                            yylval.type = String;
+                                            string temp;
+                                            temp.assign(yytext);
+                                            yylval.stringValue = temp.substr(1, temp.length() - 2); /* 删除“” */
+                                            return STRING_LITERAL;
+                                        }
 	YY_BREAK
 case 6:
 /* rule 6 can match eol */
 YY_RULE_SETUP
 #line 47 "minipy-lab.l"
 {
-                        yylval.type = Integer;
-                        return yylval.integerValue = yytext[0];
-                    }
+                                            yylval.type = Integer;
+                                            return yylval.integerValue = yytext[0];
+                                        }
 	YY_BREAK
 case 7:
 YY_RULE_SETUP
 #line 51 "minipy-lab.l"
 {
-                        return DIV;
-                    }
+                                            return DIV;
+                                        }
 	YY_BREAK
 case 8:
 YY_RULE_SETUP
 #line 54 "minipy-lab.l"
 ECHO;
 	YY_BREAK
-#line 805 "lex.yy.c"
+#line 809 "lex.yy.c"
 case YY_STATE_EOF(INITIAL):
 	yyterminate();
 
@@ -1098,7 +1102,7 @@ static int yy_get_next_buffer (void)
 		while ( yy_chk[yy_base[yy_current_state] + yy_c] != yy_current_state )
 			{
 			yy_current_state = (int) yy_def[yy_current_state];
-			if ( yy_current_state >= 22 )
+			if ( yy_current_state >= 25 )
 				yy_c = yy_meta[yy_c];
 			}
 		yy_current_state = yy_nxt[yy_base[yy_current_state] + yy_c];
@@ -1126,11 +1130,11 @@ static int yy_get_next_buffer (void)
 	while ( yy_chk[yy_base[yy_current_state] + yy_c] != yy_current_state )
 		{
 		yy_current_state = (int) yy_def[yy_current_state];
-		if ( yy_current_state >= 22 )
+		if ( yy_current_state >= 25 )
 			yy_c = yy_meta[yy_c];
 		}
 	yy_current_state = yy_nxt[yy_base[yy_current_state] + yy_c];
-	yy_is_jam = (yy_current_state == 21);
+	yy_is_jam = (yy_current_state == 24);
 
 		return yy_is_jam ? 0 : yy_current_state;
 }

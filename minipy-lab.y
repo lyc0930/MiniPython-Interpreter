@@ -8,28 +8,63 @@
     #include <map>
     #include <string>
     #include <vector>
+    #include <algorithm>
     #include "minipy-lab.h"
     using namespace std;
+    /*
+        符号表 Symbol Table
+        variableName(string) -> Value(not Variable)
+    */
+    map<string, struct value> Symbol;
     typedef struct value
     {
         Type type;
         int integerValue;               /* value for int type */
         double realValue;               /* value for real type */
-        string stringValue;             /* value for string type 或 方法 函数名称*/
+        string stringValue;             /* value for string type */
         vector<struct value> listValue; /* value for list type */
         string variableName;            /* name of the Variable */
+        string attributeName;           /* name of the attribute */
 
         // slice or item of List
         vector<struct value>::iterator begin; // slice 起始位置 或 item 坐标
         vector<struct value>::iterator end;
         int step;
+
+        // Overload the operator
+        bool operator==(const value that) const
+        {
+            struct value A, B;
+            if (this->type == Variable)
+                A = Symbol.at(this->variableName);
+            else if (this->type == ListItem)
+                A = *(this->begin);
+            else
+                A = *this;
+            if (that.type == Variable)
+                B = Symbol.at(that.variableName);
+            else if (that.type == ListItem)
+                B = *(that.begin);
+            else
+                B = that;
+            switch (A.type)
+            {
+                case Integer:
+                    return (A.type == B.type && A.integerValue == B.integerValue);
+                case Real:
+                    return (A.type == B.type && A.realValue == B.realValue);
+                case String:
+                    return (A.type == B.type && A.stringValue == B.stringValue);
+                case List:
+                case ListSlice:
+                    return ((B.type == List || B.type == ListSlice) && (A.listValue == B.listValue));
+                default:
+                    return false;
+            }
+        }
     } Value;
 
-    /*
-        符号表 Symbol Table
-        variableName(string) -> Value(not Variable)
-    */
-    map<string, Value> Symbol;
+
 
     #define YYSTYPE Value
     #include "lex.yy.c"
@@ -40,6 +75,9 @@
 
     // 返回变量类型的字符串
     string TypeString(Value);
+
+    // 返回可迭代实体的长度
+    int Length(Value);
 %}
 
 %token ID INT REAL STRING_LITERAL
@@ -69,8 +107,7 @@ Lines:
     prompt |
     Lines '\n' prompt |
     /*  empty production */ |
-    error '\n'
-        { yyerrok; }
+    error '\n' { yyerrok; }
 ;
 
 prompt:
@@ -259,7 +296,15 @@ atom_expr:
                         if ($3.type == None) // 默认起始
                             begin = 0;
                         else if ($3.type == Integer)
+                        {
                             begin = $3.integerValue;
+                            if (begin < 0)
+                                begin += $1.stringValue.length();
+                            if (begin < 0)
+                                begin = 0;
+                            else if (begin >= $1.stringValue.length())
+                                begin = $1.stringValue.length();
+                        }
                         else
                         {
                             yyerror("TypeError: slice indices must be integers or None");
@@ -269,13 +314,20 @@ atom_expr:
                         if ($5.type == None) // 默认结束
                             end = $1.stringValue.length();
                         else if ($5.type == Integer)
+                        {
                             end = $5.integerValue;
+                            if (end < 0)
+                                end += $1.stringValue.length();
+                            if (end < 0)
+                                end = 0;
+                            else if (end >= $1.stringValue.length())
+                                end = $1.stringValue.length();
+                        }
                         else
                         {
                             yyerror("TypeError: slice indices must be integers or None");
                             YYERROR;
                         }
-
                         for (int i = begin; i < end; i += step)
                             $$.stringValue += $1.stringValue[i]; // 逐个取子串
                     }
@@ -284,7 +336,15 @@ atom_expr:
                         if ($3.type == None) // 默认起始
                             begin = $1.stringValue.length() - 1;
                         else if ($3.type == Integer)
+                        {
                             begin = $3.integerValue;
+                            if (begin < 0)
+                                begin += $1.stringValue.length();
+                            if (begin < 0)
+                                begin = 0;
+                            else if (begin >= $1.stringValue.length())
+                                begin = $1.stringValue.length() - 1;
+                        }
                         else
                         {
                             yyerror("TypeError: slice indices must be integers or None");
@@ -294,7 +354,15 @@ atom_expr:
                         if ($5.type == None) // 默认结束
                             end = -1;
                         else if ($5.type == Integer)
+                        {
                             end = $5.integerValue;
+                            if (end < 0)
+                                end += $1.stringValue.length();
+                            if (end < 0)
+                                end = -1;
+                            else if (end >= $1.stringValue.length())
+                                end = $1.stringValue.length();
+                        }
                         else
                         {
                             yyerror("TypeError: slice indices must be integers or None");
@@ -313,7 +381,15 @@ atom_expr:
                         if ($3.type == None) // 默认起始
                             begin = 0;
                         else if ($3.type == Integer)
+                        {
                             begin = $3.integerValue;
+                            if (begin < 0)
+                                begin += $1.listValue.size();
+                            if (begin < 0)
+                                begin = 0;
+                            else if (begin >= $1.listValue.size())
+                                begin = $1.listValue.size();
+                        }
                         else
                         {
                             yyerror("TypeError: slice indices must be integers or None");
@@ -323,7 +399,15 @@ atom_expr:
                         if ($5.type == None) // 默认结束
                             end = $1.listValue.size();
                         else if ($5.type == Integer)
+                        {
                             end = $5.integerValue;
+                            if (end < 0)
+                                end += $1.listValue.size();
+                            if (end < 0)
+                                end = 0;
+                            else if (end >= $1.listValue.size())
+                                end = $1.listValue.size();
+                        }
                         else
                         {
                             yyerror("TypeError: slice indices must be integers or None");
@@ -338,7 +422,15 @@ atom_expr:
                         if ($3.type == None) // 默认起始
                             begin = $1.listValue.size() - 1;
                         else if ($3.type == Integer)
+                        {
                             begin = $3.integerValue;
+                            if (begin < 0)
+                                begin += $1.listValue.size();
+                            if (begin < 0)
+                                begin = 0;
+                            else if (begin >= $1.listValue.size())
+                                begin = $1.listValue.size() - 1;
+                        }
                         else
                         {
                             yyerror("TypeError: slice indices must be integers or None");
@@ -348,7 +440,15 @@ atom_expr:
                         if ($5.type == None) // 默认结束
                             end = -1;
                         else if ($5.type == Integer)
+                        {
                             end = $5.integerValue;
+                            if (end < 0)
+                                end += $1.listValue.size();
+                            if (end < 0)
+                                end = -1;
+                            else if (end >= $1.listValue.size())
+                                end = $1.listValue.size();
+                        }
                         else
                         {
                             yyerror("TypeError: slice indices must be integers or None");
@@ -373,7 +473,15 @@ atom_expr:
                                     if ($3.type == None) // 默认起始
                                         begin = 0;
                                     else if ($3.type == Integer)
+                                    {
                                         begin = $3.integerValue;
+                                        if (begin < 0)
+                                            begin += Symbol.at($1.variableName).stringValue.length();
+                                        if (begin < 0)
+                                            begin = 0;
+                                        else if (begin >= Symbol.at($1.variableName).stringValue.length())
+                                            begin = Symbol.at($1.variableName).stringValue.length();
+                                    }
                                     else
                                     {
                                         yyerror("TypeError: slice indices must be integers or None");
@@ -383,7 +491,15 @@ atom_expr:
                                     if ($5.type == None) // 默认结束
                                         end = Symbol.at($1.variableName).stringValue.length();
                                     else if ($5.type == Integer)
+                                    {
                                         end = $5.integerValue;
+                                        if (end < 0)
+                                            end += Symbol.at($1.variableName).stringValue.length();
+                                        if (end < 0)
+                                            end = 0;
+                                        else if (end >= Symbol.at($1.variableName).stringValue.length())
+                                            end = Symbol.at($1.variableName).stringValue.length();
+                                    }
                                     else
                                     {
                                         yyerror("TypeError: slice indices must be integers or None");
@@ -397,7 +513,15 @@ atom_expr:
                                     if ($3.type == None) // 默认起始
                                         begin = Symbol.at($1.variableName).stringValue.length() - 1;
                                     else if ($3.type == Integer)
+                                    {
                                         begin = $3.integerValue;
+                                        if (begin < 0)
+                                            begin += Symbol.at($1.variableName).stringValue.length();
+                                        if (begin < 0)
+                                            begin = 0;
+                                        else if (begin >= Symbol.at($1.variableName).stringValue.length())
+                                            begin = Symbol.at($1.variableName).stringValue.length() - 1;
+                                    }
                                     else
                                     {
                                         yyerror("TypeError: slice indices must be integers or None");
@@ -407,7 +531,15 @@ atom_expr:
                                     if ($5.type == None) // 默认结束
                                         end = -1;
                                     else if ($5.type == Integer)
+                                    {
                                         end = $5.integerValue;
+                                        if (end < 0)
+                                            end += Symbol.at($1.variableName).stringValue.length();
+                                        if (end < 0)
+                                            end = -1;
+                                        else if (end >= Symbol.at($1.variableName).stringValue.length())
+                                            end = Symbol.at($1.variableName).stringValue.length();
+                                    }
                                     else
                                     {
                                         yyerror("TypeError: slice indices must be integers or None");
@@ -427,7 +559,16 @@ atom_expr:
                                     if ($3.type == None) // 默认起始
                                         $$.begin = Symbol.at($1.variableName).listValue.begin();
                                     else if ($3.type == Integer)
-                                        $$.begin = Symbol.at($1.variableName).listValue.begin() + $3.integerValue;
+                                    {
+                                        begin = $3.integerValue;
+                                        if (begin < 0)
+                                            begin += Symbol.at($1.variableName).listValue.size();
+                                        if (begin < 0)
+                                            begin = 0;
+                                        else if (begin > Symbol.at($1.variableName).listValue.size())
+                                            begin = Symbol.at($1.variableName).listValue.size();
+                                        $$.begin = Symbol.at($1.variableName).listValue.begin() + begin;
+                                    }
                                     else
                                     {
                                         yyerror("TypeError: slice indices must be integers or None");
@@ -437,7 +578,16 @@ atom_expr:
                                     if ($5.type == None) // 默认结束
                                         $$.end = Symbol.at($1.variableName).listValue.end();
                                     else if ($5.type == Integer)
-                                        $$.end = Symbol.at($1.variableName).listValue.begin() + $5.integerValue;
+                                    {
+                                        end = $5.integerValue;
+                                        if (end < 0)
+                                            end += Symbol.at($1.variableName).listValue.size();
+                                        if (end < 0)
+                                            end = 0;
+                                        else if (end > Symbol.at($1.variableName).listValue.size())
+                                            end = Symbol.at($1.variableName).listValue.size();
+                                        $$.end = Symbol.at($1.variableName).listValue.begin() + end;
+                                    }
                                     else
                                     {
                                         yyerror("TypeError: slice indices must be integers or None");
@@ -453,7 +603,16 @@ atom_expr:
                                     if ($3.type == None) // 默认起始
                                         $$.begin = Symbol.at($1.variableName).listValue.end() - 1;
                                     else if ($3.type == Integer)
-                                        $$.begin = Symbol.at($1.variableName).listValue.begin() + $3.integerValue;
+                                    {
+                                        begin = $3.integerValue;
+                                        if (begin < 0)
+                                            begin += Symbol.at($1.variableName).listValue.size();
+                                        if (begin < 0)
+                                            begin = 0;
+                                        else if (begin > Symbol.at($1.variableName).listValue.size())
+                                            begin = Symbol.at($1.variableName).listValue.size() - 1;
+                                        $$.begin = Symbol.at($1.variableName).listValue.begin() + begin;
+                                    }
                                     else
                                     {
                                         yyerror("TypeError: slice indices must be integers or None");
@@ -463,7 +622,16 @@ atom_expr:
                                     if ($5.type == None) // 默认结束
                                         $$.end = Symbol.at($1.variableName).listValue.begin() - 1;
                                     else if ($5.type == Integer)
-                                        $$.end = Symbol.at($1.variableName).listValue.begin() + $5.integerValue;
+                                    {
+                                        end = $5.integerValue;
+                                        if (end < 0)
+                                            end += Symbol.at($1.variableName).listValue.size();
+                                        if (end < 0)
+                                            end = -1;
+                                        else if (end > Symbol.at($1.variableName).listValue.size())
+                                            end = Symbol.at($1.variableName).listValue.size();
+                                        $$.end = Symbol.at($1.variableName).listValue.begin() + end;
+                                    }
                                     else
                                     {
                                         yyerror("TypeError: slice indices must be integers or None");
@@ -494,15 +662,36 @@ atom_expr:
         {
             if ($3.type == Integer)
             {
+                int index = $3.integerValue;
                 switch ($1.type)
                 {
                     case String:
-                        $$.type = String;
-                        $$.stringValue = $1.stringValue[$3.integerValue]; // 字符和字符串同等
+                        if (index < 0)
+                            index += $1.stringValue.length();
+                        if (index > $1.stringValue.length() || index < 0)
+                        {
+                            yyerror("IndexError: string index out of range");
+                            YYERROR;
+                        }
+                        else
+                        {
+                            $$.type = String;
+                            $$.stringValue = $1.stringValue[index]; // 字符和字符串同等
+                        }
                         break;
                     case List:
-                        $$.type = ListItem; // 列表元素类型
-                        $$.begin = $1.listValue.begin() + $3.integerValue; // 取列表元素地址
+                        if (index < 0)
+                            index += $1.listValue.size();
+                        if (index > $1.listValue.size() || index < 0)
+                        {
+                            yyerror("IndexError: list index out of range");
+                            YYERROR;
+                        }
+                        else
+                        {
+                            $$.type = ListItem; // 列表元素类型
+                            $$.begin = $1.listValue.begin() + index; // 取列表元素地址
+                        }
                         break;
                     case Variable:
                         if ((Symbol.count($1.variableName) == 1)) // 已在变量表内
@@ -510,12 +699,32 @@ atom_expr:
                             switch (Symbol.at($1.variableName).type)
                             {
                                 case String:
-                                    $$.type = String;
-                                    $$.stringValue = Symbol.at($1.variableName).stringValue[$3.integerValue]; // 字符和字符串同等
+                                    if (index < 0)
+                                        index += Symbol.at($1.variableName).stringValue.length();
+                                    if (index > Symbol.at($1.variableName).stringValue.length() || index < 0)
+                                    {
+                                        yyerror("IndexError: string index out of range");
+                                        YYERROR;
+                                    }
+                                    else
+                                    {
+                                        $$.type = String;
+                                        $$.stringValue = Symbol.at($1.variableName).stringValue[index]; // 字符和字符串同等
+                                    }
                                     break;
                                 case List:
-                                    $$.type = ListItem; // 列表元素类型
-                                    $$.begin = Symbol.at($1.variableName).listValue.begin() + $3.integerValue; // 取列表元素地址
+                                    if (index < 0)
+                                        index += Symbol.at($1.variableName).listValue.size();
+                                    if (index > Symbol.at($1.variableName).listValue.size() || index < 0)
+                                    {
+                                        yyerror("IndexError: list index out of range");
+                                        YYERROR;
+                                    }
+                                    else
+                                    {
+                                        $$.type = ListItem; // 列表元素类型
+                                        $$.begin = Symbol.at($1.variableName).listValue.begin() + index; // 取列表元素地址
+                                    }
                                     break;
                                 default:
                                     yyerror("TypeError: '"+ TypeString(Symbol.at($1.variableName)) +"' object is not subscriptable");
@@ -539,25 +748,701 @@ atom_expr:
                 YYERROR;
             }
         }|
+    atom_expr '.' ID
+        {
+            $$.type = $1.type;
+
+            $$.variableName = $1.variableName; // 变量名
+            $$.attributeName = $3.variableName; // 属性或方法名
+        } |
     atom_expr '(' arglist opt_comma ')'
         {
-            if ($1.stringValue == "append") // append方法
+            if ($1.attributeName == "append") // append方法
             {
                 $$.type = None;
-                if ($3.listValue.size() == 1)
+                switch ($1.type)
                 {
-                    if (Symbol.at($1.variableName).type == List)
-                    {
+                    case List:
+                    case ListSlice:
                         if ($3.listValue.size() == 1) // append 有且仅有1个参数
                         {
-                            Symbol.at($1.variableName).listValue.push_back(*$3.listValue.begin());
+                            $1.listValue.push_back(*$3.listValue.begin()); // 这里的意义不是很大
                         }
-                    }
+                        else
+                        {
+                            yyerror("TypeError: append() takes exactly one argument ("+ to_string($3.listValue.size()) +" given)");
+                            YYERROR;
+                        }
+                        break;
+                    case ListItem:
+                        if ((*$1.begin).type == List)
+                        {
+                            if ($3.listValue.size() == 1) // append 有且仅有1个参数
+                            {
+                                (*$1.begin).listValue.push_back(*$3.listValue.begin());
+                            }
+                            else
+                            {
+                                yyerror("TypeError: append() takes exactly one argument ("+ to_string($3.listValue.size()) +" given)");
+                                YYERROR;
+                            }
+                        }
+                        else
+                        {
+                            yyerror("AttributeError: '" + TypeString(*$1.begin) + "' object has no attribute 'append'");
+                            YYERROR;
+                        }
+                        break;
+                    case Variable:
+                        if (Symbol.at($1.variableName).type == List)
+                        {
+                            if ($3.listValue.size() == 1) // append 有且仅有1个参数
+                            {
+                                Symbol.at($1.variableName).listValue.push_back(*$3.listValue.begin());
+                            }
+                            else
+                            {
+                                yyerror("TypeError: append() takes exactly one argument ("+ to_string($3.listValue.size()) +" given)");
+                                YYERROR;
+                            }
+                        }
+                        else
+                        {
+                            yyerror("AttributeError: '" + TypeString(Symbol.at($1.variableName)) + "' object has no attribute 'append'");
+                            YYERROR;
+                        }
+                        break;
+                    default:
+                        yyerror("AttributeError: '" + TypeString($1) + "' object has no attribute 'append'");
+                        YYERROR;
                 }
-                else
+            }
+            else if ($1.attributeName == "count") // count方法
+            {
+                switch ($1.type)
                 {
-                    yyerror("TypeError: append() takes exactly one argument ("+ to_string($3.listValue.size()) +" given)");
-                    YYERROR;
+                    case String:
+                        if ($3.listValue.size() == 1) // count 有且仅有1个参数
+                        {
+                            if ((*$3.listValue.begin()).type == String)
+                            {
+                                $$.type = Integer;
+                                $$.integerValue = 0;
+                                size_t len = (*$3.listValue.begin()).stringValue.length();
+	                            if (len == 0)
+                                    len = 1; // 空子串调用
+	                            for (size_t i = 0; (i = $1.stringValue.find((*$3.listValue.begin()).stringValue,i)) != $1.stringValue.npos; $$.integerValue++, i+=len);
+                            }
+                            else
+                            {
+                                yyerror("TypeError: must be str, not " + TypeString(*$3.listValue.begin()));
+                                YYERROR;
+                            }
+                        }
+                        else
+                        {
+                            yyerror("TypeError: count() takes exactly one argument ("+ to_string($3.listValue.size()) +" given)");
+                            YYERROR;
+                        }
+                        break;
+                    case List:
+                    case ListSlice:
+                        if ($3.listValue.size() == 1) // count 有且仅有1个参数
+                        {
+                            $$.type = Integer;
+                            $$.integerValue = count($1.listValue.begin(), $1.listValue.end(), *$3.listValue.begin()); // 调用algorithm中的count
+                        }
+                        else
+                        {
+                            yyerror("TypeError: count() takes exactly one argument ("+ to_string($3.listValue.size()) +" given)");
+                            YYERROR;
+                        }
+                        break;
+                    case ListItem:
+                        switch ((*$1.begin).type)
+                        {
+                            case String:
+                                if ($3.listValue.size() == 1) // count 有且仅有1个参数
+                                {
+                                    if ((*$3.listValue.begin()).type == String)
+                                    {
+                                        $$.type = Integer;
+                                        $$.integerValue = 0;
+                                        size_t len = (*$3.listValue.begin()).stringValue.length();
+                                        if (len == 0)
+                                            len = 1; // 空子串调用
+                                        for (size_t i = 0; (i = (*$1.begin).stringValue.find((*$3.listValue.begin()).stringValue,i)) != (*$1.begin).stringValue.npos; $$.integerValue++, i+=len);
+                                    }
+                                    else
+                                    {
+                                        yyerror("TypeError: must be str, not " + TypeString(*$3.listValue.begin()));
+                                        YYERROR;
+                                    }
+                                }
+                                else
+                                {
+                                    yyerror("TypeError: count() takes exactly one argument ("+ to_string($3.listValue.size()) +" given)");
+                                    YYERROR;
+                                }
+                                break;
+                            case List:
+                                if ($3.listValue.size() == 1) // count 有且仅有1个参数
+                                {
+                                    $$.type = Integer;
+                                    $$.integerValue = count((*$1.begin).listValue.begin(), (*$1.begin).listValue.end(), *$3.listValue.begin()); // 调用algorithm中的count
+                                }
+
+                                else
+                                {
+                                    yyerror("TypeError: count() takes exactly one argument ("+ to_string($3.listValue.size()) +" given)");
+                                    YYERROR;
+                                }
+                                break;
+                            default:
+                                yyerror("AttributeError: '" + TypeString(*$1.begin) + "' object has no attribute 'count'");
+                                YYERROR;
+                        }
+                        break;
+                    case Variable:
+                        switch (Symbol.at($1.variableName).type)
+                        {
+                            case String:
+                                if ($3.listValue.size() == 1) // count 有且仅有1个参数
+                                {
+                                    if ((*$3.listValue.begin()).type == String)
+                                    {
+                                        $$.type = Integer;
+                                        $$.integerValue = 0;
+                                        size_t len = (*$3.listValue.begin()).stringValue.length();
+                                        if (len == 0)
+                                            len = 1; // 空子串调用
+                                        for (size_t i = 0; (i = Symbol.at($1.variableName).stringValue.find((*$3.listValue.begin()).stringValue,i)) != Symbol.at($1.variableName).stringValue.npos; $$.integerValue++, i+=len); // 不计算重复
+                                    }
+                                    else
+                                    {
+                                        yyerror("TypeError: must be str, not " + TypeString(*$3.listValue.begin()));
+                                        YYERROR;
+                                    }
+                                }
+                                else
+                                {
+                                    yyerror("TypeError: count() takes exactly one argument ("+ to_string($3.listValue.size()) +" given)");
+                                    YYERROR;
+                                }
+                                break;
+                            case List:
+                                if ($3.listValue.size() == 1) // count 有且仅有1个参数
+                                {
+                                    $$.type = Integer;
+                                    $$.integerValue = count(Symbol.at($1.variableName).listValue.begin(), Symbol.at($1.variableName).listValue.end(), *$3.listValue.begin()); // 调用algorithm中的count
+                                }
+                                else
+                                {
+                                    yyerror("TypeError: count() takes exactly one argument ("+ to_string($3.listValue.size()) +" given)");
+                                    YYERROR;
+                                }
+                                break;
+                            default:
+                                yyerror("AttributeError: '" + TypeString(Symbol.at($1.variableName)) + "' object has no attribute 'count'");
+                                YYERROR;
+                        }
+                        break;
+                    default:
+                        yyerror("AttributeError: '" + TypeString($1) + "' object has no attribute 'count'");
+                        YYERROR;
+                }
+            }
+            else if ($1.attributeName == "extend") // extend方法
+            {
+                $$.type = None;
+                switch ($1.type)
+                {
+                    case List:
+                    case ListSlice:
+                        if ($3.listValue.size() == 1) // append 有且仅有1个参数
+                        {
+                            // 这里的代码没有什么意义
+                        }
+                        else
+                        {
+                            yyerror("TypeError: append() takes exactly one argument ("+ to_string($3.listValue.size()) +" given)");
+                            YYERROR;
+                        }
+                        break;
+                    case ListItem:
+                        if ((*$1.begin).type == List)
+                        {
+                            if ($3.listValue.size() == 1) // list 有且仅有1个参数
+                            {
+                                Value temp;
+                                Value temp_2; // 拆分字符串
+
+                                if ((*$3.listValue.begin()).type == Variable) // 变量替换为实体
+                                {
+                                    if (Symbol.count((*$3.listValue.begin()).variableName) == 1) // 已在变量表中
+                                        temp = Symbol.at((*$3.listValue.begin()).variableName);
+                                    else
+                                    {
+                                        yyerror("NameError: name '" + (*$3.listValue.begin()).variableName + "' is not defined");
+                                        YYERROR;
+                                    }
+                                }
+                                else
+                                    temp = (*$3.listValue.begin());
+
+                                switch (temp.type)
+                                {
+                                    case String:
+                                        temp_2.type = String;
+                                        for (int i = 0; i < temp.stringValue.length(); i++)
+                                        {
+                                            temp_2.stringValue = temp.stringValue[i];
+                                            (*$1.begin).listValue.push_back(temp_2);
+                                        }
+                                        break;
+                                    case List:
+                                        (*$1.begin).listValue.insert((*$1.begin).listValue.end(), temp.listValue.begin(), temp.listValue.end());
+                                        break;
+                                    default:
+                                    {
+                                        yyerror("TypeError: '"+TypeString(temp)+"' object is not iterable");
+                                        YYERROR;
+                                    }
+                                }
+                            }
+                            else
+                            {
+                                yyerror("TypeError: extend() takes exactly one argument ("+ to_string($3.listValue.size()) +" given)");
+                                YYERROR;
+                            }
+                        }
+                        else
+                        {
+                            yyerror("AttributeError: '" + TypeString(*$1.begin) + "' object has no attribute 'append'");
+                            YYERROR;
+                        }
+                        break;
+                    case Variable:
+                        if (Symbol.at($1.variableName).type == List)
+                        {
+                            if ($3.listValue.size() == 1) // list 有且仅有1个参数
+                            {
+                                Value temp;
+                                Value temp_2; // 拆分字符串
+
+                                if ((*$3.listValue.begin()).type == Variable) // 变量替换为实体
+                                {
+                                    if (Symbol.count((*$3.listValue.begin()).variableName) == 1) // 已在变量表中
+                                        temp = Symbol.at((*$3.listValue.begin()).variableName);
+                                    else
+                                    {
+                                        yyerror("NameError: name '" + (*$3.listValue.begin()).variableName + "' is not defined");
+                                        YYERROR;
+                                    }
+                                }
+                                else
+                                    temp = (*$3.listValue.begin());
+
+                                switch (temp.type)
+                                {
+                                    case String:
+                                        temp_2.type = String;
+                                        for (int i = 0; i < temp.stringValue.length(); i++)
+                                        {
+                                            temp_2.stringValue = temp.stringValue[i];
+                                            Symbol.at($1.variableName).listValue.push_back(temp_2);
+                                        }
+                                        break;
+                                    case List:
+                                        Symbol.at($1.variableName).listValue.insert(Symbol.at($1.variableName).listValue.end(), temp.listValue.begin(), temp.listValue.end());
+                                        break;
+                                    default:
+                                    {
+                                        yyerror("TypeError: '"+TypeString(temp)+"' object is not iterable");
+                                        YYERROR;
+                                    }
+                                }
+                            }
+                            else
+                            {
+                                yyerror("TypeError: extend() takes exactly one argument ("+ to_string($3.listValue.size()) +" given)");
+                                YYERROR;
+                            }
+                        }
+                        else
+                        {
+                            yyerror("AttributeError: '" + TypeString(Symbol.at($1.variableName)) + "' object has no attribute 'extend'");
+                            YYERROR;
+                        }
+                        break;
+                    default:
+                        yyerror("AttributeError: '" + TypeString($1) + "' object has no attribute 'append'");
+                        YYERROR;
+                }
+            }
+            else if ($1.attributeName == "index")
+            {
+                Value object = $3.listValue[0];
+                switch ($1.type)
+                {
+                    case String:
+                        if ($3.listValue.size() > 3)
+                        {
+                            yyerror("TypeError: index() expected at most 3 arguments, got " + to_string($3.listValue.size()));
+                            YYERROR;
+                        }
+                        else
+                        {
+                            if (object.type == String)
+                            {
+                                int begin;
+                                string temp;
+
+                                if ($3.listValue.size() == 1) // 默认起始
+                                    begin = 0;
+                                else if ($3.listValue.size() == 2 || $3.listValue.size() == 3)
+                                    begin = $3.listValue[1].integerValue; // 第二个参数
+
+                                if ($3.listValue.size() == 1 || $3.listValue.size() == 2) // 默认结尾
+                                    temp = $1.stringValue;
+                                else if ($3.listValue.size() == 3)
+                                    temp = $1.stringValue.substr(0, $3.listValue[2].integerValue); // 第三个参数
+
+                                int pos = temp.find(object.stringValue, begin); // 使用string的find
+                                if (pos == temp.npos)
+                                {
+                                    yyerror("ValueError: substring not found");
+                                    YYERROR;
+                                }
+                                else
+                                {
+                                    $$.type = Integer;
+                                    $$.integerValue = pos;
+                                }
+                            }
+                            else
+                            {
+                                yyerror("TypeError: must be str, not " + TypeString(object));
+                                YYERROR;
+                            }
+                        }
+                        break;
+                    case List:
+                    case ListSlice:
+                    {
+                        vector<struct value>::iterator begin, end;
+                        if ($3.listValue.size() == 1) // 默认起始
+                            begin = $1.listValue.begin();
+                        else if ($3.listValue.size() == 2 || $3.listValue.size() == 3)
+                            begin = $1.listValue.begin() + $3.listValue[1].integerValue; // 第二个参数
+
+                        if ($3.listValue.size() == 1 || $3.listValue.size() == 2) // 默认结尾
+                            end = $1.listValue.end();
+                        else if ($3.listValue.size() == 3)
+                            end = $1.listValue.begin() + $3.listValue[2].integerValue; // 第三个参数
+
+                        vector<struct value>::iterator pos = find(begin, end, object); // 使用algorithm 中的find
+                        if (pos == end)
+                        {
+                            cout << "ValueError: "; // 这里的错误信息处理的不太好
+                            Print(object);
+                            yyerror(" is not in list");
+                            YYERROR;
+                        }
+                        else
+                        {
+                            $$.type = Integer;
+                            $$.integerValue = distance($1.listValue.begin(), pos); // 使用algorithm中的distance
+                        }
+                        break;
+                    }
+                    case ListItem:
+                        switch ((*$1.begin).type)
+                        {
+                            case String:
+                                if ($3.listValue.size() > 3)
+                                {
+                                    yyerror("TypeError: index() expected at most 3 arguments, got " + to_string($3.listValue.size()));
+                                    YYERROR;
+                                }
+                                else
+                                {
+                                    if (object.type == String)
+                                    {
+                                        int begin;
+                                        string temp;
+
+                                        if ($3.listValue.size() == 1) // 默认起始
+                                            begin = 0;
+                                        else if ($3.listValue.size() == 2 || $3.listValue.size() == 3)
+                                            begin = $3.listValue[1].integerValue; // 第二个参数
+
+                                        if ($3.listValue.size() == 1 || $3.listValue.size() == 2) // 默认结尾
+                                            temp = (*$1.begin).stringValue;
+                                        else if ($3.listValue.size() == 3)
+                                            temp = (*$1.begin).stringValue.substr(0, $3.listValue[2].integerValue); // 第三个参数
+
+                                        int pos = temp.find(object.stringValue, begin); // 使用string的find
+                                        if (pos == temp.npos)
+                                        {
+                                            yyerror("ValueError: substring not found");
+                                            YYERROR;
+                                        }
+                                        else
+                                        {
+                                            $$.type = Integer;
+                                            $$.integerValue = pos;
+                                        }
+                                    }
+                                    else
+                                    {
+                                        yyerror("TypeError: must be str, not " + TypeString(object));
+                                        YYERROR;
+                                    }
+                                }
+                                break;
+                            case List:
+                            {
+                                vector<struct value>::iterator begin, end;
+                                if ($3.listValue.size() == 1) // 默认起始
+                                    begin = $1.listValue.begin();
+                                else if ($3.listValue.size() == 2 || $3.listValue.size() == 3)
+                                    begin = $1.listValue.begin() + $3.listValue[1].integerValue; // 第二个参数
+
+                                if ($3.listValue.size() == 1 || $3.listValue.size() == 2) // 默认结尾
+                                    end = (*$1.begin).listValue.end();
+                                else if ($3.listValue.size() == 3)
+                                    end = (*$1.begin).listValue.begin() + $3.listValue[2].integerValue; // 第三个参数
+
+                                vector<struct value>::iterator pos = find(begin, end, object); // 使用algorithm 中的find
+                                if (pos == end)
+                                {
+                                    cout << "ValueError: "; // 这里的错误信息处理的不太好
+                                    Print(object);
+                                    yyerror(" is not in list");
+                                    YYERROR;
+                                }
+                                else
+                                {
+                                    $$.type = Integer;
+                                    $$.integerValue = distance((*$1.begin).listValue.begin(), pos); // 使用algorithm中的distance
+                                }
+                                break;
+                            }
+                            default:
+                                yyerror("AttributeError: '" + TypeString(*$1.begin) + "' object has no attribute 'count'");
+                                YYERROR;
+                        }
+                        break;
+                    case Variable:
+                        switch (Symbol.at($1.variableName).type)
+                        {
+                            case String:
+                                if ($3.listValue.size() > 3)
+                                {
+                                    yyerror("TypeError: range expected at most 3 arguments, got " + to_string($3.listValue.size()));
+                                    YYERROR;
+                                }
+                                else
+                                {
+                                    if (object.type == String)
+                                    {
+                                        int begin;
+                                        string temp;
+
+                                        if ($3.listValue.size() == 1) // 默认起始
+                                            begin = 0;
+                                        else if ($3.listValue.size() == 2 || $3.listValue.size() == 3)
+                                            begin = $3.listValue[1].integerValue; // 第二个参数
+
+                                        if ($3.listValue.size() == 1 || $3.listValue.size() == 2) // 默认结尾
+                                            temp = Symbol.at($1.variableName).stringValue;
+                                        else if ($3.listValue.size() == 3)
+                                            temp = Symbol.at($1.variableName).stringValue.substr(0, $3.listValue[2].integerValue); // 第三个参数
+
+                                        int pos = temp.find(object.stringValue, begin); // 使用string的find
+                                        if (pos == temp.npos)
+                                        {
+                                            yyerror("ValueError: substring not found");
+                                            YYERROR;
+                                        }
+                                        else
+                                        {
+                                            $$.type = Integer;
+                                            $$.integerValue = pos;
+                                        }
+                                    }
+                                    else
+                                    {
+                                        yyerror("TypeError: must be str, not " + TypeString(object));
+                                        YYERROR;
+                                    }
+                                }
+                                break;
+                            case List:
+                            {
+                                if ($3.listValue.size() > 3)
+                                {
+                                    yyerror("TypeError: index() expected at most 3 arguments, got " + to_string($3.listValue.size()));
+                                    YYERROR;
+                                }
+                                else
+                                {
+                                    vector<struct value>::iterator begin, end;
+                                    if ($3.listValue.size() == 1) // 默认起始
+                                        begin = Symbol.at($1.variableName).listValue.begin();
+                                    else if ($3.listValue.size() == 2 || $3.listValue.size() == 3)
+                                        begin = Symbol.at($1.variableName).listValue.begin() + $3.listValue[1].integerValue; // 第二个参数
+
+                                    if ($3.listValue.size() == 1 || $3.listValue.size() == 2) // 默认结尾
+                                        end = Symbol.at($1.variableName).listValue.end();
+                                    else if ($3.listValue.size() == 3)
+                                        end = Symbol.at($1.variableName).listValue.begin() + $3.listValue[2].integerValue; // 第三个参数
+
+                                    vector<struct value>::iterator pos = find(begin, end, object); // 使用algorithm 中的find
+                                    if (pos == end)
+                                    {
+                                        cout << "ValueError: "; // 这里的错误信息处理的不太好
+                                        Print(object);
+                                        yyerror(" is not in list");
+                                        YYERROR;
+                                    }
+                                    else
+                                    {
+                                        $$.type = Integer;
+                                        $$.integerValue = distance(Symbol.at($1.variableName).listValue.begin(), pos); // 使用algorithm中的distance
+                                    }
+                                }
+                                break;
+                            }
+
+                            default:
+                                yyerror("AttributeError: '" + TypeString(Symbol.at($1.variableName)) + "' object has no attribute 'index'");
+                                YYERROR;
+                        }
+                        break;
+                    default:
+                        yyerror("AttributeError: '" + TypeString($1) + "' object has no attribute 'index'");
+                        YYERROR;
+                }
+            }
+            else if ($1.attributeName == "insert")
+            {
+                $$.type = None;
+                switch ($1.type)
+                {
+                    case List:
+                    case ListSlice:
+                        if ($3.listValue.size() == 2) // insert 有且仅有2个参数
+                        {
+                            int index = $3.listValue[0].integerValue;
+                            if (index < 0)
+                                index += Length($1);
+                            if (index < 0)
+                                index = 0;
+                            else if (index > Length($1))
+                                index = Length($1);
+                            $1.listValue.insert($1.listValue.begin() + index, $3.listValue[1]); // 这里的意义不是很大
+                        }
+                        else
+                        {
+                            yyerror("TypeError: insert() takes exactly 2 arguments ("+ to_string($3.listValue.size()) +" given)");
+                            YYERROR;
+                        }
+                        break;
+                    case ListItem:
+                        if ((*$1.begin).type == List)
+                        {
+                            if ($3.listValue.size() == 2) // insert 有且仅有2个参数
+                            {
+                                int index = $3.listValue[0].integerValue;
+                                if (index < 0)
+                                    index += Length(*$1.begin);
+                                if (index < 0)
+                                    index = 0;
+                                else if (index > Length(*$1.begin))
+                                    index = Length(*$1.begin);
+                                (*$1.begin).listValue.insert((*$1.begin).listValue.begin() + index, $3.listValue[1]);
+                            }
+                            else
+                            {
+                                yyerror("TypeError: insert() takes exactly 2 arguments ("+ to_string($3.listValue.size()) +" given)");
+                                YYERROR;
+                            }
+                        }
+                        else
+                        {
+                            yyerror("AttributeError: '" + TypeString(*$1.begin) + "' object has no attribute 'insert'");
+                            YYERROR;
+                        }
+                        break;
+                    case Variable:
+                        if (Symbol.at($1.variableName).type == List)
+                        {
+                            if ($3.listValue.size() == 2) // insert 有且仅有2个参数
+                            {
+                                int index = $3.listValue[0].integerValue;
+                                if (index < 0)
+                                    index += Length(Symbol.at($1.variableName));
+                                if (index < 0)
+                                    index = 0;
+                                else if (index > Length(Symbol.at($1.variableName)))
+                                    index = Length(Symbol.at($1.variableName));
+                                Symbol.at($1.variableName).listValue.insert(Symbol.at($1.variableName).listValue.begin() + index, $3.listValue[1]);
+                            }
+                            else
+                            {
+                                yyerror("TypeError: insert() takes exactly 2 arguments ("+ to_string($3.listValue.size()) +" given)");
+                                YYERROR;
+                            }
+                        }
+                        else
+                        {
+                            yyerror("AttributeError: '" + TypeString(Symbol.at($1.variableName)) + "' object has no attribute 'insert'");
+                            YYERROR;
+                        }
+                        break;
+                    default:
+                        yyerror("AttributeError: '" + TypeString($1) + "' object has no attribute 'insert'");
+                        YYERROR;
+                }
+            }
+            else if ($1.attributeName == "reverse")
+            {
+                switch ($1.type)
+                {
+                    case List:
+                    case ListSlice:
+                        yyerror("TypeError: reverse() takes no arguments ("+ to_string($3.listValue.size()) +" given)");
+                            YYERROR;
+                        break;
+                    case ListItem:
+                        if ((*$1.begin).type == List)
+                        {
+                            yyerror("TypeError: reverse() takes no arguments ("+ to_string($3.listValue.size()) +" given)");
+                            YYERROR;
+                        }
+                        else
+                        {
+                            yyerror("AttributeError: '" + TypeString(*$1.begin) + "' object has no attribute 'reverse'");
+                            YYERROR;
+                        }
+                        break;
+                    case Variable:
+                        if (Symbol.at($1.variableName).type == List)
+                        {
+                            yyerror("TypeError: reverse() takes no arguments ("+ to_string($3.listValue.size()) +" given)");
+                            YYERROR;
+                        }
+                        else
+                        {
+                            yyerror("AttributeError: '" + TypeString(Symbol.at($1.variableName)) + "' object has no attribute 'reverse'");
+                            YYERROR;
+                        }
+                        break;
+                    default:
+                        yyerror("AttributeError: '" + TypeString($1) + "' object has no attribute 'reverse'");
+                        YYERROR;
                 }
             }
             else if ($1.variableName == "print") // print函数
@@ -615,12 +1500,17 @@ atom_expr:
                     for (temp.integerValue = begin; temp.integerValue > end; temp.integerValue+=step)
                         $$.listValue.push_back(temp);
                 }
+                else
+                {
+                    yyerror("ValueError: range() arg 3 must not be zero");
+                    YYERROR;
+                }
             }
             else if ($1.variableName == "list") // list函数
             {
                 $$.type = List;
 
-                if ($3.listValue.size() == 1) // list 有且仅有1个参数
+                if ($3.listValue.size() == 1) // list 有1个参数
                 {
                     Value temp;
                     Value temp_2; // 拆分字符串
@@ -665,23 +1555,297 @@ atom_expr:
                     YYERROR;
                 }
             }
+            else if ($1.variableName == "type") // type函数
+            {
+                $$.type = None;
+                if ($3.listValue.size() == 1 || $3.listValue.size() == 3)
+                {
+                    if ($3.listValue.size() == 1)
+                    {
+                        cout << "<type '" + TypeString(*$3.listValue.begin()) + "'>" << endl;
+                    }
+                    else
+                    {
+                        yyerror("SyntaxError: not supported syntax of 3 arguments");
+                        YYERROR;
+                    }
+                }
+                else
+                {
+                    yyerror("TypeError: type() takes 1 or 3 arguments");
+                    YYERROR;
+                }
+            }
+            else if ($1.variableName == "len") // len函数
+            {
+                if ($3.listValue.size() == 1) // list 有1个参数
+                {
+                    switch((*$3.listValue.begin()).type)
+                    {
+                        case String:
+                        case List:
+                        case ListSlice:
+                        case ListItem:
+                        case Variable:
+                            $$.type = Integer;
+                            $$.integerValue = Length(*$3.listValue.begin());
+                            break;
+                        default:
+                            yyerror("TypeError: object of type '"+ TypeString(*$3.listValue.begin()) +"' has no len()");
+                            YYERROR;
+                    }
+                }
+                else
+                {
+                    yyerror("TypeError: len() takes exactly one argument (" + to_string($3.listValue.size()) + " given)");
+                    YYERROR;
+                }
+            }
+            else
+            {
+                yyerror("AttributeError: '" + TypeString($1) + "' object has no attribute '"+ $1.attributeName +"\'");
+                YYERROR;
+            }
+
         } |
-    atom_expr '.' ID
-        {
-            $$.type = None;
-            $$.variableName = $1.variableName; // 变量名
-            $$.stringValue = $3.variableName; // 属性或方法名
-        } |
-    atom_expr  '('  ')' // 在本实验中目前只包括无参量函数
+    atom_expr  '('  ')'
         {
             if ($1.variableName == "quit") // quit函数
                 exit(0);
-            else if ($1.stringValue == "append")
+            else if ($1.attributeName == "append")
             {
-                yyerror("TypeError: append() takes exactly one argument (0 given)");
-                YYERROR;
+                $$.type = None;
+                switch ($1.type)
+                {
+                    case List:
+                    case ListSlice:
+                        yyerror("TypeError: append() takes exactly one argument (0 given)");
+                        YYERROR;
+                        break;
+                    case ListItem:
+                        if ((*$1.begin).type == List)
+                        {
+                            yyerror("TypeError: append() takes exactly one argument (0 given)");
+                            YYERROR;
+                        }
+                        else
+                        {
+                            yyerror("AttributeError: '" + TypeString(*$1.begin) + "' object has no attribute 'append'");
+                            YYERROR;
+                        }
+                        break;
+                    case Variable:
+                        if (Symbol.at($1.variableName).type == List)
+                        {
+                            yyerror("TypeError: append() takes exactly one argument (0 given)");
+                            YYERROR;
+                        }
+                        else
+                        {
+                            yyerror("AttributeError: '" + TypeString(Symbol.at($1.variableName)) + "' object has no attribute 'append'");
+                            YYERROR;
+                        }
+                        break;
+                    default:
+                        yyerror("AttributeError: '" + TypeString($1) + "' object has no attribute 'append'");
+                        YYERROR;
+                }
             }
-            else if ($1.variableName == "print")
+            else if ($1.attributeName == "count")
+            {
+                $$.type = None;
+                switch ($1.type)
+                {
+                    case String:
+                    case List:
+                    case ListSlice:
+                        yyerror("TypeError: count() takes exactly one argument (0 given)");
+                        YYERROR;
+                        break;
+                    case ListItem:
+                        if ((*$1.begin).type == List || (*$1.begin).type == String)
+                        {
+                            yyerror("TypeError: count() takes exactly one argument (0 given)");
+                            YYERROR;
+                        }
+                        else
+                        {
+                            yyerror("AttributeError: '" + TypeString(*$1.begin) + "' object has no attribute 'count'");
+                            YYERROR;
+                        }
+                        break;
+                    case Variable:
+                        if (Symbol.at($1.variableName).type == List || Symbol.at($1.variableName).type == String)
+                        {
+                            yyerror("TypeError: count() takes exactly one argument (0 given)");
+                            YYERROR;
+                        }
+                        else
+                        {
+                            yyerror("AttributeError: '" + TypeString(Symbol.at($1.variableName)) + "' object has no attribute 'count'");
+                            YYERROR;
+                        }
+                        break;
+                    default:
+                        yyerror("AttributeError: '" + TypeString($1) + "' object has no attribute 'count'");
+                        YYERROR;
+                }
+            }
+            else if ($1.attributeName == "extend")
+            {
+                $$.type = None;
+                switch ($1.type)
+                {
+                    case List:
+                    case ListSlice:
+                        yyerror("TypeError: extend() takes exactly one argument (0 given)");
+                        YYERROR;
+                        break;
+                    case ListItem:
+                        if ((*$1.begin).type == List)
+                        {
+                            yyerror("TypeError: extend() takes exactly one argument (0 given)");
+                            YYERROR;
+                        }
+                        else
+                        {
+                            yyerror("AttributeError: '" + TypeString(*$1.begin) + "' object has no attribute 'extend'");
+                            YYERROR;
+                        }
+                        break;
+                    case Variable:
+                        if (Symbol.at($1.variableName).type == List)
+                        {
+                            yyerror("TypeError: extend() takes exactly one argument (0 given)");
+                            YYERROR;
+                        }
+                        else
+                        {
+                            yyerror("AttributeError: '" + TypeString(Symbol.at($1.variableName)) + "' object has no attribute 'extend'");
+                            YYERROR;
+                        }
+                        break;
+                    default:
+                        yyerror("AttributeError: '" + TypeString($1) + "' object has no attribute 'extend'");
+                        YYERROR;
+                }
+            }
+            else if ($1.attributeName == "index")
+            {
+                $$.type = None;
+                switch ($1.type)
+                {
+                    case String:
+                    case List:
+                    case ListSlice:
+                        yyerror("TypeError: index() takes at least 1 argument (0 given)");
+                        YYERROR;
+                        break;
+                    case ListItem:
+                        if ((*$1.begin).type == List || (*$1.begin).type == String)
+                        {
+                            yyerror("TypeError: index() takes at least 1 argument (0 given)");
+                            YYERROR;
+                        }
+                        else
+                        {
+                            yyerror("AttributeError: '" + TypeString(*$1.begin) + "' object has no attribute 'index'");
+                            YYERROR;
+                        }
+                        break;
+                    case Variable:
+                        if (Symbol.at($1.variableName).type == List || Symbol.at($1.variableName).type == String)
+                        {
+                            yyerror("TypeError: index() takes at least 1 argument (0 given)");
+                            YYERROR;
+                        }
+                        else
+                        {
+                            yyerror("AttributeError: '" + TypeString(Symbol.at($1.variableName)) + "' object has no attribute 'index'");
+                            YYERROR;
+                        }
+                        break;
+                    default:
+                        yyerror("AttributeError: '" + TypeString($1) + "' object has no attribute 'index'");
+                        YYERROR;
+                }
+            }
+            else if ($1.attributeName == "insert")
+            {
+                $$.type = None;
+                switch ($1.type)
+                {
+                    case List:
+                    case ListSlice:
+                        yyerror("TypeError: insert() takes exactly 2 arguments (0 given)");
+                        YYERROR;
+                        break;
+                    case ListItem:
+                        if ((*$1.begin).type == List)
+                        {
+                            yyerror("TypeError: insert() takes exactly 2 arguments (0 given)");
+                            YYERROR;
+                        }
+                        else
+                        {
+                            yyerror("AttributeError: '" + TypeString(*$1.begin) + "' object has no attribute 'insert'");
+                            YYERROR;
+                        }
+                        break;
+                    case Variable:
+                        if (Symbol.at($1.variableName).type == List)
+                        {
+                            yyerror("TypeError: insert() takes exactly 2 arguments (0 given)");
+                            YYERROR;
+                        }
+                        else
+                        {
+                            yyerror("AttributeError: '" + TypeString(Symbol.at($1.variableName)) + "' object has no attribute 'insert'");
+                            YYERROR;
+                        }
+                        break;
+                    default:
+                        yyerror("AttributeError: '" + TypeString($1) + "' object has no attribute 'insert'");
+                        YYERROR;
+                }
+            }
+            else if ($1.attributeName == "reverse") // reverse方法
+            {
+                $$.type = None;
+                switch ($1.type)
+                {
+                    case List:
+                    case ListSlice:
+                        reverse($1.listValue.begin(), $1.listValue.end()); // 没有意义
+                        break;
+                    case ListItem:
+                        if ((*$1.begin).type == List)
+                        {
+                            reverse((*$1.begin).listValue.begin(), (*$1.begin).listValue.end()); // 调用algorithm中的reverse
+                        }
+                        else
+                        {
+                            yyerror("AttributeError: '" + TypeString(*$1.begin) + "' object has no attribute 'reverse'");
+                            YYERROR;
+                        }
+                        break;
+                    case Variable:
+                        if (Symbol.at($1.variableName).type == List)
+                        {
+                            reverse(Symbol.at($1.variableName).listValue.begin(), Symbol.at($1.variableName).listValue.end()); // 调用algorithm中的reverse
+                        }
+                        else
+                        {
+                            yyerror("AttributeError: '" + TypeString(Symbol.at($1.variableName)) + "' object has no attribute 'reverse'");
+                            YYERROR;
+                        }
+                        break;
+                    default:
+                        yyerror("AttributeError: '" + TypeString($1) + "' object has no attribute 'reverse'");
+                        YYERROR;
+                }
+            }
+            else if ($1.variableName == "print") // print函数
             {
                 $$.type = None;
                 cout << endl;
@@ -691,10 +1855,25 @@ atom_expr:
                 yyerror("TypeError: range expected 1 arguments, got 0");
                 YYERROR;
             }
-            else if ($1.variableName == "list")
+            else if ($1.variableName == "list") // list函数
             {
                 $$.type = List;
                 $$.listValue = vector<struct value>();
+            }
+            else if ($1.variableName == "type")
+            {
+                yyerror("TypeError: type() takes 1 or 3 arguments");
+                YYERROR;
+            }
+            else if ($1.variableName == "len")
+            {
+                yyerror("TypeError: len() takes exactly one argument (0 given)");
+                YYERROR;
+            }
+            else
+            {
+                yyerror("AttributeError: '" + TypeString($1) + "' object has no attribute '"+ $1.attributeName +"\'");
+                YYERROR;
             }
         }
 ;
@@ -1084,6 +2263,9 @@ void Print(Value x)
         case ListItem:
             Print(*x.begin); // 输出元素
             break;
+        case Variable:
+            Print(Symbol.at(x.variableName));
+            break;
     }
 }
 
@@ -1109,5 +2291,24 @@ string TypeString(Value x) // 将枚举类型返回字符串类型，用于错�
             return TypeString(*x.begin);
         default:
             return "None";
+    }
+}
+
+int Length(Value x) // 将枚举类型返回实体长度，用于len(), insert(), []
+{
+    switch(x.type)
+    {
+        case String:
+            return(x.stringValue.length());
+            break;
+        case List:
+        case ListSlice:
+            return(x.listValue.size());
+            break;
+        case ListItem:
+            return(Length(*x.begin));
+        case Variable:   // 变量
+            return(Length(Symbol.at(x.variableName)));
+            break;
     }
 }
