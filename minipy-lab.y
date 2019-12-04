@@ -75,6 +75,9 @@
 
     // 返回变量类型的字符串
     string TypeString(Value);
+
+    // 返回可迭代实体的长度
+    int Length(Value);
 %}
 
 %token ID INT REAL STRING_LITERAL
@@ -602,7 +605,15 @@ atom_expr:
                     case ListItem:
                         if ((*$1.begin).type == List)
                         {
-                            (*$1.begin).listValue.push_back(*$3.listValue.begin());
+                            if ($3.listValue.size() == 1) // append 有且仅有1个参数
+                            {
+                                (*$1.begin).listValue.push_back(*$3.listValue.begin());
+                            }
+                            else
+                            {
+                                yyerror("TypeError: append() takes exactly one argument ("+ to_string($3.listValue.size()) +" given)");
+                                YYERROR;
+                            }
                         }
                         else
                         {
@@ -896,7 +907,6 @@ atom_expr:
                         yyerror("AttributeError: '" + TypeString($1) + "' object has no attribute 'append'");
                         YYERROR;
                 }
-
             }
             else if ($1.attributeName == "index")
             {
@@ -1144,6 +1154,66 @@ atom_expr:
                         YYERROR;
                 }
             }
+            else if ($1.attributeName == "insert")
+            {
+                $$.type = None;
+                switch ($1.type)
+                {
+                    case List:
+                    case ListSlice:
+                        if ($3.listValue.size() == 2) // insert 有且仅有2个参数
+                        {
+                            $1.listValue.insert($1.listValue.begin() + $3.listValue[0].integerValue, $3.listValue[1]); // 这里的意义不是很大
+                        }
+                        else
+                        {
+                            yyerror("TypeError: insert() takes exactly 2 arguments ("+ to_string($3.listValue.size()) +" given)");
+                            YYERROR;
+                        }
+                        break;
+                    case ListItem:
+                        if ((*$1.begin).type == List)
+                        {
+                            if ($3.listValue.size() == 2) // insert 有且仅有2个参数
+                            {
+                                (*$1.begin).listValue.insert((*$1.begin).listValue.begin() + $3.listValue[0].integerValue, $3.listValue[1]);
+                            }
+                            else
+                            {
+                                yyerror("TypeError: insert() takes exactly 2 arguments ("+ to_string($3.listValue.size()) +" given)");
+                                YYERROR;
+                            }
+                        }
+                        else
+                        {
+                            yyerror("AttributeError: '" + TypeString(*$1.begin) + "' object has no attribute 'insert'");
+                            YYERROR;
+                        }
+                        break;
+                    case Variable:
+                        if (Symbol.at($1.variableName).type == List)
+                        {
+                            if ($3.listValue.size() == 2) // insert 有且仅有2个参数
+                            {
+                                Symbol.at($1.variableName).listValue.insert(Symbol.at($1.variableName).listValue.begin() + $3.listValue[0].integerValue, $3.listValue[1]);
+                            }
+                            else
+                            {
+                                yyerror("TypeError: insert() takes exactly 2 arguments ("+ to_string($3.listValue.size()) +" given)");
+                                YYERROR;
+                            }
+                        }
+                        else
+                        {
+                            yyerror("AttributeError: '" + TypeString(Symbol.at($1.variableName)) + "' object has no attribute 'insert'");
+                            YYERROR;
+                        }
+                        break;
+                    default:
+                        yyerror("AttributeError: '" + TypeString($1) + "' object has no attribute 'insert'");
+                        YYERROR;
+                }
+            }
             else if ($1.attributeName == "reverse")
             {
                 switch ($1.type)
@@ -1237,12 +1307,17 @@ atom_expr:
                     for (temp.integerValue = begin; temp.integerValue > end; temp.integerValue+=step)
                         $$.listValue.push_back(temp);
                 }
+                else
+                {
+                    yyerror("ValueError: range() arg 3 must not be zero");
+                    YYERROR;
+                }
             }
             else if ($1.variableName == "list") // list函数
             {
                 $$.type = List;
 
-                if ($3.listValue.size() == 1) // list 有且仅有1个参数
+                if ($3.listValue.size() == 1) // list 有1个参数
                 {
                     Value temp;
                     Value temp_2; // 拆分字符串
@@ -1305,6 +1380,31 @@ atom_expr:
                 else
                 {
                     yyerror("TypeError: type() takes 1 or 3 arguments");
+                    YYERROR;
+                }
+            }
+            else if ($1.variableName == "len") // len函数
+            {
+                if ($3.listValue.size() == 1) // list 有1个参数
+                {
+                    switch((*$3.listValue.begin()).type)
+                    {
+                        case String:
+                        case List:
+                        case ListSlice:
+                        case ListItem:
+                        case Variable:
+                            $$.type = Integer;
+                            $$.integerValue = Length(*$3.listValue.begin());
+                            break;
+                        default:
+                            yyerror("TypeError: object of type '"+ TypeString(*$3.listValue.begin()) +"' has no len()");
+                            YYERROR;
+                    }
+                }
+                else
+                {
+                    yyerror("TypeError: len() takes exactly one argument (" + to_string($3.listValue.size()) + " given)");
                     YYERROR;
                 }
             }
@@ -1477,6 +1577,45 @@ atom_expr:
                         YYERROR;
                 }
             }
+            else if ($1.attributeName == "insert")
+            {
+                $$.type = None;
+                switch ($1.type)
+                {
+                    case List:
+                    case ListSlice:
+                        yyerror("TypeError: insert() takes exactly 2 arguments (0 given)");
+                        YYERROR;
+                        break;
+                    case ListItem:
+                        if ((*$1.begin).type == List)
+                        {
+                            yyerror("TypeError: insert() takes exactly 2 arguments (0 given)");
+                            YYERROR;
+                        }
+                        else
+                        {
+                            yyerror("AttributeError: '" + TypeString(*$1.begin) + "' object has no attribute 'insert'");
+                            YYERROR;
+                        }
+                        break;
+                    case Variable:
+                        if (Symbol.at($1.variableName).type == List)
+                        {
+                            yyerror("TypeError: insert() takes exactly 2 arguments (0 given)");
+                            YYERROR;
+                        }
+                        else
+                        {
+                            yyerror("AttributeError: '" + TypeString(Symbol.at($1.variableName)) + "' object has no attribute 'insert'");
+                            YYERROR;
+                        }
+                        break;
+                    default:
+                        yyerror("AttributeError: '" + TypeString($1) + "' object has no attribute 'insert'");
+                        YYERROR;
+                }
+            }
             else if ($1.attributeName == "reverse") // reverse方法
             {
                 $$.type = None;
@@ -1531,6 +1670,11 @@ atom_expr:
             else if ($1.variableName == "type")
             {
                 yyerror("TypeError: type() takes 1 or 3 arguments");
+                YYERROR;
+            }
+            else if ($1.variableName == "len")
+            {
+                yyerror("TypeError: len() takes exactly one argument (0 given)");
                 YYERROR;
             }
             else
@@ -1926,6 +2070,9 @@ void Print(Value x)
         case ListItem:
             Print(*x.begin); // 输出元素
             break;
+        case Variable:
+            Print(Symbol.at(x.variableName));
+            break;
     }
 }
 
@@ -1951,5 +2098,24 @@ string TypeString(Value x) // 将枚举类型返回字符串类型，用于错�
             return TypeString(*x.begin);
         default:
             return "None";
+    }
+}
+
+int Length(Value x) // 将枚举类型返回实体长度，用于len(), insert(), []
+{
+    switch(x.type)
+    {
+        case String:
+            return(x.stringValue.length());
+            break;
+        case List:
+        case ListSlice:
+            return(x.listValue.size());
+            break;
+        case ListItem:
+            return(Length(*x.begin));
+        case Variable:   // 变量
+            return(Length(Symbol.at(x.variableName)));
+            break;
     }
 }
