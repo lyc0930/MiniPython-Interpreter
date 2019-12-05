@@ -1451,7 +1451,7 @@ atom_expr:
                     YYERROR;
             }
         }
-        else if ($1.attributeName == "index")
+        else if ($1.attributeName == "index") // index方法
         {
             Value object = $3.listValue[0];
             switch ($1.type)
@@ -1697,7 +1697,7 @@ atom_expr:
                     YYERROR;
             }
         }
-        else if ($1.attributeName == "insert")
+        else if ($1.attributeName == "insert") // insert方法
         {
             $$.type = None;
             switch ($1.type)
@@ -1775,6 +1775,101 @@ atom_expr:
                     break;
                 default:
                     yyerror("AttributeError: '" + TypeString($1) + "' object has no attribute 'insert'");
+                    YYERROR;
+            }
+        }
+        else if ($1.attributeName == "pop") // pop方法
+        {
+            switch ($1.type)
+            {
+                case List:
+                case ListSlice:
+                    if ($3.listValue.size() == 1) // pop 有1个参数
+                    {
+                        int index = $3.listValue[0].integerValue;
+                        if (index < 0)
+                            index += Length($1);
+                        if (index >= $1.listValue.size() || index < 0)
+                        {
+                            yyerror("IndexError: pop index out of range");
+                            YYERROR;
+                        }
+                        else
+                        {
+                            $$ = $1.listValue[index];
+                            $1.listValue.erase($1.listValue.begin() + index);
+                        }
+                    }
+                    else
+                    {
+                        yyerror("TypeError: pop() takes at most 1 argument ("+ to_string($3.listValue.size()) +" given)");
+                        YYERROR;
+                    }
+                    break;
+                case ListItem:
+                    if ((*$1.begin).type == List)
+                    {
+                        if ($3.listValue.size() == 1) // pop 有1个参数
+                        {
+                            int index = $3.listValue[0].integerValue;
+                            if (index < 0)
+                                index += Length((*$1.begin));
+                            if (index >= (*$1.begin).listValue.size() || index < 0)
+                            {
+                                yyerror("IndexError: pop index out of range");
+                                YYERROR;
+                            }
+                            else
+                            {
+                                $$ = (*$1.begin).listValue[index];
+                                (*$1.begin).listValue.erase((*$1.begin).listValue.begin() + index);
+                            }
+                        }
+                        else
+                        {
+                            yyerror("TypeError: pop() takes at most 1 argument ("+ to_string($3.listValue.size()) +" given)");
+                            YYERROR;
+                        }
+                    }
+                    else
+                    {
+                        yyerror("AttributeError: '" + TypeString(*$1.begin) + "' object has no attribute 'pop'");
+                        YYERROR;
+                    }
+                    break;
+                case Variable:
+                    if (Symbol.at($1.variableName).type == List)
+                    {
+                        if ($3.listValue.size() == 1) // pop 有1个参数
+                        {
+                            int index = $3.listValue[0].integerValue;
+                            if (index < 0)
+                                index += Length(Symbol.at($1.variableName));
+                            if (index >= Symbol.at($1.variableName).listValue.size() || index < 0)
+                            {
+                                yyerror("IndexError: pop index out of range");
+                                YYERROR;
+                            }
+                            else
+                            {
+                                $$ = Symbol.at($1.variableName).listValue[index];
+                                Symbol.at($1.variableName).listValue.erase(Symbol.at($1.variableName).listValue.begin() + index);
+                            }
+                        }
+                        else
+                        {
+                            yyerror("TypeError: pop() takes at most 1 argument ("+ to_string($3.listValue.size()) +" given)");
+                            YYERROR;
+                        }
+                    }
+                    else
+                    {
+                        yyerror("AttributeError: '" + TypeString(Symbol.at($1.variableName)) + "' object has no attribute 'pop'");
+                        YYERROR;
+                    }
+                    break;
+                default:
+                    yyerror("AttributeError: '" + TypeString($1) + "' object has no attribute 'pop'");
                     YYERROR;
             }
         }
@@ -2177,6 +2272,68 @@ atom_expr:
                     break;
                 default:
                     yyerror("AttributeError: '" + TypeString($1) + "' object has no attribute 'insert'");
+                    YYERROR;
+            }
+        }
+        else if ($1.attributeName == "pop") // pop方法
+        {
+            switch ($1.type)
+            {
+                case List:
+                case ListSlice:
+                    if ($1.listValue.empty()) // 空列表
+                    {
+                        yyerror("IndexError: pop from empty list");
+                        YYERROR;
+                    }
+                    else
+                    {
+                        $$ = $1.listValue.back();
+                        $1.listValue.pop_back();
+                    }
+                    break;
+                case ListItem:
+                    if ((*$1.begin).type == List)
+                    {
+                        if ((*$1.begin).listValue.empty()) // 空列表
+                        {
+                            yyerror("IndexError: pop from empty list");
+                            YYERROR;
+                        }
+                        else
+                        {
+                            $$ = (*$1.begin).listValue.back();
+                            (*$1.begin).listValue.pop_back();
+                        }
+                    }
+                    else
+                    {
+                        yyerror("AttributeError: '" + TypeString(*$1.begin) + "' object has no attribute 'pop'");
+                        YYERROR;
+                    }
+                    break;
+                case Variable:
+                    if (Symbol.at($1.variableName).type == List)
+                    {
+                        if (Symbol.at($1.variableName).listValue.empty()) // 空列表
+                        {
+                            yyerror("IndexError: pop from empty list");
+                            YYERROR;
+                        }
+                        else
+                        {
+                            $$ = Symbol.at($1.variableName).listValue.back();
+                            Symbol.at($1.variableName).listValue.pop_back();
+                        }
+                    }
+                    else
+                    {
+                        yyerror("AttributeError: '" + TypeString(Symbol.at($1.variableName)) + "' object has no attribute 'pop'");
+                        YYERROR;
+                    }
+                    break;
+                default:
+                    yyerror("AttributeError: '" + TypeString($1) + "' object has no attribute 'pop'");
                     YYERROR;
             }
         }
