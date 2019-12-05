@@ -4164,10 +4164,10 @@ int main()
                 }
                 break;
             case 3: // Ctrl + C
-                yy_flush_buffer(buffer); // 清空缓冲区
+                // yy_flush_buffer(buffer); // 清空缓冲区
                 KeyBoardStream = ""; // 清空流
                 cursor = 0;
-                cout << "KeyboardInterrupt" << endl;
+                cout << endl << "KeyboardInterrupt" << endl;
                 break;
             case 9: // Tab
                 cout << "\t" << endl;
@@ -4182,7 +4182,11 @@ int main()
                 cursor = 0;
                 break;
             case 127: // Backspace
-                KeyBoardStream.erase(--cursor, 1); // 删除流中字符
+                cursor--;
+                if (cursor <= 0)
+                    cursor = 0;
+                else
+                    KeyBoardStream.erase(cursor, 1); // 删除流中字符
                 break;
             default:
                 KeyBoardStream.insert(cursor++, 1, (char)(c)); // 插入字符
@@ -4288,20 +4292,19 @@ int getch(void)
      struct termios tm, tm_old;
      int fd = 0, c;
 
-     if (tcgetattr(fd, &tm) < 0) {//保存现在的终端设置
+     if (tcgetattr(fd, &tm) < 0) // 保存当前终端设置
           return -1;
-     }
 
      tm_old = tm;
-     cfmakeraw(&tm);//更改终端设置为原始模式，该模式下所有的输入数据以字节为单位被处理
-     if (tcsetattr(fd, TCSANOW, &tm) < 0) {//设置上更改之后的设置
+     cfmakeraw(&tm); // 更改设置内容为原始模式，该模式下所有的输入数据以字节为单位被处理
+
+     if (tcsetattr(fd, TCSANOW, &tm) < 0) // 更改终端设置
           return -1;
-     }
 
      c = getchar();
-     if (tcsetattr(fd, TCSANOW, &tm_old) < 0) {//更改设置为最初的样子
+
+     if (tcsetattr(fd, TCSANOW, &tm_old) < 0) // 还原终端设置
           return -1;
-     }
 
      return c;
 }
