@@ -66,6 +66,7 @@
 
     /* definition */
     #include <stdio.h>
+    #include <termio.h>
     #include <ctype.h>
     #include <cmath>
     #include <iostream>
@@ -134,6 +135,11 @@
     #define YYSTYPE Value
     #include "lex.yy.c"
     void yyerror(string);
+    // extern yy_buffer_state * yy_scan_string(char *);
+    // extern void yy_delete_buffer(yy_buffer_state * buffer);
+
+    // 模仿conio的getch
+    int getch(void);
 
     // 变量值的输出函数
     void Print(Value);
@@ -144,7 +150,7 @@
     // 返回可迭代实体的长度
     int Length(Value);
 
-#line 148 "y.tab.c" /* yacc.c:339  */
+#line 154 "y.tab.c" /* yacc.c:339  */
 
 # ifndef YY_NULLPTR
 #  if defined __cplusplus && 201103L <= __cplusplus
@@ -211,7 +217,7 @@ int yyparse (void);
 
 /* Copy the second part of user declarations.  */
 
-#line 215 "y.tab.c" /* yacc.c:358  */
+#line 221 "y.tab.c" /* yacc.c:358  */
 
 #ifdef short
 # undef short
@@ -451,18 +457,18 @@ union yyalloc
 #endif /* !YYCOPY_NEEDED */
 
 /* YYFINAL -- State number of the termination state.  */
-#define YYFINAL  3
+#define YYFINAL  5
 /* YYLAST -- Last index in YYTABLE.  */
-#define YYLAST   114
+#define YYLAST   108
 
 /* YYNTOKENS -- Number of terminals.  */
 #define YYNTOKENS  23
 /* YYNNTS -- Number of nonterminals.  */
-#define YYNNTS  19
+#define YYNNTS  18
 /* YYNRULES -- Number of rules.  */
-#define YYNRULES  48
+#define YYNRULES  46
 /* YYNSTATES -- Number of states.  */
-#define YYNSTATES  78
+#define YYNSTATES  74
 
 /* YYTRANSLATE[YYX] -- Symbol number corresponding to YYX as returned
    by yylex, with out-of-bounds checking.  */
@@ -509,11 +515,11 @@ static const yytype_uint8 yytranslate[] =
   /* YYRLINE[YYN] -- Source line where rule number YYN was defined.  */
 static const yytype_uint16 yyrline[] =
 {
-       0,    91,    91,    96,    95,   108,   108,   110,   114,   118,
-     122,   171,   175,   176,   180,   193,   206,   240,   241,   242,
-     243,   248,   251,   266,   269,   273,   274,   939,  1126,  1133,
-    1986,  2257,  2262,  2271,  2276,  2283,  2285,  2289,  2294,  2303,
-    2395,  2438,  2442,  2523,  2540,  2559,  2589,  2590,  2591
+       0,    97,    97,   102,   101,   113,   115,   120,   124,   173,
+     177,   178,   182,   195,   208,   242,   243,   244,   245,   249,
+     250,   264,   265,   269,   270,   935,  1122,  1129,  1982,  2253,
+    2258,  2267,  2272,  2279,  2281,  2285,  2290,  2299,  2391,  2434,
+    2438,  2519,  2536,  2555,  2585,  2586,  2587
 };
 #endif
 
@@ -525,9 +531,9 @@ static const char *const yytname[] =
   "$end", "error", "$undefined", "ID", "INT", "REAL", "STRING_LITERAL",
   "DIV", "'+'", "'-'", "'*'", "'/'", "'%'", "UMINUS", "'\\n'", "'='",
   "':'", "'['", "']'", "'.'", "'('", "')'", "','", "$accept", "Start",
-  "Lines", "$@1", "prompt", "stat", "assignExpr", "number", "factor",
-  "atom", "slice_op", "sub_expr", "atom_expr", "arglist", "List",
-  "opt_comma", "List_items", "add_expr", "mul_expr", YY_NULLPTR
+  "Lines", "$@1", "stat", "assignExpr", "number", "factor", "atom",
+  "slice_op", "sub_expr", "atom_expr", "arglist", "List", "opt_comma",
+  "List_items", "add_expr", "mul_expr", YY_NULLPTR
 };
 #endif
 
@@ -542,12 +548,12 @@ static const yytype_uint16 yytoknum[] =
 };
 # endif
 
-#define YYPACT_NINF -15
+#define YYPACT_NINF -13
 
 #define yypact_value_is_default(Yystate) \
-  (!!((Yystate) == (-15)))
+  (!!((Yystate) == (-13)))
 
-#define YYTABLE_NINF -7
+#define YYTABLE_NINF -6
 
 #define yytable_value_is_error(Yytable_value) \
   0
@@ -556,14 +562,14 @@ static const yytype_uint16 yytoknum[] =
      STATE-NUM.  */
 static const yytype_int8 yypact[] =
 {
-     -15,    20,    58,   -15,    -6,    65,   -15,   -15,   -15,   -15,
-     -15,    90,    90,   -15,     1,    83,     9,   -15,   -15,   -15,
-     -15,    36,   -15,    18,    98,   -15,    64,   -15,   -15,   -15,
-      12,    18,    93,    25,   -15,    83,    83,    27,     8,    83,
-      83,    83,    83,    83,    83,    83,    47,   -15,   -15,   -15,
-     -15,    29,    39,   -15,   -15,    54,    18,    98,    98,   -15,
-     -15,   -15,   -15,    18,   -15,   -15,    83,   -15,    83,    56,
-      74,    18,    18,   -15,    83,    62,    18,   -15
+       7,     0,    17,    76,   -13,   -13,   -13,   -13,   -13,   -13,
+      83,    83,    58,    76,   -13,   -13,   -13,   -13,   -13,    82,
+     -13,    -5,    96,   -13,    21,   -13,   -13,     6,    -5,    -3,
+      32,     7,    76,    76,    19,    51,    76,    76,    76,    76,
+      76,    76,    76,    28,   -13,   -13,    76,   -13,    31,    11,
+     -13,   -13,    26,    -5,    96,    96,   -13,   -13,   -13,   -13,
+      -5,   -13,    76,   -13,    76,    30,    33,    -5,    -5,   -13,
+      76,    47,    -5,   -13
 };
 
   /* YYDEFACT[STATE-NUM] -- Default reduction number in state STATE-NUM.
@@ -571,28 +577,28 @@ static const yytype_int8 yypact[] =
      means the default is an error.  */
 static const yytype_uint8 yydefact[] =
 {
-       8,     0,     0,     1,     0,     2,     7,    17,    12,    13,
-      18,     0,     0,     8,     0,     0,     0,     9,    20,    48,
-      25,    16,    19,    11,    41,    14,    16,    15,     5,    33,
-      35,    37,     0,    41,     3,     0,    23,     0,     0,     0,
-       0,     0,     0,     0,     0,    36,     0,    46,    47,     8,
-      10,     0,    24,    28,    30,    35,    31,    39,    40,    44,
-      42,    43,    45,    38,    34,     4,    23,    27,    36,     0,
-      21,    24,    32,    29,     0,     0,    22,    26
+       0,     0,     0,     2,     6,     1,    15,    10,    11,    16,
+       0,     0,     0,     0,     3,     7,    18,    46,    23,    14,
+      17,     9,    39,    12,    14,    13,    31,    33,    35,     0,
+      39,     0,     0,    21,     0,     0,     0,     0,     0,     0,
+       0,     0,    34,     0,    44,    45,     4,     8,     0,    22,
+      26,    28,    33,    29,    37,    38,    42,    40,    41,    43,
+      36,    32,    21,    25,    34,     0,    19,    22,    30,    27,
+       0,     0,    20,    24
 };
 
   /* YYPGOTO[NTERM-NUM].  */
 static const yytype_int8 yypgoto[] =
 {
-     -15,   -15,   -15,   -15,   -11,   -15,    69,   -15,    38,   -15,
-     -15,    31,    -2,   -15,   -15,    51,   -15,   -14,     0
+     -13,   -13,    38,   -13,   -13,    41,   -13,    15,   -13,   -13,
+       8,    -1,   -13,   -13,    22,   -13,   -12,    -4
 };
 
   /* YYDEFGOTO[NTERM-NUM].  */
 static const yytype_int8 yydefgoto[] =
 {
-      -1,     1,     5,    49,     2,    16,    17,    18,    19,    20,
-      75,    51,    26,    55,    22,    46,    30,    23,    24
+      -1,     2,     3,    31,    14,    15,    16,    17,    18,    71,
+      48,    24,    52,    20,    43,    27,    21,    22
 };
 
   /* YYTABLE[YYPACT[STATE-NUM]] -- What to do in state STATE-NUM.  If
@@ -600,68 +606,66 @@ static const yytype_int8 yydefgoto[] =
      number is the opposite.  If YYTABLE_NINF, syntax error.  */
 static const yytype_int8 yytable[] =
 {
-      31,    32,    28,    21,     7,     8,     9,    10,     6,    11,
-      12,     7,     8,     9,    10,    33,    11,    12,    14,    29,
-       3,    15,    52,    34,    56,    14,    39,    40,    15,    54,
-      53,    63,    41,    21,    45,    42,    43,    44,    65,    57,
-      58,    59,    60,    61,    62,    66,    48,    39,    40,    25,
-      27,    35,    71,    36,    72,    37,    38,    67,    -6,     4,
-      76,    -6,    -6,    -6,    -6,    64,    -6,    -6,     7,     8,
-       9,    10,    -6,    11,    12,    -6,    68,    73,    -6,    13,
-      77,    36,    14,    37,    38,    15,     7,     8,     9,    10,
-      74,    11,    12,     7,     8,     9,    10,    70,    11,    12,
-      14,    39,    40,    15,    50,    41,    69,    14,    42,    43,
-      44,     0,     0,     0,    47
+      28,    29,    19,    36,    37,    36,    37,    -5,     1,    30,
+      -5,    -5,    -5,    -5,     4,    -5,    -5,     5,    44,    36,
+      37,    49,    50,    53,    -5,    23,    25,    -5,    42,    63,
+      60,    19,    54,    55,    56,    57,    58,    59,    33,    38,
+      34,    35,    39,    40,    41,    19,    61,    62,    64,    70,
+      67,    69,    68,    45,     6,     7,     8,     9,    72,    10,
+      11,     6,     7,     8,     9,    73,    10,    11,    12,    46,
+      66,    13,    51,    47,    65,    12,    26,     0,    13,     6,
+       7,     8,     9,     0,    10,    11,     6,     7,     8,     9,
+       0,    10,    11,    12,     0,     0,    13,    32,     0,    33,
+      12,    34,    35,    38,     0,     0,    39,    40,    41
 };
 
 static const yytype_int8 yycheck[] =
 {
-      14,    15,    13,     5,     3,     4,     5,     6,    14,     8,
-       9,     3,     4,     5,     6,    15,     8,     9,    17,    18,
-       0,    20,    36,    14,    38,    17,     8,     9,    20,    21,
-       3,    45,     7,    35,    22,    10,    11,    12,    49,    39,
-      40,    41,    42,    43,    44,    16,    21,     8,     9,    11,
-      12,    15,    66,    17,    68,    19,    20,    18,     0,     1,
-      74,     3,     4,     5,     6,    18,     8,     9,     3,     4,
-       5,     6,    14,     8,     9,    17,    22,    21,    20,    14,
-      18,    17,    17,    19,    20,    20,     3,     4,     5,     6,
-      16,     8,     9,     3,     4,     5,     6,    66,     8,     9,
-      17,     8,     9,    20,    35,     7,    55,    17,    10,    11,
-      12,    -1,    -1,    -1,    21
+      12,    13,     3,     8,     9,     8,     9,     0,     1,    13,
+       3,     4,     5,     6,    14,     8,     9,     0,    21,     8,
+       9,    33,     3,    35,    17,    10,    11,    20,    22,    18,
+      42,    32,    36,    37,    38,    39,    40,    41,    17,     7,
+      19,    20,    10,    11,    12,    46,    18,    16,    22,    16,
+      62,    21,    64,    21,     3,     4,     5,     6,    70,     8,
+       9,     3,     4,     5,     6,    18,     8,     9,    17,    31,
+      62,    20,    21,    32,    52,    17,    18,    -1,    20,     3,
+       4,     5,     6,    -1,     8,     9,     3,     4,     5,     6,
+      -1,     8,     9,    17,    -1,    -1,    20,    15,    -1,    17,
+      17,    19,    20,     7,    -1,    -1,    10,    11,    12
 };
 
   /* YYSTOS[STATE-NUM] -- The (internal number of the) accessing
      symbol of state STATE-NUM.  */
 static const yytype_uint8 yystos[] =
 {
-       0,    24,    27,     0,     1,    25,    14,     3,     4,     5,
-       6,     8,     9,    14,    17,    20,    28,    29,    30,    31,
-      32,    35,    37,    40,    41,    31,    35,    31,    27,    18,
-      39,    40,    40,    41,    14,    15,    17,    19,    20,     8,
-       9,     7,    10,    11,    12,    22,    38,    21,    21,    26,
-      29,    34,    40,     3,    21,    36,    40,    41,    41,    41,
-      41,    41,    41,    40,    18,    27,    16,    18,    22,    38,
-      34,    40,    40,    21,    16,    33,    40,    18
+       0,     1,    24,    25,    14,     0,     3,     4,     5,     6,
+       8,     9,    17,    20,    27,    28,    29,    30,    31,    34,
+      36,    39,    40,    30,    34,    30,    18,    38,    39,    39,
+      40,    26,    15,    17,    19,    20,     8,     9,     7,    10,
+      11,    12,    22,    37,    21,    21,    25,    28,    33,    39,
+       3,    21,    35,    39,    40,    40,    40,    40,    40,    40,
+      39,    18,    16,    18,    22,    37,    33,    39,    39,    21,
+      16,    32,    39,    18
 };
 
   /* YYR1[YYN] -- Symbol number of symbol that rule YYN derives.  */
 static const yytype_uint8 yyr1[] =
 {
-       0,    23,    24,    26,    25,    25,    25,    25,    27,    28,
-      29,    29,    30,    30,    31,    31,    31,    32,    32,    32,
-      32,    33,    33,    34,    34,    35,    35,    35,    35,    35,
-      35,    36,    36,    37,    37,    38,    38,    39,    39,    40,
-      40,    40,    41,    41,    41,    41,    41,    41,    41
+       0,    23,    24,    26,    25,    25,    25,    27,    28,    28,
+      29,    29,    30,    30,    30,    31,    31,    31,    31,    32,
+      32,    33,    33,    34,    34,    34,    34,    34,    34,    35,
+      35,    36,    36,    37,    37,    38,    38,    39,    39,    39,
+      40,    40,    40,    40,    40,    40,    40
 };
 
   /* YYR2[YYN] -- Number of symbols on the right hand side of rule YYN.  */
 static const yytype_uint8 yyr2[] =
 {
-       0,     2,     2,     0,     5,     3,     0,     2,     0,     1,
-       3,     1,     1,     1,     2,     2,     1,     1,     1,     1,
-       1,     0,     2,     0,     1,     1,     7,     4,     3,     5,
-       3,     1,     3,     2,     4,     0,     1,     1,     3,     3,
-       3,     1,     3,     3,     3,     3,     3,     3,     1
+       0,     2,     1,     0,     4,     0,     2,     1,     3,     1,
+       1,     1,     2,     2,     1,     1,     1,     1,     1,     0,
+       2,     0,     1,     1,     7,     4,     3,     5,     3,     1,
+       3,     2,     4,     0,     1,     1,     3,     3,     3,     1,
+       3,     3,     3,     3,     3,     3,     1
 };
 
 
@@ -1338,469 +1342,647 @@ yyreduce:
   switch (yyn)
     {
         case 3:
-#line 96 "minipy-lab.y" /* yacc.c:1646  */
+#line 102 "minipy-lab.y" /* yacc.c:1646  */
     {
-            Value temp;
-            if ((yyvsp[-1]).type != None)
-            {
-                if ((yyvsp[-1]).type == Variable) /* 单独的变量 */
-                    Print(Symbol.at((yyvsp[-1]).variableName));
-                else
-                    Print((yyvsp[-1]));
-                cout << endl;
-            }
+        Value temp;
+        if ((yyvsp[0]).type != None)
+        {
+            if ((yyvsp[0]).type == Variable) /* 单独的变量 */
+                Print(Symbol.at((yyvsp[0]).variableName));
+            else
+                Print((yyvsp[0]));
+            cout << endl;
         }
-#line 1354 "y.tab.c" /* yacc.c:1646  */
+    }
+#line 1358 "y.tab.c" /* yacc.c:1646  */
     break;
 
-  case 7:
-#line 110 "minipy-lab.y" /* yacc.c:1646  */
+  case 6:
+#line 115 "minipy-lab.y" /* yacc.c:1646  */
     { yyerrok; }
-#line 1360 "y.tab.c" /* yacc.c:1646  */
+#line 1364 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 8:
-#line 114 "minipy-lab.y" /* yacc.c:1646  */
-    { cout << "miniPy> "; }
-#line 1366 "y.tab.c" /* yacc.c:1646  */
+#line 125 "minipy-lab.y" /* yacc.c:1646  */
+    {
+        (yyval).type = None;
+        Value temp;
+        if ((yyvsp[0]).type == Variable)
+            temp = Symbol.at((yyvsp[0]).variableName);
+        else
+            temp = (yyvsp[0]);
+        vector<struct value> temp_for_string = vector<struct value>();
+        Value temp_for_string_2; // 拆分字符串
+        switch ((yyvsp[-2]).type)
+        {
+            case Variable:
+                Symbol[(yyvsp[-2]).variableName] = temp; /* 加入符号表或重新赋值 */
+                break;
+            case ListItem:
+                *(yyvsp[-2]).begin = temp;
+                break;
+            case ListSlice:
+                switch (temp.type)
+                {
+                    case List:
+                        Symbol[(yyvsp[-2]).variableName].listValue.erase((yyvsp[-2]).begin, (yyvsp[-2]).end);
+                        Symbol[(yyvsp[-2]).variableName].listValue.insert((yyvsp[-2]).begin, temp.listValue.begin(), temp.listValue.end()); // 插入
+                        break;
+                    case ListSlice:
+                        Symbol[(yyvsp[-2]).variableName].listValue.erase((yyvsp[-2]).begin, (yyvsp[-2]).end);
+                        Symbol[(yyvsp[-2]).variableName].listValue.insert((yyvsp[-2]).begin, temp.begin, temp.end); // 插入
+                        break;
+                    case String:
+                        temp_for_string_2.type = String;
+                        for (int i = 0; i < temp.stringValue.length(); i++)
+                        {
+                            temp_for_string_2.stringValue = temp.stringValue[i];
+                            temp_for_string.push_back(temp_for_string_2);
+                        }
+                        Symbol[(yyvsp[-2]).variableName].listValue.erase((yyvsp[-2]).begin, (yyvsp[-2]).end);
+                        Symbol[(yyvsp[-2]).variableName].listValue.insert((yyvsp[-2]).begin, temp_for_string.begin(), temp_for_string.end()); // 插入
+                        break;
+                    default:
+                        yyerror("TypeError: can only assign an iterable");
+                        YYERROR;
+                }
+                break;
+            default:
+                yyerror("SyntaxError: can't assign to literal");
+                YYERROR;
+        }
+    }
+#line 1417 "y.tab.c" /* yacc.c:1646  */
     break;
 
-  case 10:
-#line 123 "minipy-lab.y" /* yacc.c:1646  */
+  case 12:
+#line 183 "minipy-lab.y" /* yacc.c:1646  */
     {
-            (yyval).type = None;
-            Value temp;
-            if ((yyvsp[0]).type == Variable)
-                temp = Symbol.at((yyvsp[0]).variableName);
-            else
-                temp = (yyvsp[0]);
-            vector<struct value> temp_for_string = vector<struct value>();
-            Value temp_for_string_2; // 拆分字符串
-            switch ((yyvsp[-2]).type)
-            {
-                case Variable:
-                    Symbol[(yyvsp[-2]).variableName] = temp; /* 加入符号表或重新赋值 */
-                    break;
-                case ListItem:
-                    *(yyvsp[-2]).begin = temp;
-                    break;
-                case ListSlice:
-                    switch (temp.type)
-                    {
-                        case List:
-                            Symbol[(yyvsp[-2]).variableName].listValue.erase((yyvsp[-2]).begin, (yyvsp[-2]).end);
-                            Symbol[(yyvsp[-2]).variableName].listValue.insert((yyvsp[-2]).begin, temp.listValue.begin(), temp.listValue.end()); // 插入
-                            break;
-                        case ListSlice:
-                            Symbol[(yyvsp[-2]).variableName].listValue.erase((yyvsp[-2]).begin, (yyvsp[-2]).end);
-                            Symbol[(yyvsp[-2]).variableName].listValue.insert((yyvsp[-2]).begin, temp.begin, temp.end); // 插入
-                            break;
-                        case String:
-                            temp_for_string_2.type = String;
-                            for (int i = 0; i < temp.stringValue.length(); i++)
-                            {
-                                temp_for_string_2.stringValue = temp.stringValue[i];
-                                temp_for_string.push_back(temp_for_string_2);
-                            }
-                            Symbol[(yyvsp[-2]).variableName].listValue.erase((yyvsp[-2]).begin, (yyvsp[-2]).end);
-                            Symbol[(yyvsp[-2]).variableName].listValue.insert((yyvsp[-2]).begin, temp_for_string.begin(), temp_for_string.end()); // 插入
-                            break;
-                        default:
-                            yyerror("TypeError: can only assign an iterable");
-                            YYERROR;
-                    }
-                    break;
-                default:
-                    yyerror("SyntaxError: can't assign to literal");
-                    YYERROR;
-            }
+        (yyval).type = (yyvsp[0]).type;
+        if ((yyvsp[0]).type == Integer)
+            (yyval).integerValue = (yyvsp[0]).integerValue;
+        else if ((yyvsp[0]).type == Real)
+            (yyval).realValue = (yyvsp[0]).realValue;
+        else
+        {
+            yyerror("TypeError: bad operand type for unary +: '"+ TypeString((yyvsp[0])) + "\'");
+            YYERROR;
         }
-#line 1419 "y.tab.c" /* yacc.c:1646  */
+    }
+#line 1434 "y.tab.c" /* yacc.c:1646  */
+    break;
+
+  case 13:
+#line 196 "minipy-lab.y" /* yacc.c:1646  */
+    {
+        (yyval).type = (yyvsp[0]).type;
+        if ((yyvsp[0]).type == Integer)
+            (yyval).integerValue = -(yyvsp[0]).integerValue;
+        else if ((yyvsp[0]).type == Real)
+            (yyval).realValue = -(yyvsp[0]).realValue;
+        else
+        {
+            yyerror("TypeError: bad operand type for unary -: '"+ TypeString((yyvsp[0])) + "\'");
+            YYERROR;
+        }
+    }
+#line 1451 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 14:
-#line 181 "minipy-lab.y" /* yacc.c:1646  */
+#line 209 "minipy-lab.y" /* yacc.c:1646  */
     {
-            (yyval).type = (yyvsp[0]).type;
-            if ((yyvsp[0]).type == Integer)
-                (yyval).integerValue = (yyvsp[0]).integerValue;
-            else if ((yyvsp[0]).type == Real)
-                (yyval).realValue = (yyvsp[0]).realValue;
-            else
-            {
-                yyerror("TypeError: bad operand type for unary +: '"+ TypeString((yyvsp[0])) + "\'");
-                YYERROR;
-            }
+        switch ((yyvsp[0]).type)
+        {
+            case Integer:
+            case Real:
+            case String:
+            case List:
+                (yyval) = (yyvsp[0]);
+                break;
+            case ListSlice:
+                (yyval).type = List;
+                (yyval).listValue = (yyvsp[0]).listValue;
+                break;
+            case ListItem:
+                (yyval) = *(yyvsp[0]).begin;
+                break;
+            case Variable:
+                if (Symbol.count((yyvsp[0]).variableName) == 1) // 已在变量表内
+                    (yyval) = Symbol.at((yyvsp[0]).variableName); // 取变量内容，使用下标检查
+                else
+                {
+                    yyerror("NameError: name '"+ (yyvsp[0]).variableName +"' is not defined");
+                    YYERROR;
+                }
+                break;
+            // default:
+            //     yyerror("TypeError: not supported type");
+            //     YYERROR;
         }
-#line 1436 "y.tab.c" /* yacc.c:1646  */
+    }
+#line 1486 "y.tab.c" /* yacc.c:1646  */
     break;
 
-  case 15:
-#line 194 "minipy-lab.y" /* yacc.c:1646  */
-    {
-            (yyval).type = (yyvsp[0]).type;
-            if ((yyvsp[0]).type == Integer)
-                (yyval).integerValue = -(yyvsp[0]).integerValue;
-            else if ((yyvsp[0]).type == Real)
-                (yyval).realValue = -(yyvsp[0]).realValue;
-            else
-            {
-                yyerror("TypeError: bad operand type for unary -: '"+ TypeString((yyvsp[0])) + "\'");
-                YYERROR;
-            }
-        }
-#line 1453 "y.tab.c" /* yacc.c:1646  */
+  case 19:
+#line 249 "minipy-lab.y" /* yacc.c:1646  */
+    { (yyval).type = None; }
+#line 1492 "y.tab.c" /* yacc.c:1646  */
     break;
 
-  case 16:
-#line 207 "minipy-lab.y" /* yacc.c:1646  */
+  case 20:
+#line 251 "minipy-lab.y" /* yacc.c:1646  */
     {
-            switch ((yyvsp[0]).type)
-            {
-                case Integer:
-                case Real:
-                case String:
-                case List:
-                    (yyval) = (yyvsp[0]);
-                    break;
-                case ListSlice:
-                    (yyval).type = List;
-                    (yyval).listValue = (yyvsp[0]).listValue;
-                    break;
-                case ListItem:
-                    (yyval) = *(yyvsp[0]).begin;
-                    break;
-                case Variable:
-                    if (Symbol.count((yyvsp[0]).variableName) == 1) // 已在变量表内
-                        (yyval) = Symbol.at((yyvsp[0]).variableName); // 取变量内容，使用下标检查
-                    else
-                    {
-                        yyerror("NameError: name '"+ (yyvsp[0]).variableName +"' is not defined");
-                        YYERROR;
-                    }
-                    break;
-                // default:
-                //     yyerror("TypeError: not supported type");
-                //     YYERROR;
-            }
+        (yyval).type = Integer;
+        if ((yyvsp[0]).type == Integer)
+            (yyval).integerValue = (yyvsp[0]).integerValue;
+        else
+        {
+            yyerror("TypeError: slice indices must be integers or None");
+            YYERROR;
         }
-#line 1488 "y.tab.c" /* yacc.c:1646  */
+    }
+#line 1507 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 21:
-#line 248 "minipy-lab.y" /* yacc.c:1646  */
-    {
-            (yyval).type = None;
-        }
-#line 1496 "y.tab.c" /* yacc.c:1646  */
+#line 264 "minipy-lab.y" /* yacc.c:1646  */
+    { (yyval).type = None; }
+#line 1513 "y.tab.c" /* yacc.c:1646  */
     break;
 
-  case 22:
-#line 252 "minipy-lab.y" /* yacc.c:1646  */
+  case 24:
+#line 271 "minipy-lab.y" /* yacc.c:1646  */
     {
-            (yyval).type = Integer;
-            if ((yyvsp[0]).type == Integer)
-                (yyval).integerValue = (yyvsp[0]).integerValue;
-            else
-            {
-                yyerror("TypeError: slice indices must be integers or None");
-                YYERROR;
-            }
+        int begin, end, step;
+
+        if ((yyvsp[-1]).type == None) // 默认步长
+            step = 1;
+        else if ((yyvsp[-1]).type == Integer)
+            step = (yyvsp[-1]).integerValue;
+        else
+        {
+            yyerror("TypeError: slice indices must be integers or None");
+            YYERROR;
         }
-#line 1511 "y.tab.c" /* yacc.c:1646  */
-    break;
 
-  case 23:
-#line 266 "minipy-lab.y" /* yacc.c:1646  */
-    {
-            (yyval).type = None;
-        }
-#line 1519 "y.tab.c" /* yacc.c:1646  */
-    break;
+        switch ((yyvsp[-6]).type)
+        {
+            case String:
+                (yyval).type = String;
+                (yyval).stringValue = "";
 
-  case 26:
-#line 275 "minipy-lab.y" /* yacc.c:1646  */
-    {
-            int begin, end, step;
-
-            if ((yyvsp[-1]).type == None) // 默认步长
-                step = 1;
-            else if ((yyvsp[-1]).type == Integer)
-                step = (yyvsp[-1]).integerValue;
-            else
-            {
-                yyerror("TypeError: slice indices must be integers or None");
-                YYERROR;
-            }
-
-            switch ((yyvsp[-6]).type)
-            {
-                case String:
-                    (yyval).type = String;
-                    (yyval).stringValue = "";
-
-                    if (step > 0)
+                if (step > 0)
+                {
+                    if ((yyvsp[-4]).type == None) // 默认起始
+                        begin = 0;
+                    else if ((yyvsp[-4]).type == Integer)
                     {
-                        if ((yyvsp[-4]).type == None) // 默认起始
+                        begin = (yyvsp[-4]).integerValue;
+                        if (begin < 0)
+                            begin += (yyvsp[-6]).stringValue.length();
+                        if (begin < 0)
                             begin = 0;
-                        else if ((yyvsp[-4]).type == Integer)
-                        {
-                            begin = (yyvsp[-4]).integerValue;
-                            if (begin < 0)
-                                begin += (yyvsp[-6]).stringValue.length();
-                            if (begin < 0)
-                                begin = 0;
-                            else if (begin >= (yyvsp[-6]).stringValue.length())
-                                begin = (yyvsp[-6]).stringValue.length();
-                        }
-                        else
-                        {
-                            yyerror("TypeError: slice indices must be integers or None");
-                            YYERROR;
-                        }
+                        else if (begin >= (yyvsp[-6]).stringValue.length())
+                            begin = (yyvsp[-6]).stringValue.length();
+                    }
+                    else
+                    {
+                        yyerror("TypeError: slice indices must be integers or None");
+                        YYERROR;
+                    }
 
-                        if ((yyvsp[-2]).type == None) // 默认结束
+                    if ((yyvsp[-2]).type == None) // 默认结束
+                        end = (yyvsp[-6]).stringValue.length();
+                    else if ((yyvsp[-2]).type == Integer)
+                    {
+                        end = (yyvsp[-2]).integerValue;
+                        if (end < 0)
+                            end += (yyvsp[-6]).stringValue.length();
+                        if (end < 0)
+                            end = 0;
+                        else if (end >= (yyvsp[-6]).stringValue.length())
                             end = (yyvsp[-6]).stringValue.length();
-                        else if ((yyvsp[-2]).type == Integer)
-                        {
-                            end = (yyvsp[-2]).integerValue;
-                            if (end < 0)
-                                end += (yyvsp[-6]).stringValue.length();
-                            if (end < 0)
-                                end = 0;
-                            else if (end >= (yyvsp[-6]).stringValue.length())
-                                end = (yyvsp[-6]).stringValue.length();
-                        }
-                        else
-                        {
-                            yyerror("TypeError: slice indices must be integers or None");
-                            YYERROR;
-                        }
-                        for (int i = begin; i < end; i += step)
-                            (yyval).stringValue += (yyvsp[-6]).stringValue[i]; // 逐个取子串
                     }
-                    else if (step < 0) // 负步长
+                    else
                     {
-                        if ((yyvsp[-4]).type == None) // 默认起始
-                            begin = (yyvsp[-6]).stringValue.length() - 1;
-                        else if ((yyvsp[-4]).type == Integer)
-                        {
-                            begin = (yyvsp[-4]).integerValue;
-                            if (begin < 0)
-                                begin += (yyvsp[-6]).stringValue.length();
-                            if (begin < 0)
-                                begin = 0;
-                            else if (begin >= (yyvsp[-6]).stringValue.length())
-                                begin = (yyvsp[-6]).stringValue.length() - 1;
-                        }
-                        else
-                        {
-                            yyerror("TypeError: slice indices must be integers or None");
-                            YYERROR;
-                        }
-
-                        if ((yyvsp[-2]).type == None) // 默认结束
-                            end = -1;
-                        else if ((yyvsp[-2]).type == Integer)
-                        {
-                            end = (yyvsp[-2]).integerValue;
-                            if (end < 0)
-                                end += (yyvsp[-6]).stringValue.length();
-                            if (end < 0)
-                                end = -1;
-                            else if (end >= (yyvsp[-6]).stringValue.length())
-                                end = (yyvsp[-6]).stringValue.length();
-                        }
-                        else
-                        {
-                            yyerror("TypeError: slice indices must be integers or None");
-                            YYERROR;
-                        }
-
-                        for (int i = begin; i > end; i += step)
-                            (yyval).stringValue += (yyvsp[-6]).stringValue[i]; // 逐个取子串
+                        yyerror("TypeError: slice indices must be integers or None");
+                        YYERROR;
                     }
-                    break;
-                case List:
-                    (yyval).type = List; // 实体列表的切片不作为切片类型处理
-                    (yyval).listValue = vector<struct value>();
-                    if (step > 0)
+                    for (int i = begin; i < end; i += step)
+                        (yyval).stringValue += (yyvsp[-6]).stringValue[i]; // 逐个取子串
+                }
+                else if (step < 0) // 负步长
+                {
+                    if ((yyvsp[-4]).type == None) // 默认起始
+                        begin = (yyvsp[-6]).stringValue.length() - 1;
+                    else if ((yyvsp[-4]).type == Integer)
                     {
-                        if ((yyvsp[-4]).type == None) // 默认起始
+                        begin = (yyvsp[-4]).integerValue;
+                        if (begin < 0)
+                            begin += (yyvsp[-6]).stringValue.length();
+                        if (begin < 0)
                             begin = 0;
-                        else if ((yyvsp[-4]).type == Integer)
-                        {
-                            begin = (yyvsp[-4]).integerValue;
-                            if (begin < 0)
-                                begin += (yyvsp[-6]).listValue.size();
-                            if (begin < 0)
-                                begin = 0;
-                            else if (begin >= (yyvsp[-6]).listValue.size())
-                                begin = (yyvsp[-6]).listValue.size();
-                        }
-                        else
-                        {
-                            yyerror("TypeError: slice indices must be integers or None");
-                            YYERROR;
-                        }
-
-                        if ((yyvsp[-2]).type == None) // 默认结束
-                            end = (yyvsp[-6]).listValue.size();
-                        else if ((yyvsp[-2]).type == Integer)
-                        {
-                            end = (yyvsp[-2]).integerValue;
-                            if (end < 0)
-                                end += (yyvsp[-6]).listValue.size();
-                            if (end < 0)
-                                end = 0;
-                            else if (end >= (yyvsp[-6]).listValue.size())
-                                end = (yyvsp[-6]).listValue.size();
-                        }
-                        else
-                        {
-                            yyerror("TypeError: slice indices must be integers or None");
-                            YYERROR;
-                        }
-
-                        for (vector<struct value>::iterator i = (yyvsp[-6]).listValue.begin() + begin; i != (yyvsp[-6]).listValue.begin() + end; i += step)
-                            (yyval).listValue.push_back(*i); // 逐个取元素
+                        else if (begin >= (yyvsp[-6]).stringValue.length())
+                            begin = (yyvsp[-6]).stringValue.length() - 1;
                     }
-                    else if (step < 0)
+                    else
                     {
-                        if ((yyvsp[-4]).type == None) // 默认起始
-                            begin = (yyvsp[-6]).listValue.size() - 1;
-                        else if ((yyvsp[-4]).type == Integer)
-                        {
-                            begin = (yyvsp[-4]).integerValue;
-                            if (begin < 0)
-                                begin += (yyvsp[-6]).listValue.size();
-                            if (begin < 0)
-                                begin = 0;
-                            else if (begin >= (yyvsp[-6]).listValue.size())
-                                begin = (yyvsp[-6]).listValue.size() - 1;
-                        }
-                        else
-                        {
-                            yyerror("TypeError: slice indices must be integers or None");
-                            YYERROR;
-                        }
+                        yyerror("TypeError: slice indices must be integers or None");
+                        YYERROR;
+                    }
 
-                        if ((yyvsp[-2]).type == None) // 默认结束
+                    if ((yyvsp[-2]).type == None) // 默认结束
+                        end = -1;
+                    else if ((yyvsp[-2]).type == Integer)
+                    {
+                        end = (yyvsp[-2]).integerValue;
+                        if (end < 0)
+                            end += (yyvsp[-6]).stringValue.length();
+                        if (end < 0)
                             end = -1;
-                        else if ((yyvsp[-2]).type == Integer)
-                        {
-                            end = (yyvsp[-2]).integerValue;
-                            if (end < 0)
-                                end += (yyvsp[-6]).listValue.size();
-                            if (end < 0)
-                                end = -1;
-                            else if (end >= (yyvsp[-6]).listValue.size())
-                                end = (yyvsp[-6]).listValue.size();
-                        }
-                        else
-                        {
-                            yyerror("TypeError: slice indices must be integers or None");
-                            YYERROR;
-                        }
-
-                        for (vector<struct value>::iterator i = (yyvsp[-6]).listValue.begin() + begin; i != (yyvsp[-6]).listValue.begin() + end; i += step)
-                            (yyval).listValue.push_back(*i); // 逐个取元素
+                        else if (end >= (yyvsp[-6]).stringValue.length())
+                            end = (yyvsp[-6]).stringValue.length();
                     }
-                    break;
-                case ListSlice:
-                    (yyval).type = ListSlice; // 列表元素类型
-                    (yyval).variableName = (yyvsp[-6]).variableName;
-                    (yyval).listValue = vector<struct value>();
-                    if (step > 0)
+                    else
                     {
-                        if ((yyvsp[-4]).type == None) // 默认起始
-                            (yyval).begin = (yyvsp[-6]).begin;
-                        else if ((yyvsp[-4]).type == Integer)
-                        {
-                            begin = (yyvsp[-4]).integerValue;
-                            if (begin < 0)
-                                begin += (yyvsp[-6]).listValue.size();
-                            if (begin < 0)
-                                begin = 0;
-                            else if (begin > (yyvsp[-6]).listValue.size())
-                                begin = (yyvsp[-6]).listValue.size();
-                            (yyval).begin = (yyvsp[-6]).begin + begin;
-                        }
-                        else
-                        {
-                            yyerror("TypeError: slice indices must be integers or None");
-                            YYERROR;
-                        }
-
-                        if ((yyvsp[-2]).type == None) // 默认结束
-                            (yyval).end = (yyvsp[-6]).end;
-                        else if ((yyvsp[-2]).type == Integer)
-                        {
-                            end = (yyvsp[-2]).integerValue;
-                            if (end < 0)
-                                end += (yyvsp[-6]).listValue.size();
-                            if (end < 0)
-                                end = 0;
-                            else if (end > (yyvsp[-6]).listValue.size())
-                                end = (yyvsp[-6]).listValue.size();
-                            (yyval).end = (yyvsp[-6]).begin + end;
-                        }
-                        else
-                        {
-                            yyerror("TypeError: slice indices must be integers or None");
-                            YYERROR;
-                        }
-
-                        for (vector<struct value>::iterator i = (yyval).begin; i != (yyval).end; i += step)
-                            (yyval).listValue.push_back(*i); // 逐个取子串
-
+                        yyerror("TypeError: slice indices must be integers or None");
+                        YYERROR;
                     }
-                    else if (step < 0)
+
+                    for (int i = begin; i > end; i += step)
+                        (yyval).stringValue += (yyvsp[-6]).stringValue[i]; // 逐个取子串
+                }
+                break;
+            case List:
+                (yyval).type = List; // 实体列表的切片不作为切片类型处理
+                (yyval).listValue = vector<struct value>();
+                if (step > 0)
+                {
+                    if ((yyvsp[-4]).type == None) // 默认起始
+                        begin = 0;
+                    else if ((yyvsp[-4]).type == Integer)
                     {
-                        if ((yyvsp[-4]).type == None) // 默认起始
-                            (yyval).begin = (yyvsp[-6]).end - 1;
-                        else if ((yyvsp[-4]).type == Integer)
-                        {
-                            begin = (yyvsp[-4]).integerValue;
-                            if (begin < 0)
-                                begin += (yyvsp[-6]).listValue.size();
-                            if (begin < 0)
-                                begin = 0;
-                            else if (begin > (yyvsp[-6]).listValue.size())
-                                begin = (yyvsp[-6]).listValue.size() - 1;
-                            (yyval).begin = (yyvsp[-6]).begin + begin;
-                        }
-                        else
-                        {
-                            yyerror("TypeError: slice indices must be integers or None");
-                            YYERROR;
-                        }
-
-                        if ((yyvsp[-2]).type == None) // 默认结束
-                            (yyval).end = (yyvsp[-6]).begin - 1;
-                        else if ((yyvsp[-2]).type == Integer)
-                        {
-                            end = (yyvsp[-2]).integerValue;
-                            if (end < 0)
-                                end += (yyvsp[-6]).listValue.size();
-                            if (end < 0)
-                                end = -1;
-                            else if (end > (yyvsp[-6]).listValue.size())
-                                end = (yyvsp[-6]).listValue.size();
-                            (yyval).end = (yyvsp[-6]).begin + end;
-                        }
-                        else
-                        {
-                            yyerror("TypeError: slice indices must be integers or None");
-                            YYERROR;
-                        }
-
-                        for (vector<struct value>::iterator i = (yyval).begin; i != (yyval).end; i += step)
-                            (yyval).listValue.push_back(*i); // 逐个取子串
+                        begin = (yyvsp[-4]).integerValue;
+                        if (begin < 0)
+                            begin += (yyvsp[-6]).listValue.size();
+                        if (begin < 0)
+                            begin = 0;
+                        else if (begin >= (yyvsp[-6]).listValue.size())
+                            begin = (yyvsp[-6]).listValue.size();
                     }
-                    break;
-                case ListItem:
-                    switch ((*(yyvsp[-6]).begin).type)
+                    else
+                    {
+                        yyerror("TypeError: slice indices must be integers or None");
+                        YYERROR;
+                    }
+
+                    if ((yyvsp[-2]).type == None) // 默认结束
+                        end = (yyvsp[-6]).listValue.size();
+                    else if ((yyvsp[-2]).type == Integer)
+                    {
+                        end = (yyvsp[-2]).integerValue;
+                        if (end < 0)
+                            end += (yyvsp[-6]).listValue.size();
+                        if (end < 0)
+                            end = 0;
+                        else if (end >= (yyvsp[-6]).listValue.size())
+                            end = (yyvsp[-6]).listValue.size();
+                    }
+                    else
+                    {
+                        yyerror("TypeError: slice indices must be integers or None");
+                        YYERROR;
+                    }
+
+                    for (vector<struct value>::iterator i = (yyvsp[-6]).listValue.begin() + begin; i != (yyvsp[-6]).listValue.begin() + end; i += step)
+                        (yyval).listValue.push_back(*i); // 逐个取元素
+                }
+                else if (step < 0)
+                {
+                    if ((yyvsp[-4]).type == None) // 默认起始
+                        begin = (yyvsp[-6]).listValue.size() - 1;
+                    else if ((yyvsp[-4]).type == Integer)
+                    {
+                        begin = (yyvsp[-4]).integerValue;
+                        if (begin < 0)
+                            begin += (yyvsp[-6]).listValue.size();
+                        if (begin < 0)
+                            begin = 0;
+                        else if (begin >= (yyvsp[-6]).listValue.size())
+                            begin = (yyvsp[-6]).listValue.size() - 1;
+                    }
+                    else
+                    {
+                        yyerror("TypeError: slice indices must be integers or None");
+                        YYERROR;
+                    }
+
+                    if ((yyvsp[-2]).type == None) // 默认结束
+                        end = -1;
+                    else if ((yyvsp[-2]).type == Integer)
+                    {
+                        end = (yyvsp[-2]).integerValue;
+                        if (end < 0)
+                            end += (yyvsp[-6]).listValue.size();
+                        if (end < 0)
+                            end = -1;
+                        else if (end >= (yyvsp[-6]).listValue.size())
+                            end = (yyvsp[-6]).listValue.size();
+                    }
+                    else
+                    {
+                        yyerror("TypeError: slice indices must be integers or None");
+                        YYERROR;
+                    }
+
+                    for (vector<struct value>::iterator i = (yyvsp[-6]).listValue.begin() + begin; i != (yyvsp[-6]).listValue.begin() + end; i += step)
+                        (yyval).listValue.push_back(*i); // 逐个取元素
+                }
+                break;
+            case ListSlice:
+                (yyval).type = ListSlice; // 列表元素类型
+                (yyval).variableName = (yyvsp[-6]).variableName;
+                (yyval).listValue = vector<struct value>();
+                if (step > 0)
+                {
+                    if ((yyvsp[-4]).type == None) // 默认起始
+                        (yyval).begin = (yyvsp[-6]).begin;
+                    else if ((yyvsp[-4]).type == Integer)
+                    {
+                        begin = (yyvsp[-4]).integerValue;
+                        if (begin < 0)
+                            begin += (yyvsp[-6]).listValue.size();
+                        if (begin < 0)
+                            begin = 0;
+                        else if (begin > (yyvsp[-6]).listValue.size())
+                            begin = (yyvsp[-6]).listValue.size();
+                        (yyval).begin = (yyvsp[-6]).begin + begin;
+                    }
+                    else
+                    {
+                        yyerror("TypeError: slice indices must be integers or None");
+                        YYERROR;
+                    }
+
+                    if ((yyvsp[-2]).type == None) // 默认结束
+                        (yyval).end = (yyvsp[-6]).end;
+                    else if ((yyvsp[-2]).type == Integer)
+                    {
+                        end = (yyvsp[-2]).integerValue;
+                        if (end < 0)
+                            end += (yyvsp[-6]).listValue.size();
+                        if (end < 0)
+                            end = 0;
+                        else if (end > (yyvsp[-6]).listValue.size())
+                            end = (yyvsp[-6]).listValue.size();
+                        (yyval).end = (yyvsp[-6]).begin + end;
+                    }
+                    else
+                    {
+                        yyerror("TypeError: slice indices must be integers or None");
+                        YYERROR;
+                    }
+
+                    for (vector<struct value>::iterator i = (yyval).begin; i != (yyval).end; i += step)
+                        (yyval).listValue.push_back(*i); // 逐个取子串
+
+                }
+                else if (step < 0)
+                {
+                    if ((yyvsp[-4]).type == None) // 默认起始
+                        (yyval).begin = (yyvsp[-6]).end - 1;
+                    else if ((yyvsp[-4]).type == Integer)
+                    {
+                        begin = (yyvsp[-4]).integerValue;
+                        if (begin < 0)
+                            begin += (yyvsp[-6]).listValue.size();
+                        if (begin < 0)
+                            begin = 0;
+                        else if (begin > (yyvsp[-6]).listValue.size())
+                            begin = (yyvsp[-6]).listValue.size() - 1;
+                        (yyval).begin = (yyvsp[-6]).begin + begin;
+                    }
+                    else
+                    {
+                        yyerror("TypeError: slice indices must be integers or None");
+                        YYERROR;
+                    }
+
+                    if ((yyvsp[-2]).type == None) // 默认结束
+                        (yyval).end = (yyvsp[-6]).begin - 1;
+                    else if ((yyvsp[-2]).type == Integer)
+                    {
+                        end = (yyvsp[-2]).integerValue;
+                        if (end < 0)
+                            end += (yyvsp[-6]).listValue.size();
+                        if (end < 0)
+                            end = -1;
+                        else if (end > (yyvsp[-6]).listValue.size())
+                            end = (yyvsp[-6]).listValue.size();
+                        (yyval).end = (yyvsp[-6]).begin + end;
+                    }
+                    else
+                    {
+                        yyerror("TypeError: slice indices must be integers or None");
+                        YYERROR;
+                    }
+
+                    for (vector<struct value>::iterator i = (yyval).begin; i != (yyval).end; i += step)
+                        (yyval).listValue.push_back(*i); // 逐个取子串
+                }
+                break;
+            case ListItem:
+                switch ((*(yyvsp[-6]).begin).type)
+                {
+                    case String:
+                        (yyval).type = String;
+                        (yyval).stringValue = "";
+
+                        if (step > 0)
+                        {
+                            if ((yyvsp[-4]).type == None) // 默认起始
+                                begin = 0;
+                            else if ((yyvsp[-4]).type == Integer)
+                            {
+                                begin = (yyvsp[-4]).integerValue;
+                                if (begin < 0)
+                                    begin += (*(yyvsp[-6]).begin).stringValue.length();
+                                if (begin < 0)
+                                    begin = 0;
+                                else if (begin >= (*(yyvsp[-6]).begin).stringValue.length())
+                                    begin = (*(yyvsp[-6]).begin).stringValue.length();
+                            }
+                            else
+                            {
+                                yyerror("TypeError: slice indices must be integers or None");
+                                YYERROR;
+                            }
+
+                            if ((yyvsp[-2]).type == None) // 默认结束
+                                end = (*(yyvsp[-6]).begin).stringValue.length();
+                            else if ((yyvsp[-2]).type == Integer)
+                            {
+                                end = (yyvsp[-2]).integerValue;
+                                if (end < 0)
+                                    end += (*(yyvsp[-6]).begin).stringValue.length();
+                                if (end < 0)
+                                    end = 0;
+                                else if (end >= (*(yyvsp[-6]).begin).stringValue.length())
+                                    end = (*(yyvsp[-6]).begin).stringValue.length();
+                            }
+                            else
+                            {
+                                yyerror("TypeError: slice indices must be integers or None");
+                                YYERROR;
+                            }
+                            for (int i = begin; i < end; i += step)
+                                (yyval).stringValue += (*(yyvsp[-6]).begin).stringValue[i]; // 逐个取子串
+                        }
+                        else if (step < 0) // 负步长
+                        {
+                            if ((yyvsp[-4]).type == None) // 默认起始
+                                begin = (*(yyvsp[-6]).begin).stringValue.length() - 1;
+                            else if ((yyvsp[-4]).type == Integer)
+                            {
+                                begin = (yyvsp[-4]).integerValue;
+                                if (begin < 0)
+                                    begin += (*(yyvsp[-6]).begin).stringValue.length();
+                                if (begin < 0)
+                                    begin = 0;
+                                else if (begin >= (*(yyvsp[-6]).begin).stringValue.length())
+                                    begin = (*(yyvsp[-6]).begin).stringValue.length() - 1;
+                            }
+                            else
+                            {
+                                yyerror("TypeError: slice indices must be integers or None");
+                                YYERROR;
+                            }
+
+                            if ((yyvsp[-2]).type == None) // 默认结束
+                                end = -1;
+                            else if ((yyvsp[-2]).type == Integer)
+                            {
+                                end = (yyvsp[-2]).integerValue;
+                                if (end < 0)
+                                    end += (*(yyvsp[-6]).begin).stringValue.length();
+                                if (end < 0)
+                                    end = -1;
+                                else if (end >= (*(yyvsp[-6]).begin).stringValue.length())
+                                    end = (*(yyvsp[-6]).begin).stringValue.length();
+                            }
+                            else
+                            {
+                                yyerror("TypeError: slice indices must be integers or None");
+                                YYERROR;
+                            }
+
+                            for (int i = begin; i > end; i += step)
+                                (yyval).stringValue += (*(yyvsp[-6]).begin).stringValue[i]; // 逐个取子串
+                        }
+                        break;
+                    case List:
+                        (yyval).type = ListSlice; // 列表元素类型
+                        (yyval).variableName = (yyvsp[-6]).variableName;
+                        (yyval).listValue = vector<struct value>();
+                        if (step > 0)
+                        {
+                            if ((yyvsp[-4]).type == None) // 默认起始
+                                (yyval).begin = (*(yyvsp[-6]).begin).begin;
+                            else if ((yyvsp[-4]).type == Integer)
+                            {
+                                begin = (yyvsp[-4]).integerValue;
+                                if (begin < 0)
+                                    begin += (*(yyvsp[-6]).begin).listValue.size();
+                                if (begin < 0)
+                                    begin = 0;
+                                else if (begin > (*(yyvsp[-6]).begin).listValue.size())
+                                    begin = (*(yyvsp[-6]).begin).listValue.size();
+                                (yyval).begin = (*(yyvsp[-6]).begin).begin + begin;
+                            }
+                            else
+                            {
+                                yyerror("TypeError: slice indices must be integers or None");
+                                YYERROR;
+                            }
+
+                            if ((yyvsp[-2]).type == None) // 默认结束
+                                (yyval).end = (*(yyvsp[-6]).begin).end;
+                            else if ((yyvsp[-2]).type == Integer)
+                            {
+                                end = (yyvsp[-2]).integerValue;
+                                if (end < 0)
+                                    end += (*(yyvsp[-6]).begin).listValue.size();
+                                if (end < 0)
+                                    end = 0;
+                                else if (end > (*(yyvsp[-6]).begin).listValue.size())
+                                    end = (*(yyvsp[-6]).begin).listValue.size();
+                                (yyval).end = (*(yyvsp[-6]).begin).begin + end;
+                            }
+                            else
+                            {
+                                yyerror("TypeError: slice indices must be integers or None");
+                                YYERROR;
+                            }
+
+                            for (vector<struct value>::iterator i = (yyval).begin; i != (yyval).end; i += step)
+                                (yyval).listValue.push_back(*i); // 逐个取子串
+
+                        }
+                        else if (step < 0)
+                        {
+                            if ((yyvsp[-4]).type == None) // 默认起始
+                                (yyval).begin = (*(yyvsp[-6]).begin).end - 1;
+                            else if ((yyvsp[-4]).type == Integer)
+                            {
+                                begin = (yyvsp[-4]).integerValue;
+                                if (begin < 0)
+                                    begin += (*(yyvsp[-6]).begin).listValue.size();
+                                if (begin < 0)
+                                    begin = 0;
+                                else if (begin > (*(yyvsp[-6]).begin).listValue.size())
+                                    begin = (*(yyvsp[-6]).begin).listValue.size() - 1;
+                                (yyval).begin = (*(yyvsp[-6]).begin).begin + begin;
+                            }
+                            else
+                            {
+                                yyerror("TypeError: slice indices must be integers or None");
+                                YYERROR;
+                            }
+
+                            if ((yyvsp[-2]).type == None) // 默认结束
+                                (yyval).end = (*(yyvsp[-6]).begin).begin - 1;
+                            else if ((yyvsp[-2]).type == Integer)
+                            {
+                                end = (yyvsp[-2]).integerValue;
+                                if (end < 0)
+                                    end += (*(yyvsp[-6]).begin).listValue.size();
+                                if (end < 0)
+                                    end = -1;
+                                else if (end > (*(yyvsp[-6]).begin).listValue.size())
+                                    end = (*(yyvsp[-6]).begin).listValue.size();
+                                (yyval).end = (*(yyvsp[-6]).begin).begin + end;
+                            }
+                            else
+                            {
+                                yyerror("TypeError: slice indices must be integers or None");
+                                YYERROR;
+                            }
+
+                            for (vector<struct value>::iterator i = (yyval).begin; i != (yyval).end; i += step)
+                                (yyval).listValue.push_back(*i); // 逐个取子串
+                        }
+                        break;
+                    default:
+                        yyerror("TypeError: '"+ TypeString((*(yyvsp[-6]).begin)) +"' object is not subscriptable");
+                        YYERROR;
+                }
+                break;
+            case Variable:
+                if ((Symbol.count((yyvsp[-6]).variableName) == 1)) // 已在变量表内
+                {
+                    switch (Symbol.at((yyvsp[-6]).variableName).type)
                     {
                         case String:
                             (yyval).type = String;
@@ -1814,11 +1996,11 @@ yyreduce:
                                 {
                                     begin = (yyvsp[-4]).integerValue;
                                     if (begin < 0)
-                                        begin += (*(yyvsp[-6]).begin).stringValue.length();
+                                        begin += Symbol.at((yyvsp[-6]).variableName).stringValue.length();
                                     if (begin < 0)
                                         begin = 0;
-                                    else if (begin >= (*(yyvsp[-6]).begin).stringValue.length())
-                                        begin = (*(yyvsp[-6]).begin).stringValue.length();
+                                    else if (begin >= Symbol.at((yyvsp[-6]).variableName).stringValue.length())
+                                        begin = Symbol.at((yyvsp[-6]).variableName).stringValue.length();
                                 }
                                 else
                                 {
@@ -1827,16 +2009,16 @@ yyreduce:
                                 }
 
                                 if ((yyvsp[-2]).type == None) // 默认结束
-                                    end = (*(yyvsp[-6]).begin).stringValue.length();
+                                    end = Symbol.at((yyvsp[-6]).variableName).stringValue.length();
                                 else if ((yyvsp[-2]).type == Integer)
                                 {
                                     end = (yyvsp[-2]).integerValue;
                                     if (end < 0)
-                                        end += (*(yyvsp[-6]).begin).stringValue.length();
+                                        end += Symbol.at((yyvsp[-6]).variableName).stringValue.length();
                                     if (end < 0)
                                         end = 0;
-                                    else if (end >= (*(yyvsp[-6]).begin).stringValue.length())
-                                        end = (*(yyvsp[-6]).begin).stringValue.length();
+                                    else if (end >= Symbol.at((yyvsp[-6]).variableName).stringValue.length())
+                                        end = Symbol.at((yyvsp[-6]).variableName).stringValue.length();
                                 }
                                 else
                                 {
@@ -1844,21 +2026,21 @@ yyreduce:
                                     YYERROR;
                                 }
                                 for (int i = begin; i < end; i += step)
-                                    (yyval).stringValue += (*(yyvsp[-6]).begin).stringValue[i]; // 逐个取子串
+                                    (yyval).stringValue += Symbol.at((yyvsp[-6]).variableName).stringValue[i]; // 逐个取子串
                             }
                             else if (step < 0) // 负步长
                             {
                                 if ((yyvsp[-4]).type == None) // 默认起始
-                                    begin = (*(yyvsp[-6]).begin).stringValue.length() - 1;
+                                    begin = Symbol.at((yyvsp[-6]).variableName).stringValue.length() - 1;
                                 else if ((yyvsp[-4]).type == Integer)
                                 {
                                     begin = (yyvsp[-4]).integerValue;
                                     if (begin < 0)
-                                        begin += (*(yyvsp[-6]).begin).stringValue.length();
+                                        begin += Symbol.at((yyvsp[-6]).variableName).stringValue.length();
                                     if (begin < 0)
                                         begin = 0;
-                                    else if (begin >= (*(yyvsp[-6]).begin).stringValue.length())
-                                        begin = (*(yyvsp[-6]).begin).stringValue.length() - 1;
+                                    else if (begin >= Symbol.at((yyvsp[-6]).variableName).stringValue.length())
+                                        begin = Symbol.at((yyvsp[-6]).variableName).stringValue.length() - 1;
                                 }
                                 else
                                 {
@@ -1872,11 +2054,11 @@ yyreduce:
                                 {
                                     end = (yyvsp[-2]).integerValue;
                                     if (end < 0)
-                                        end += (*(yyvsp[-6]).begin).stringValue.length();
+                                        end += Symbol.at((yyvsp[-6]).variableName).stringValue.length();
                                     if (end < 0)
                                         end = -1;
-                                    else if (end >= (*(yyvsp[-6]).begin).stringValue.length())
-                                        end = (*(yyvsp[-6]).begin).stringValue.length();
+                                    else if (end >= Symbol.at((yyvsp[-6]).variableName).stringValue.length())
+                                        end = Symbol.at((yyvsp[-6]).variableName).stringValue.length();
                                 }
                                 else
                                 {
@@ -1885,7 +2067,7 @@ yyreduce:
                                 }
 
                                 for (int i = begin; i > end; i += step)
-                                    (yyval).stringValue += (*(yyvsp[-6]).begin).stringValue[i]; // 逐个取子串
+                                    (yyval).stringValue += Symbol.at((yyvsp[-6]).variableName).stringValue[i]; // 逐个取子串
                             }
                             break;
                         case List:
@@ -1895,17 +2077,17 @@ yyreduce:
                             if (step > 0)
                             {
                                 if ((yyvsp[-4]).type == None) // 默认起始
-                                    (yyval).begin = (*(yyvsp[-6]).begin).begin;
+                                    (yyval).begin = Symbol.at((yyvsp[-6]).variableName).listValue.begin();
                                 else if ((yyvsp[-4]).type == Integer)
                                 {
                                     begin = (yyvsp[-4]).integerValue;
                                     if (begin < 0)
-                                        begin += (*(yyvsp[-6]).begin).listValue.size();
+                                        begin += Symbol.at((yyvsp[-6]).variableName).listValue.size();
                                     if (begin < 0)
                                         begin = 0;
-                                    else if (begin > (*(yyvsp[-6]).begin).listValue.size())
-                                        begin = (*(yyvsp[-6]).begin).listValue.size();
-                                    (yyval).begin = (*(yyvsp[-6]).begin).begin + begin;
+                                    else if (begin > Symbol.at((yyvsp[-6]).variableName).listValue.size())
+                                        begin = Symbol.at((yyvsp[-6]).variableName).listValue.size();
+                                    (yyval).begin = Symbol.at((yyvsp[-6]).variableName).listValue.begin() + begin;
                                 }
                                 else
                                 {
@@ -1914,17 +2096,17 @@ yyreduce:
                                 }
 
                                 if ((yyvsp[-2]).type == None) // 默认结束
-                                    (yyval).end = (*(yyvsp[-6]).begin).end;
+                                    (yyval).end = Symbol.at((yyvsp[-6]).variableName).listValue.end();
                                 else if ((yyvsp[-2]).type == Integer)
                                 {
                                     end = (yyvsp[-2]).integerValue;
                                     if (end < 0)
-                                        end += (*(yyvsp[-6]).begin).listValue.size();
+                                        end += Symbol.at((yyvsp[-6]).variableName).listValue.size();
                                     if (end < 0)
                                         end = 0;
-                                    else if (end > (*(yyvsp[-6]).begin).listValue.size())
-                                        end = (*(yyvsp[-6]).begin).listValue.size();
-                                    (yyval).end = (*(yyvsp[-6]).begin).begin + end;
+                                    else if (end > Symbol.at((yyvsp[-6]).variableName).listValue.size())
+                                        end = Symbol.at((yyvsp[-6]).variableName).listValue.size();
+                                    (yyval).end = Symbol.at((yyvsp[-6]).variableName).listValue.begin() + end;
                                 }
                                 else
                                 {
@@ -1939,17 +2121,17 @@ yyreduce:
                             else if (step < 0)
                             {
                                 if ((yyvsp[-4]).type == None) // 默认起始
-                                    (yyval).begin = (*(yyvsp[-6]).begin).end - 1;
+                                    (yyval).begin = Symbol.at((yyvsp[-6]).variableName).listValue.end() - 1;
                                 else if ((yyvsp[-4]).type == Integer)
                                 {
                                     begin = (yyvsp[-4]).integerValue;
                                     if (begin < 0)
-                                        begin += (*(yyvsp[-6]).begin).listValue.size();
+                                        begin += Symbol.at((yyvsp[-6]).variableName).listValue.size();
                                     if (begin < 0)
                                         begin = 0;
-                                    else if (begin > (*(yyvsp[-6]).begin).listValue.size())
-                                        begin = (*(yyvsp[-6]).begin).listValue.size() - 1;
-                                    (yyval).begin = (*(yyvsp[-6]).begin).begin + begin;
+                                    else if (begin > Symbol.at((yyvsp[-6]).variableName).listValue.size())
+                                        begin = Symbol.at((yyvsp[-6]).variableName).listValue.size() - 1;
+                                    (yyval).begin = Symbol.at((yyvsp[-6]).variableName).listValue.begin() + begin;
                                 }
                                 else
                                 {
@@ -1958,17 +2140,17 @@ yyreduce:
                                 }
 
                                 if ((yyvsp[-2]).type == None) // 默认结束
-                                    (yyval).end = (*(yyvsp[-6]).begin).begin - 1;
+                                    (yyval).end = Symbol.at((yyvsp[-6]).variableName).listValue.begin() - 1;
                                 else if ((yyvsp[-2]).type == Integer)
                                 {
                                     end = (yyvsp[-2]).integerValue;
                                     if (end < 0)
-                                        end += (*(yyvsp[-6]).begin).listValue.size();
+                                        end += Symbol.at((yyvsp[-6]).variableName).listValue.size();
                                     if (end < 0)
                                         end = -1;
-                                    else if (end > (*(yyvsp[-6]).begin).listValue.size())
-                                        end = (*(yyvsp[-6]).begin).listValue.size();
-                                    (yyval).end = (*(yyvsp[-6]).begin).begin + end;
+                                    else if (end > Symbol.at((yyvsp[-6]).variableName).listValue.size())
+                                        end = Symbol.at((yyvsp[-6]).variableName).listValue.size();
+                                    (yyval).end = Symbol.at((yyvsp[-6]).variableName).listValue.begin() + end;
                                 }
                                 else
                                 {
@@ -1981,297 +2163,165 @@ yyreduce:
                             }
                             break;
                         default:
-                            yyerror("TypeError: '"+ TypeString((*(yyvsp[-6]).begin)) +"' object is not subscriptable");
+                            yyerror("TypeError: '"+ TypeString(Symbol.at((yyvsp[-6]).variableName)) +"' object is not subscriptable");
                             YYERROR;
                     }
-                    break;
-                case Variable:
-                    if ((Symbol.count((yyvsp[-6]).variableName) == 1)) // 已在变量表内
-                    {
-                        switch (Symbol.at((yyvsp[-6]).variableName).type)
-                        {
-                            case String:
-                                (yyval).type = String;
-                                (yyval).stringValue = "";
-
-                                if (step > 0)
-                                {
-                                    if ((yyvsp[-4]).type == None) // 默认起始
-                                        begin = 0;
-                                    else if ((yyvsp[-4]).type == Integer)
-                                    {
-                                        begin = (yyvsp[-4]).integerValue;
-                                        if (begin < 0)
-                                            begin += Symbol.at((yyvsp[-6]).variableName).stringValue.length();
-                                        if (begin < 0)
-                                            begin = 0;
-                                        else if (begin >= Symbol.at((yyvsp[-6]).variableName).stringValue.length())
-                                            begin = Symbol.at((yyvsp[-6]).variableName).stringValue.length();
-                                    }
-                                    else
-                                    {
-                                        yyerror("TypeError: slice indices must be integers or None");
-                                        YYERROR;
-                                    }
-
-                                    if ((yyvsp[-2]).type == None) // 默认结束
-                                        end = Symbol.at((yyvsp[-6]).variableName).stringValue.length();
-                                    else if ((yyvsp[-2]).type == Integer)
-                                    {
-                                        end = (yyvsp[-2]).integerValue;
-                                        if (end < 0)
-                                            end += Symbol.at((yyvsp[-6]).variableName).stringValue.length();
-                                        if (end < 0)
-                                            end = 0;
-                                        else if (end >= Symbol.at((yyvsp[-6]).variableName).stringValue.length())
-                                            end = Symbol.at((yyvsp[-6]).variableName).stringValue.length();
-                                    }
-                                    else
-                                    {
-                                        yyerror("TypeError: slice indices must be integers or None");
-                                        YYERROR;
-                                    }
-                                    for (int i = begin; i < end; i += step)
-                                        (yyval).stringValue += Symbol.at((yyvsp[-6]).variableName).stringValue[i]; // 逐个取子串
-                                }
-                                else if (step < 0) // 负步长
-                                {
-                                    if ((yyvsp[-4]).type == None) // 默认起始
-                                        begin = Symbol.at((yyvsp[-6]).variableName).stringValue.length() - 1;
-                                    else if ((yyvsp[-4]).type == Integer)
-                                    {
-                                        begin = (yyvsp[-4]).integerValue;
-                                        if (begin < 0)
-                                            begin += Symbol.at((yyvsp[-6]).variableName).stringValue.length();
-                                        if (begin < 0)
-                                            begin = 0;
-                                        else if (begin >= Symbol.at((yyvsp[-6]).variableName).stringValue.length())
-                                            begin = Symbol.at((yyvsp[-6]).variableName).stringValue.length() - 1;
-                                    }
-                                    else
-                                    {
-                                        yyerror("TypeError: slice indices must be integers or None");
-                                        YYERROR;
-                                    }
-
-                                    if ((yyvsp[-2]).type == None) // 默认结束
-                                        end = -1;
-                                    else if ((yyvsp[-2]).type == Integer)
-                                    {
-                                        end = (yyvsp[-2]).integerValue;
-                                        if (end < 0)
-                                            end += Symbol.at((yyvsp[-6]).variableName).stringValue.length();
-                                        if (end < 0)
-                                            end = -1;
-                                        else if (end >= Symbol.at((yyvsp[-6]).variableName).stringValue.length())
-                                            end = Symbol.at((yyvsp[-6]).variableName).stringValue.length();
-                                    }
-                                    else
-                                    {
-                                        yyerror("TypeError: slice indices must be integers or None");
-                                        YYERROR;
-                                    }
-
-                                    for (int i = begin; i > end; i += step)
-                                        (yyval).stringValue += Symbol.at((yyvsp[-6]).variableName).stringValue[i]; // 逐个取子串
-                                }
-                                break;
-                            case List:
-                                (yyval).type = ListSlice; // 列表元素类型
-                                (yyval).variableName = (yyvsp[-6]).variableName;
-                                (yyval).listValue = vector<struct value>();
-                                if (step > 0)
-                                {
-                                    if ((yyvsp[-4]).type == None) // 默认起始
-                                        (yyval).begin = Symbol.at((yyvsp[-6]).variableName).listValue.begin();
-                                    else if ((yyvsp[-4]).type == Integer)
-                                    {
-                                        begin = (yyvsp[-4]).integerValue;
-                                        if (begin < 0)
-                                            begin += Symbol.at((yyvsp[-6]).variableName).listValue.size();
-                                        if (begin < 0)
-                                            begin = 0;
-                                        else if (begin > Symbol.at((yyvsp[-6]).variableName).listValue.size())
-                                            begin = Symbol.at((yyvsp[-6]).variableName).listValue.size();
-                                        (yyval).begin = Symbol.at((yyvsp[-6]).variableName).listValue.begin() + begin;
-                                    }
-                                    else
-                                    {
-                                        yyerror("TypeError: slice indices must be integers or None");
-                                        YYERROR;
-                                    }
-
-                                    if ((yyvsp[-2]).type == None) // 默认结束
-                                        (yyval).end = Symbol.at((yyvsp[-6]).variableName).listValue.end();
-                                    else if ((yyvsp[-2]).type == Integer)
-                                    {
-                                        end = (yyvsp[-2]).integerValue;
-                                        if (end < 0)
-                                            end += Symbol.at((yyvsp[-6]).variableName).listValue.size();
-                                        if (end < 0)
-                                            end = 0;
-                                        else if (end > Symbol.at((yyvsp[-6]).variableName).listValue.size())
-                                            end = Symbol.at((yyvsp[-6]).variableName).listValue.size();
-                                        (yyval).end = Symbol.at((yyvsp[-6]).variableName).listValue.begin() + end;
-                                    }
-                                    else
-                                    {
-                                        yyerror("TypeError: slice indices must be integers or None");
-                                        YYERROR;
-                                    }
-
-                                    for (vector<struct value>::iterator i = (yyval).begin; i != (yyval).end; i += step)
-                                        (yyval).listValue.push_back(*i); // 逐个取子串
-
-                                }
-                                else if (step < 0)
-                                {
-                                    if ((yyvsp[-4]).type == None) // 默认起始
-                                        (yyval).begin = Symbol.at((yyvsp[-6]).variableName).listValue.end() - 1;
-                                    else if ((yyvsp[-4]).type == Integer)
-                                    {
-                                        begin = (yyvsp[-4]).integerValue;
-                                        if (begin < 0)
-                                            begin += Symbol.at((yyvsp[-6]).variableName).listValue.size();
-                                        if (begin < 0)
-                                            begin = 0;
-                                        else if (begin > Symbol.at((yyvsp[-6]).variableName).listValue.size())
-                                            begin = Symbol.at((yyvsp[-6]).variableName).listValue.size() - 1;
-                                        (yyval).begin = Symbol.at((yyvsp[-6]).variableName).listValue.begin() + begin;
-                                    }
-                                    else
-                                    {
-                                        yyerror("TypeError: slice indices must be integers or None");
-                                        YYERROR;
-                                    }
-
-                                    if ((yyvsp[-2]).type == None) // 默认结束
-                                        (yyval).end = Symbol.at((yyvsp[-6]).variableName).listValue.begin() - 1;
-                                    else if ((yyvsp[-2]).type == Integer)
-                                    {
-                                        end = (yyvsp[-2]).integerValue;
-                                        if (end < 0)
-                                            end += Symbol.at((yyvsp[-6]).variableName).listValue.size();
-                                        if (end < 0)
-                                            end = -1;
-                                        else if (end > Symbol.at((yyvsp[-6]).variableName).listValue.size())
-                                            end = Symbol.at((yyvsp[-6]).variableName).listValue.size();
-                                        (yyval).end = Symbol.at((yyvsp[-6]).variableName).listValue.begin() + end;
-                                    }
-                                    else
-                                    {
-                                        yyerror("TypeError: slice indices must be integers or None");
-                                        YYERROR;
-                                    }
-
-                                    for (vector<struct value>::iterator i = (yyval).begin; i != (yyval).end; i += step)
-                                        (yyval).listValue.push_back(*i); // 逐个取子串
-                                }
-                                break;
-                            default:
-                                yyerror("TypeError: '"+ TypeString(Symbol.at((yyvsp[-6]).variableName)) +"' object is not subscriptable");
-                                YYERROR;
-                        }
-                    }
-                    else
-                    {
-                        yyerror("NameError: name '" + (yyvsp[-6]).variableName + "' is not defined");
-                        YYERROR;
-                    }
-                    break;
-                default:
-                    yyerror("TypeError: '"+ TypeString((yyvsp[-6])) +"' object is not subscriptable");
+                }
+                else
+                {
+                    yyerror("NameError: name '" + (yyvsp[-6]).variableName + "' is not defined");
                     YYERROR;
-            }
+                }
+                break;
+            default:
+                yyerror("TypeError: '" + TypeString((yyvsp[-6])) + "' object is not subscriptable");
+                YYERROR;
         }
-#line 2188 "y.tab.c" /* yacc.c:1646  */
+    }
+#line 2182 "y.tab.c" /* yacc.c:1646  */
     break;
 
-  case 27:
-#line 940 "minipy-lab.y" /* yacc.c:1646  */
+  case 25:
+#line 936 "minipy-lab.y" /* yacc.c:1646  */
     {
-            switch ((yyvsp[-3]).type)
-            {
-                case String:
-                    if ((yyvsp[-1]).type == Integer)
+        switch ((yyvsp[-3]).type)
+        {
+            case String:
+                if ((yyvsp[-1]).type == Integer)
+                {
+                    int index = (yyvsp[-1]).integerValue;
+                    if (index < 0)
+                        index += (yyvsp[-3]).stringValue.length();
+                    if (index >= (yyvsp[-3]).stringValue.length() || index < 0)
                     {
-                        int index = (yyvsp[-1]).integerValue;
-                        if (index < 0)
-                            index += (yyvsp[-3]).stringValue.length();
-                        if (index >= (yyvsp[-3]).stringValue.length() || index < 0)
-                        {
-                            yyerror("IndexError: string index out of range");
-                            YYERROR;
-                        }
-                        else
-                        {
-                            (yyval).type = String;
-                            (yyval).stringValue = (yyvsp[-3]).stringValue[index]; // 字符和字符串同等
-                        }
+                        yyerror("IndexError: string index out of range");
+                        YYERROR;
                     }
                     else
                     {
-                        yyerror("TypeError: string indices must be integers");
-                        YYERROR;
+                        (yyval).type = String;
+                        (yyval).stringValue = (yyvsp[-3]).stringValue[index]; // 字符和字符串同等
                     }
-                    break;
-                case List:
-                    if ((yyvsp[-1]).type == Integer)
+                }
+                else
+                {
+                    yyerror("TypeError: string indices must be integers");
+                    YYERROR;
+                }
+                break;
+            case List:
+                if ((yyvsp[-1]).type == Integer)
+                {
+                    int index = (yyvsp[-1]).integerValue;
+                    if (index < 0)
+                        index += (yyvsp[-3]).listValue.size();
+                    if (index >= (yyvsp[-3]).listValue.size() || index < 0)
                     {
-                        int index = (yyvsp[-1]).integerValue;
-                        if (index < 0)
-                            index += (yyvsp[-3]).listValue.size();
-                        if (index >= (yyvsp[-3]).listValue.size() || index < 0)
-                        {
-                            yyerror("IndexError: list index out of range");
-                            YYERROR;
-                        }
-                        else
-                        {
-                            (yyval).type = ListItem; // 列表元素类型
-                            (yyval).begin = (yyvsp[-3]).listValue.begin() + index; // 取列表元素地址
-                        }
+                        yyerror("IndexError: list index out of range");
+                        YYERROR;
                     }
                     else
                     {
-                        yyerror("TypeError: list indices must be integers or slices, not " + TypeString((yyvsp[-1])));
-                        YYERROR;
+                        (yyval).type = ListItem; // 列表元素类型
+                        (yyval).begin = (yyvsp[-3]).listValue.begin() + index; // 取列表元素地址
                     }
-                    break;
-                case ListSlice:
-                    if ((yyvsp[-1]).type == Integer)
+                }
+                else
+                {
+                    yyerror("TypeError: list indices must be integers or slices, not " + TypeString((yyvsp[-1])));
+                    YYERROR;
+                }
+                break;
+            case ListSlice:
+                if ((yyvsp[-1]).type == Integer)
+                {
+                    int index = (yyvsp[-1]).integerValue;
+                    if (index < 0)
+                        index += (yyvsp[-3]).listValue.size();
+                    if (index >= (yyvsp[-3]).listValue.size() || index < 0)
                     {
-                        int index = (yyvsp[-1]).integerValue;
-                        if (index < 0)
-                            index += (yyvsp[-3]).listValue.size();
-                        if (index >= (yyvsp[-3]).listValue.size() || index < 0)
-                        {
-                            yyerror("IndexError: list index out of range");
-                            YYERROR;
-                        }
-                        else
-                        {
-                            (yyval).type = ListItem; // 列表元素类型
-                            (yyval).begin = (yyvsp[-3]).begin + index; // 取列表元素地址
-                            // $$.begin = $1.listValue.begin() + index; // 取列表元素地址
-                        }
+                        yyerror("IndexError: list index out of range");
+                        YYERROR;
                     }
                     else
                     {
-                        yyerror("TypeError: list indices must be integers or slices, not " + TypeString((yyvsp[-1])));
-                        YYERROR;
+                        (yyval).type = ListItem; // 列表元素类型
+                        (yyval).begin = (yyvsp[-3]).begin + index; // 取列表元素地址
+                        // $$.begin = $1.listValue.begin() + index; // 取列表元素地址
                     }
-                    break;
-                case ListItem:
-                    switch ((*(yyvsp[-3]).begin).type)
-                    {
-                        case String:
-                            if ((yyvsp[-1]).type == Integer)
+                }
+                else
+                {
+                    yyerror("TypeError: list indices must be integers or slices, not " + TypeString((yyvsp[-1])));
+                    YYERROR;
+                }
+                break;
+            case ListItem:
+                switch ((*(yyvsp[-3]).begin).type)
+                {
+                    case String:
+                        if ((yyvsp[-1]).type == Integer)
+                        {
+                            int index = (yyvsp[-1]).integerValue;
+                            if (index < 0)
+                                index += (*(yyvsp[-3]).begin).stringValue.length();
+                            if (index >= (*(yyvsp[-3]).begin).stringValue.length() || index < 0)
                             {
-                                int index = (yyvsp[-1]).integerValue;
+                                yyerror("IndexError: string index out of range");
+                                YYERROR;
+                            }
+                            else
+                            {
+                                (yyval).type = String;
+                                (yyval).stringValue = (*(yyvsp[-3]).begin).stringValue[index]; // 字符和字符串同等
+                            }
+                        }
+                        else
+                        {
+                            yyerror("TypeError: string indices must be integers");
+                            YYERROR;
+                        }
+                        break;
+                    case List:
+                        if ((yyvsp[-1]).type == Integer)
+                        {
+                            int index = (yyvsp[-1]).integerValue;
+                            if (index < 0)
+                                index += (*(yyvsp[-3]).begin).listValue.size();
+                            if (index > (*(yyvsp[-3]).begin).listValue.size() || index < 0)
+                            {
+                                yyerror("IndexError: list index out of range");
+                                YYERROR;
+                            }
+                            else
+                            {
+                                (yyval).type = ListItem; // 列表元素类型
+                                (yyval).begin = (*(yyvsp[-3]).begin).listValue.begin() + index; // 取列表元素地址
+                            }
+                        }
+                        else
+                        {
+                            yyerror("TypeError: list indices must be integers or slices, not " + TypeString((yyvsp[-1])));
+                            YYERROR;
+                        }
+                        break;
+                    default:
+                        yyerror("TypeError: '"+ TypeString((*(yyvsp[-3]).begin)) +"' object is not subscriptable");
+                        YYERROR;
+                }
+                break;
+            case Variable:
+                if ((yyvsp[-1]).type == Integer)
+                {
+                    int index = (yyvsp[-1]).integerValue;
+                    if ((Symbol.count((yyvsp[-3]).variableName) == 1)) // 已在变量表内
+                    {
+                        switch (Symbol.at((yyvsp[-3]).variableName).type)
+                        {
+                            case String:
                                 if (index < 0)
-                                    index += (*(yyvsp[-3]).begin).stringValue.length();
-                                if (index >= (*(yyvsp[-3]).begin).stringValue.length() || index < 0)
+                                    index += Symbol.at((yyvsp[-3]).variableName).stringValue.length();
+                                if (index >= Symbol.at((yyvsp[-3]).variableName).stringValue.length() || index < 0)
                                 {
                                     yyerror("IndexError: string index out of range");
                                     YYERROR;
@@ -2279,22 +2329,13 @@ yyreduce:
                                 else
                                 {
                                     (yyval).type = String;
-                                    (yyval).stringValue = (*(yyvsp[-3]).begin).stringValue[index]; // 字符和字符串同等
+                                    (yyval).stringValue = Symbol.at((yyvsp[-3]).variableName).stringValue[index]; // 字符和字符串同等
                                 }
-                            }
-                            else
-                            {
-                                yyerror("TypeError: string indices must be integers");
-                                YYERROR;
-                            }
-                            break;
-                        case List:
-                            if ((yyvsp[-1]).type == Integer)
-                            {
-                                int index = (yyvsp[-1]).integerValue;
+                                break;
+                            case List:
                                 if (index < 0)
-                                    index += (*(yyvsp[-3]).begin).listValue.size();
-                                if (index > (*(yyvsp[-3]).begin).listValue.size() || index < 0)
+                                    index += Symbol.at((yyvsp[-3]).variableName).listValue.size();
+                                if (index >= Symbol.at((yyvsp[-3]).variableName).listValue.size() || index < 0)
                                 {
                                     yyerror("IndexError: list index out of range");
                                     YYERROR;
@@ -2302,552 +2343,590 @@ yyreduce:
                                 else
                                 {
                                     (yyval).type = ListItem; // 列表元素类型
-                                    (yyval).begin = (*(yyvsp[-3]).begin).listValue.begin() + index; // 取列表元素地址
+                                    (yyval).begin = Symbol.at((yyvsp[-3]).variableName).listValue.begin() + index; // 取列表元素地址
                                 }
-                            }
-                            else
-                            {
-                                yyerror("TypeError: list indices must be integers or slices, not " + TypeString((yyvsp[-1])));
+                                break;
+                            default:
+                                yyerror("TypeError: '"+ TypeString(Symbol.at((yyvsp[-3]).variableName)) +"' object is not subscriptable");
                                 YYERROR;
-                            }
-                            break;
-                        default:
-                            yyerror("TypeError: '"+ TypeString((*(yyvsp[-3]).begin)) +"' object is not subscriptable");
-                            YYERROR;
+                        }
+                    }
+                    else
+                    {
+                        yyerror("NameError: name '" + (yyvsp[-3]).variableName + "' is not defined");
+                        YYERROR;
+                    }
+                }
+                else
+                {
+                    yyerror("TypeError: list indices must be integers or slices, not " + TypeString((yyvsp[-1])));
+                    YYERROR;
+                }
+                break;
+            default:
+                yyerror("TypeError: '"+ TypeString((yyvsp[-3])) +"' object is not subscriptable");
+                YYERROR;
+        }
+
+    }
+#line 2373 "y.tab.c" /* yacc.c:1646  */
+    break;
+
+  case 26:
+#line 1123 "minipy-lab.y" /* yacc.c:1646  */
+    {
+        (yyval).type = (yyvsp[-2]).type;
+
+        (yyval).variableName = (yyvsp[-2]).variableName; // 变量名
+        (yyval).attributeName = (yyvsp[0]).variableName; // 属性或方法名
+    }
+#line 2384 "y.tab.c" /* yacc.c:1646  */
+    break;
+
+  case 27:
+#line 1130 "minipy-lab.y" /* yacc.c:1646  */
+    {
+        if ((yyvsp[-4]).attributeName == "append") // append方法
+        {
+            (yyval).type = None;
+            switch ((yyvsp[-4]).type)
+            {
+                case List:
+                case ListSlice:
+                    if ((yyvsp[-2]).listValue.size() == 1) // append 有且仅有1个参数
+                    {
+                        (yyvsp[-4]).listValue.push_back(*(yyvsp[-2]).listValue.begin()); // 这里的意义不是很大
+                    }
+                    else
+                    {
+                        yyerror("TypeError: append() takes exactly one argument ("+ to_string((yyvsp[-2]).listValue.size()) +" given)");
+                        YYERROR;
                     }
                     break;
-                case Variable:
-                    if ((yyvsp[-1]).type == Integer)
+                case ListItem:
+                    if ((*(yyvsp[-4]).begin).type == List)
                     {
-                        int index = (yyvsp[-1]).integerValue;
-                        if ((Symbol.count((yyvsp[-3]).variableName) == 1)) // 已在变量表内
+                        if ((yyvsp[-2]).listValue.size() == 1) // append 有且仅有1个参数
                         {
-                            switch (Symbol.at((yyvsp[-3]).variableName).type)
-                            {
-                                case String:
-                                    if (index < 0)
-                                        index += Symbol.at((yyvsp[-3]).variableName).stringValue.length();
-                                    if (index >= Symbol.at((yyvsp[-3]).variableName).stringValue.length() || index < 0)
-                                    {
-                                        yyerror("IndexError: string index out of range");
-                                        YYERROR;
-                                    }
-                                    else
-                                    {
-                                        (yyval).type = String;
-                                        (yyval).stringValue = Symbol.at((yyvsp[-3]).variableName).stringValue[index]; // 字符和字符串同等
-                                    }
-                                    break;
-                                case List:
-                                    if (index < 0)
-                                        index += Symbol.at((yyvsp[-3]).variableName).listValue.size();
-                                    if (index >= Symbol.at((yyvsp[-3]).variableName).listValue.size() || index < 0)
-                                    {
-                                        yyerror("IndexError: list index out of range");
-                                        YYERROR;
-                                    }
-                                    else
-                                    {
-                                        (yyval).type = ListItem; // 列表元素类型
-                                        (yyval).begin = Symbol.at((yyvsp[-3]).variableName).listValue.begin() + index; // 取列表元素地址
-                                    }
-                                    break;
-                                default:
-                                    yyerror("TypeError: '"+ TypeString(Symbol.at((yyvsp[-3]).variableName)) +"' object is not subscriptable");
-                                    YYERROR;
-                            }
+                            (*(yyvsp[-4]).begin).listValue.push_back(*(yyvsp[-2]).listValue.begin());
                         }
                         else
                         {
-                            yyerror("NameError: name '" + (yyvsp[-3]).variableName + "' is not defined");
+                            yyerror("TypeError: append() takes exactly one argument ("+ to_string((yyvsp[-2]).listValue.size()) +" given)");
                             YYERROR;
                         }
                     }
                     else
                     {
-                        yyerror("TypeError: list indices must be integers or slices, not " + TypeString((yyvsp[-1])));
+                        yyerror("AttributeError: '" + TypeString(*(yyvsp[-4]).begin) + "' object has no attribute 'append'");
+                        YYERROR;
+                    }
+                    break;
+                case Variable:
+                    if (Symbol.at((yyvsp[-4]).variableName).type == List)
+                    {
+                        if ((yyvsp[-2]).listValue.size() == 1) // append 有且仅有1个参数
+                        {
+                            Symbol.at((yyvsp[-4]).variableName).listValue.push_back(*(yyvsp[-2]).listValue.begin());
+                        }
+                        else
+                        {
+                            yyerror("TypeError: append() takes exactly one argument ("+ to_string((yyvsp[-2]).listValue.size()) +" given)");
+                            YYERROR;
+                        }
+                    }
+                    else
+                    {
+                        yyerror("AttributeError: '" + TypeString(Symbol.at((yyvsp[-4]).variableName)) + "' object has no attribute 'append'");
                         YYERROR;
                     }
                     break;
                 default:
-                    yyerror("TypeError: '"+ TypeString((yyvsp[-3])) +"' object is not subscriptable");
+                    yyerror("AttributeError: '" + TypeString((yyvsp[-4])) + "' object has no attribute 'append'");
                     YYERROR;
             }
-
         }
-#line 2379 "y.tab.c" /* yacc.c:1646  */
-    break;
-
-  case 28:
-#line 1127 "minipy-lab.y" /* yacc.c:1646  */
-    {
-            (yyval).type = (yyvsp[-2]).type;
-
-            (yyval).variableName = (yyvsp[-2]).variableName; // 变量名
-            (yyval).attributeName = (yyvsp[0]).variableName; // 属性或方法名
-        }
-#line 2390 "y.tab.c" /* yacc.c:1646  */
-    break;
-
-  case 29:
-#line 1134 "minipy-lab.y" /* yacc.c:1646  */
-    {
-            if ((yyvsp[-4]).attributeName == "append") // append方法
+        else if ((yyvsp[-4]).attributeName == "count") // count方法
+        {
+            switch ((yyvsp[-4]).type)
             {
-                (yyval).type = None;
-                switch ((yyvsp[-4]).type)
-                {
-                    case List:
-                    case ListSlice:
-                        if ((yyvsp[-2]).listValue.size() == 1) // append 有且仅有1个参数
+                case String:
+                    if ((yyvsp[-2]).listValue.size() == 1) // count 有且仅有1个参数
+                    {
+                        if ((*(yyvsp[-2]).listValue.begin()).type == String)
                         {
-                            (yyvsp[-4]).listValue.push_back(*(yyvsp[-2]).listValue.begin()); // 这里的意义不是很大
+                            (yyval).type = Integer;
+                            (yyval).integerValue = 0;
+                            size_t len = (*(yyvsp[-2]).listValue.begin()).stringValue.length();
+                            if (len == 0)
+                                len = 1; // 空子串调用
+                            for (size_t i = 0; (i = (yyvsp[-4]).stringValue.find((*(yyvsp[-2]).listValue.begin()).stringValue,i)) != (yyvsp[-4]).stringValue.npos; (yyval).integerValue++, i+=len);
                         }
                         else
                         {
-                            yyerror("TypeError: append() takes exactly one argument ("+ to_string((yyvsp[-2]).listValue.size()) +" given)");
+                            yyerror("TypeError: must be str, not " + TypeString(*(yyvsp[-2]).listValue.begin()));
                             YYERROR;
                         }
-                        break;
-                    case ListItem:
-                        if ((*(yyvsp[-4]).begin).type == List)
-                        {
-                            if ((yyvsp[-2]).listValue.size() == 1) // append 有且仅有1个参数
-                            {
-                                (*(yyvsp[-4]).begin).listValue.push_back(*(yyvsp[-2]).listValue.begin());
-                            }
-                            else
-                            {
-                                yyerror("TypeError: append() takes exactly one argument ("+ to_string((yyvsp[-2]).listValue.size()) +" given)");
-                                YYERROR;
-                            }
-                        }
-                        else
-                        {
-                            yyerror("AttributeError: '" + TypeString(*(yyvsp[-4]).begin) + "' object has no attribute 'append'");
-                            YYERROR;
-                        }
-                        break;
-                    case Variable:
-                        if (Symbol.at((yyvsp[-4]).variableName).type == List)
-                        {
-                            if ((yyvsp[-2]).listValue.size() == 1) // append 有且仅有1个参数
-                            {
-                                Symbol.at((yyvsp[-4]).variableName).listValue.push_back(*(yyvsp[-2]).listValue.begin());
-                            }
-                            else
-                            {
-                                yyerror("TypeError: append() takes exactly one argument ("+ to_string((yyvsp[-2]).listValue.size()) +" given)");
-                                YYERROR;
-                            }
-                        }
-                        else
-                        {
-                            yyerror("AttributeError: '" + TypeString(Symbol.at((yyvsp[-4]).variableName)) + "' object has no attribute 'append'");
-                            YYERROR;
-                        }
-                        break;
-                    default:
-                        yyerror("AttributeError: '" + TypeString((yyvsp[-4])) + "' object has no attribute 'append'");
+                    }
+                    else
+                    {
+                        yyerror("TypeError: count() takes exactly one argument ("+ to_string((yyvsp[-2]).listValue.size()) +" given)");
                         YYERROR;
-                }
-            }
-            else if ((yyvsp[-4]).attributeName == "count") // count方法
-            {
-                switch ((yyvsp[-4]).type)
-                {
-                    case String:
-                        if ((yyvsp[-2]).listValue.size() == 1) // count 有且仅有1个参数
-                        {
-                            if ((*(yyvsp[-2]).listValue.begin()).type == String)
+                    }
+                    break;
+                case List:
+                case ListSlice:
+                    if ((yyvsp[-2]).listValue.size() == 1) // count 有且仅有1个参数
+                    {
+                        (yyval).type = Integer;
+                        (yyval).integerValue = count((yyvsp[-4]).listValue.begin(), (yyvsp[-4]).listValue.end(), *(yyvsp[-2]).listValue.begin()); // 调用algorithm中的count
+                    }
+                    else
+                    {
+                        yyerror("TypeError: count() takes exactly one argument ("+ to_string((yyvsp[-2]).listValue.size()) +" given)");
+                        YYERROR;
+                    }
+                    break;
+                case ListItem:
+                    switch ((*(yyvsp[-4]).begin).type)
+                    {
+                        case String:
+                            if ((yyvsp[-2]).listValue.size() == 1) // count 有且仅有1个参数
+                            {
+                                if ((*(yyvsp[-2]).listValue.begin()).type == String)
+                                {
+                                    (yyval).type = Integer;
+                                    (yyval).integerValue = 0;
+                                    size_t len = (*(yyvsp[-2]).listValue.begin()).stringValue.length();
+                                    if (len == 0)
+                                        len = 1; // 空子串调用
+                                    for (size_t i = 0; (i = (*(yyvsp[-4]).begin).stringValue.find((*(yyvsp[-2]).listValue.begin()).stringValue,i)) != (*(yyvsp[-4]).begin).stringValue.npos; (yyval).integerValue++, i+=len);
+                                }
+                                else
+                                {
+                                    yyerror("TypeError: must be str, not " + TypeString(*(yyvsp[-2]).listValue.begin()));
+                                    YYERROR;
+                                }
+                            }
+                            else
+                            {
+                                yyerror("TypeError: count() takes exactly one argument ("+ to_string((yyvsp[-2]).listValue.size()) +" given)");
+                                YYERROR;
+                            }
+                            break;
+                        case List:
+                            if ((yyvsp[-2]).listValue.size() == 1) // count 有且仅有1个参数
                             {
                                 (yyval).type = Integer;
-                                (yyval).integerValue = 0;
-                                size_t len = (*(yyvsp[-2]).listValue.begin()).stringValue.length();
-	                            if (len == 0)
-                                    len = 1; // 空子串调用
-	                            for (size_t i = 0; (i = (yyvsp[-4]).stringValue.find((*(yyvsp[-2]).listValue.begin()).stringValue,i)) != (yyvsp[-4]).stringValue.npos; (yyval).integerValue++, i+=len);
+                                (yyval).integerValue = count((*(yyvsp[-4]).begin).listValue.begin(), (*(yyvsp[-4]).begin).listValue.end(), *(yyvsp[-2]).listValue.begin()); // 调用algorithm中的count
                             }
+
                             else
                             {
-                                yyerror("TypeError: must be str, not " + TypeString(*(yyvsp[-2]).listValue.begin()));
+                                yyerror("TypeError: count() takes exactly one argument ("+ to_string((yyvsp[-2]).listValue.size()) +" given)");
                                 YYERROR;
                             }
-                        }
-                        else
-                        {
-                            yyerror("TypeError: count() takes exactly one argument ("+ to_string((yyvsp[-2]).listValue.size()) +" given)");
+                            break;
+                        default:
+                            yyerror("AttributeError: '" + TypeString(*(yyvsp[-4]).begin) + "' object has no attribute 'count'");
                             YYERROR;
-                        }
-                        break;
-                    case List:
-                    case ListSlice:
-                        if ((yyvsp[-2]).listValue.size() == 1) // count 有且仅有1个参数
-                        {
-                            (yyval).type = Integer;
-                            (yyval).integerValue = count((yyvsp[-4]).listValue.begin(), (yyvsp[-4]).listValue.end(), *(yyvsp[-2]).listValue.begin()); // 调用algorithm中的count
-                        }
-                        else
-                        {
-                            yyerror("TypeError: count() takes exactly one argument ("+ to_string((yyvsp[-2]).listValue.size()) +" given)");
-                            YYERROR;
-                        }
-                        break;
-                    case ListItem:
-                        switch ((*(yyvsp[-4]).begin).type)
-                        {
-                            case String:
-                                if ((yyvsp[-2]).listValue.size() == 1) // count 有且仅有1个参数
-                                {
-                                    if ((*(yyvsp[-2]).listValue.begin()).type == String)
-                                    {
-                                        (yyval).type = Integer;
-                                        (yyval).integerValue = 0;
-                                        size_t len = (*(yyvsp[-2]).listValue.begin()).stringValue.length();
-                                        if (len == 0)
-                                            len = 1; // 空子串调用
-                                        for (size_t i = 0; (i = (*(yyvsp[-4]).begin).stringValue.find((*(yyvsp[-2]).listValue.begin()).stringValue,i)) != (*(yyvsp[-4]).begin).stringValue.npos; (yyval).integerValue++, i+=len);
-                                    }
-                                    else
-                                    {
-                                        yyerror("TypeError: must be str, not " + TypeString(*(yyvsp[-2]).listValue.begin()));
-                                        YYERROR;
-                                    }
-                                }
-                                else
-                                {
-                                    yyerror("TypeError: count() takes exactly one argument ("+ to_string((yyvsp[-2]).listValue.size()) +" given)");
-                                    YYERROR;
-                                }
-                                break;
-                            case List:
-                                if ((yyvsp[-2]).listValue.size() == 1) // count 有且仅有1个参数
-                                {
-                                    (yyval).type = Integer;
-                                    (yyval).integerValue = count((*(yyvsp[-4]).begin).listValue.begin(), (*(yyvsp[-4]).begin).listValue.end(), *(yyvsp[-2]).listValue.begin()); // 调用algorithm中的count
-                                }
-
-                                else
-                                {
-                                    yyerror("TypeError: count() takes exactly one argument ("+ to_string((yyvsp[-2]).listValue.size()) +" given)");
-                                    YYERROR;
-                                }
-                                break;
-                            default:
-                                yyerror("AttributeError: '" + TypeString(*(yyvsp[-4]).begin) + "' object has no attribute 'count'");
-                                YYERROR;
-                        }
-                        break;
-                    case Variable:
-                        switch (Symbol.at((yyvsp[-4]).variableName).type)
-                        {
-                            case String:
-                                if ((yyvsp[-2]).listValue.size() == 1) // count 有且仅有1个参数
-                                {
-                                    if ((*(yyvsp[-2]).listValue.begin()).type == String)
-                                    {
-                                        (yyval).type = Integer;
-                                        (yyval).integerValue = 0;
-                                        size_t len = (*(yyvsp[-2]).listValue.begin()).stringValue.length();
-                                        if (len == 0)
-                                            len = 1; // 空子串调用
-                                        for (size_t i = 0; (i = Symbol.at((yyvsp[-4]).variableName).stringValue.find((*(yyvsp[-2]).listValue.begin()).stringValue,i)) != Symbol.at((yyvsp[-4]).variableName).stringValue.npos; (yyval).integerValue++, i+=len); // 不计算重复
-                                    }
-                                    else
-                                    {
-                                        yyerror("TypeError: must be str, not " + TypeString(*(yyvsp[-2]).listValue.begin()));
-                                        YYERROR;
-                                    }
-                                }
-                                else
-                                {
-                                    yyerror("TypeError: count() takes exactly one argument ("+ to_string((yyvsp[-2]).listValue.size()) +" given)");
-                                    YYERROR;
-                                }
-                                break;
-                            case List:
-                                if ((yyvsp[-2]).listValue.size() == 1) // count 有且仅有1个参数
-                                {
-                                    (yyval).type = Integer;
-                                    (yyval).integerValue = count(Symbol.at((yyvsp[-4]).variableName).listValue.begin(), Symbol.at((yyvsp[-4]).variableName).listValue.end(), *(yyvsp[-2]).listValue.begin()); // 调用algorithm中的count
-                                }
-                                else
-                                {
-                                    yyerror("TypeError: count() takes exactly one argument ("+ to_string((yyvsp[-2]).listValue.size()) +" given)");
-                                    YYERROR;
-                                }
-                                break;
-                            default:
-                                yyerror("AttributeError: '" + TypeString(Symbol.at((yyvsp[-4]).variableName)) + "' object has no attribute 'count'");
-                                YYERROR;
-                        }
-                        break;
-                    default:
-                        yyerror("AttributeError: '" + TypeString((yyvsp[-4])) + "' object has no attribute 'count'");
-                        YYERROR;
-                }
-            }
-            else if ((yyvsp[-4]).attributeName == "extend") // extend方法
-            {
-                (yyval).type = None;
-                switch ((yyvsp[-4]).type)
-                {
-                    case List:
-                    case ListSlice:
-                        if ((yyvsp[-2]).listValue.size() == 1) // append 有且仅有1个参数
-                        {
-                            // 这里的代码没有什么意义
-                        }
-                        else
-                        {
-                            yyerror("TypeError: append() takes exactly one argument ("+ to_string((yyvsp[-2]).listValue.size()) +" given)");
-                            YYERROR;
-                        }
-                        break;
-                    case ListItem:
-                        if ((*(yyvsp[-4]).begin).type == List)
-                        {
-                            if ((yyvsp[-2]).listValue.size() == 1) // list 有且仅有1个参数
-                            {
-                                Value temp;
-                                Value temp_2; // 拆分字符串
-
-                                if ((*(yyvsp[-2]).listValue.begin()).type == Variable) // 变量替换为实体
-                                {
-                                    if (Symbol.count((*(yyvsp[-2]).listValue.begin()).variableName) == 1) // 已在变量表中
-                                        temp = Symbol.at((*(yyvsp[-2]).listValue.begin()).variableName);
-                                    else
-                                    {
-                                        yyerror("NameError: name '" + (*(yyvsp[-2]).listValue.begin()).variableName + "' is not defined");
-                                        YYERROR;
-                                    }
-                                }
-                                else
-                                    temp = (*(yyvsp[-2]).listValue.begin());
-
-                                switch (temp.type)
-                                {
-                                    case String:
-                                        temp_2.type = String;
-                                        for (int i = 0; i < temp.stringValue.length(); i++)
-                                        {
-                                            temp_2.stringValue = temp.stringValue[i];
-                                            (*(yyvsp[-4]).begin).listValue.push_back(temp_2);
-                                        }
-                                        break;
-                                    case List:
-                                        (*(yyvsp[-4]).begin).listValue.insert((*(yyvsp[-4]).begin).listValue.end(), temp.listValue.begin(), temp.listValue.end());
-                                        break;
-                                    default:
-                                    {
-                                        yyerror("TypeError: '"+TypeString(temp)+"' object is not iterable");
-                                        YYERROR;
-                                    }
-                                }
-                            }
-                            else
-                            {
-                                yyerror("TypeError: extend() takes exactly one argument ("+ to_string((yyvsp[-2]).listValue.size()) +" given)");
-                                YYERROR;
-                            }
-                        }
-                        else
-                        {
-                            yyerror("AttributeError: '" + TypeString(*(yyvsp[-4]).begin) + "' object has no attribute 'append'");
-                            YYERROR;
-                        }
-                        break;
-                    case Variable:
-                        if (Symbol.at((yyvsp[-4]).variableName).type == List)
-                        {
-                            if ((yyvsp[-2]).listValue.size() == 1) // list 有且仅有1个参数
-                            {
-                                Value temp;
-                                Value temp_2; // 拆分字符串
-
-                                if ((*(yyvsp[-2]).listValue.begin()).type == Variable) // 变量替换为实体
-                                {
-                                    if (Symbol.count((*(yyvsp[-2]).listValue.begin()).variableName) == 1) // 已在变量表中
-                                        temp = Symbol.at((*(yyvsp[-2]).listValue.begin()).variableName);
-                                    else
-                                    {
-                                        yyerror("NameError: name '" + (*(yyvsp[-2]).listValue.begin()).variableName + "' is not defined");
-                                        YYERROR;
-                                    }
-                                }
-                                else
-                                    temp = (*(yyvsp[-2]).listValue.begin());
-
-                                switch (temp.type)
-                                {
-                                    case String:
-                                        temp_2.type = String;
-                                        for (int i = 0; i < temp.stringValue.length(); i++)
-                                        {
-                                            temp_2.stringValue = temp.stringValue[i];
-                                            Symbol.at((yyvsp[-4]).variableName).listValue.push_back(temp_2);
-                                        }
-                                        break;
-                                    case List:
-                                        Symbol.at((yyvsp[-4]).variableName).listValue.insert(Symbol.at((yyvsp[-4]).variableName).listValue.end(), temp.listValue.begin(), temp.listValue.end());
-                                        break;
-                                    default:
-                                    {
-                                        yyerror("TypeError: '"+TypeString(temp)+"' object is not iterable");
-                                        YYERROR;
-                                    }
-                                }
-                            }
-                            else
-                            {
-                                yyerror("TypeError: extend() takes exactly one argument ("+ to_string((yyvsp[-2]).listValue.size()) +" given)");
-                                YYERROR;
-                            }
-                        }
-                        else
-                        {
-                            yyerror("AttributeError: '" + TypeString(Symbol.at((yyvsp[-4]).variableName)) + "' object has no attribute 'extend'");
-                            YYERROR;
-                        }
-                        break;
-                    default:
-                        yyerror("AttributeError: '" + TypeString((yyvsp[-4])) + "' object has no attribute 'append'");
-                        YYERROR;
-                }
-            }
-            else if ((yyvsp[-4]).attributeName == "index")
-            {
-                Value object = (yyvsp[-2]).listValue[0];
-                switch ((yyvsp[-4]).type)
-                {
-                    case String:
-                        if ((yyvsp[-2]).listValue.size() > 3)
-                        {
-                            yyerror("TypeError: index() expected at most 3 arguments, got " + to_string((yyvsp[-2]).listValue.size()));
-                            YYERROR;
-                        }
-                        else
-                        {
-                            if (object.type == String)
-                            {
-                                int begin;
-                                string temp;
-
-                                if ((yyvsp[-2]).listValue.size() == 1) // 默认起始
-                                    begin = 0;
-                                else if ((yyvsp[-2]).listValue.size() == 2 || (yyvsp[-2]).listValue.size() == 3)
-                                    begin = (yyvsp[-2]).listValue[1].integerValue; // 第二个参数
-
-                                if ((yyvsp[-2]).listValue.size() == 1 || (yyvsp[-2]).listValue.size() == 2) // 默认结尾
-                                    temp = (yyvsp[-4]).stringValue;
-                                else if ((yyvsp[-2]).listValue.size() == 3)
-                                    temp = (yyvsp[-4]).stringValue.substr(0, (yyvsp[-2]).listValue[2].integerValue); // 第三个参数
-
-                                int pos = temp.find(object.stringValue, begin); // 使用string的find
-                                if (pos == temp.npos)
-                                {
-                                    yyerror("ValueError: substring not found");
-                                    YYERROR;
-                                }
-                                else
-                                {
-                                    (yyval).type = Integer;
-                                    (yyval).integerValue = pos;
-                                }
-                            }
-                            else
-                            {
-                                yyerror("TypeError: must be str, not " + TypeString(object));
-                                YYERROR;
-                            }
-                        }
-                        break;
-                    case List:
-                    case ListSlice:
-                    {
-                        vector<struct value>::iterator begin, end;
-                        if ((yyvsp[-2]).listValue.size() == 1) // 默认起始
-                            begin = (yyvsp[-4]).listValue.begin();
-                        else if ((yyvsp[-2]).listValue.size() == 2 || (yyvsp[-2]).listValue.size() == 3)
-                            begin = (yyvsp[-4]).listValue.begin() + (yyvsp[-2]).listValue[1].integerValue; // 第二个参数
-
-                        if ((yyvsp[-2]).listValue.size() == 1 || (yyvsp[-2]).listValue.size() == 2) // 默认结尾
-                            end = (yyvsp[-4]).listValue.end();
-                        else if ((yyvsp[-2]).listValue.size() == 3)
-                            end = (yyvsp[-4]).listValue.begin() + (yyvsp[-2]).listValue[2].integerValue; // 第三个参数
-
-                        vector<struct value>::iterator pos = find(begin, end, object); // 使用algorithm 中的find
-                        if (pos == end)
-                        {
-                            cout << "ValueError: "; // 这里的错误信息处理的不太好
-                            Print(object);
-                            yyerror(" is not in list");
-                            YYERROR;
-                        }
-                        else
-                        {
-                            (yyval).type = Integer;
-                            (yyval).integerValue = distance((yyvsp[-4]).listValue.begin(), pos); // 使用algorithm中的distance
-                        }
-                        break;
                     }
-                    case ListItem:
-                        switch ((*(yyvsp[-4]).begin).type)
-                        {
-                            case String:
-                                if ((yyvsp[-2]).listValue.size() > 3)
+                    break;
+                case Variable:
+                    switch (Symbol.at((yyvsp[-4]).variableName).type)
+                    {
+                        case String:
+                            if ((yyvsp[-2]).listValue.size() == 1) // count 有且仅有1个参数
+                            {
+                                if ((*(yyvsp[-2]).listValue.begin()).type == String)
                                 {
-                                    yyerror("TypeError: index() expected at most 3 arguments, got " + to_string((yyvsp[-2]).listValue.size()));
-                                    YYERROR;
+                                    (yyval).type = Integer;
+                                    (yyval).integerValue = 0;
+                                    size_t len = (*(yyvsp[-2]).listValue.begin()).stringValue.length();
+                                    if (len == 0)
+                                        len = 1; // 空子串调用
+                                    for (size_t i = 0; (i = Symbol.at((yyvsp[-4]).variableName).stringValue.find((*(yyvsp[-2]).listValue.begin()).stringValue,i)) != Symbol.at((yyvsp[-4]).variableName).stringValue.npos; (yyval).integerValue++, i+=len); // 不计算重复
                                 }
                                 else
                                 {
-                                    if (object.type == String)
+                                    yyerror("TypeError: must be str, not " + TypeString(*(yyvsp[-2]).listValue.begin()));
+                                    YYERROR;
+                                }
+                            }
+                            else
+                            {
+                                yyerror("TypeError: count() takes exactly one argument ("+ to_string((yyvsp[-2]).listValue.size()) +" given)");
+                                YYERROR;
+                            }
+                            break;
+                        case List:
+                            if ((yyvsp[-2]).listValue.size() == 1) // count 有且仅有1个参数
+                            {
+                                (yyval).type = Integer;
+                                (yyval).integerValue = count(Symbol.at((yyvsp[-4]).variableName).listValue.begin(), Symbol.at((yyvsp[-4]).variableName).listValue.end(), *(yyvsp[-2]).listValue.begin()); // 调用algorithm中的count
+                            }
+                            else
+                            {
+                                yyerror("TypeError: count() takes exactly one argument ("+ to_string((yyvsp[-2]).listValue.size()) +" given)");
+                                YYERROR;
+                            }
+                            break;
+                        default:
+                            yyerror("AttributeError: '" + TypeString(Symbol.at((yyvsp[-4]).variableName)) + "' object has no attribute 'count'");
+                            YYERROR;
+                    }
+                    break;
+                default:
+                    yyerror("AttributeError: '" + TypeString((yyvsp[-4])) + "' object has no attribute 'count'");
+                    YYERROR;
+            }
+        }
+        else if ((yyvsp[-4]).attributeName == "extend") // extend方法
+        {
+            (yyval).type = None;
+            switch ((yyvsp[-4]).type)
+            {
+                case List:
+                case ListSlice:
+                    if ((yyvsp[-2]).listValue.size() == 1) // append 有且仅有1个参数
+                    {
+                        // 这里的代码没有什么意义
+                    }
+                    else
+                    {
+                        yyerror("TypeError: append() takes exactly one argument ("+ to_string((yyvsp[-2]).listValue.size()) +" given)");
+                        YYERROR;
+                    }
+                    break;
+                case ListItem:
+                    if ((*(yyvsp[-4]).begin).type == List)
+                    {
+                        if ((yyvsp[-2]).listValue.size() == 1) // list 有且仅有1个参数
+                        {
+                            Value temp;
+                            Value temp_2; // 拆分字符串
+
+                            if ((*(yyvsp[-2]).listValue.begin()).type == Variable) // 变量替换为实体
+                            {
+                                if (Symbol.count((*(yyvsp[-2]).listValue.begin()).variableName) == 1) // 已在变量表中
+                                    temp = Symbol.at((*(yyvsp[-2]).listValue.begin()).variableName);
+                                else
+                                {
+                                    yyerror("NameError: name '" + (*(yyvsp[-2]).listValue.begin()).variableName + "' is not defined");
+                                    YYERROR;
+                                }
+                            }
+                            else
+                                temp = (*(yyvsp[-2]).listValue.begin());
+
+                            switch (temp.type)
+                            {
+                                case String:
+                                    temp_2.type = String;
+                                    for (int i = 0; i < temp.stringValue.length(); i++)
                                     {
-                                        int begin;
-                                        string temp;
+                                        temp_2.stringValue = temp.stringValue[i];
+                                        (*(yyvsp[-4]).begin).listValue.push_back(temp_2);
+                                    }
+                                    break;
+                                case List:
+                                    (*(yyvsp[-4]).begin).listValue.insert((*(yyvsp[-4]).begin).listValue.end(), temp.listValue.begin(), temp.listValue.end());
+                                    break;
+                                default:
+                                {
+                                    yyerror("TypeError: '"+TypeString(temp)+"' object is not iterable");
+                                    YYERROR;
+                                }
+                            }
+                        }
+                        else
+                        {
+                            yyerror("TypeError: extend() takes exactly one argument ("+ to_string((yyvsp[-2]).listValue.size()) +" given)");
+                            YYERROR;
+                        }
+                    }
+                    else
+                    {
+                        yyerror("AttributeError: '" + TypeString(*(yyvsp[-4]).begin) + "' object has no attribute 'append'");
+                        YYERROR;
+                    }
+                    break;
+                case Variable:
+                    if (Symbol.at((yyvsp[-4]).variableName).type == List)
+                    {
+                        if ((yyvsp[-2]).listValue.size() == 1) // list 有且仅有1个参数
+                        {
+                            Value temp;
+                            Value temp_2; // 拆分字符串
 
-                                        if ((yyvsp[-2]).listValue.size() == 1) // 默认起始
-                                            begin = 0;
-                                        else if ((yyvsp[-2]).listValue.size() == 2 || (yyvsp[-2]).listValue.size() == 3)
-                                            begin = (yyvsp[-2]).listValue[1].integerValue; // 第二个参数
+                            if ((*(yyvsp[-2]).listValue.begin()).type == Variable) // 变量替换为实体
+                            {
+                                if (Symbol.count((*(yyvsp[-2]).listValue.begin()).variableName) == 1) // 已在变量表中
+                                    temp = Symbol.at((*(yyvsp[-2]).listValue.begin()).variableName);
+                                else
+                                {
+                                    yyerror("NameError: name '" + (*(yyvsp[-2]).listValue.begin()).variableName + "' is not defined");
+                                    YYERROR;
+                                }
+                            }
+                            else
+                                temp = (*(yyvsp[-2]).listValue.begin());
 
-                                        if ((yyvsp[-2]).listValue.size() == 1 || (yyvsp[-2]).listValue.size() == 2) // 默认结尾
-                                            temp = (*(yyvsp[-4]).begin).stringValue;
-                                        else if ((yyvsp[-2]).listValue.size() == 3)
-                                            temp = (*(yyvsp[-4]).begin).stringValue.substr(0, (yyvsp[-2]).listValue[2].integerValue); // 第三个参数
+                            switch (temp.type)
+                            {
+                                case String:
+                                    temp_2.type = String;
+                                    for (int i = 0; i < temp.stringValue.length(); i++)
+                                    {
+                                        temp_2.stringValue = temp.stringValue[i];
+                                        Symbol.at((yyvsp[-4]).variableName).listValue.push_back(temp_2);
+                                    }
+                                    break;
+                                case List:
+                                    Symbol.at((yyvsp[-4]).variableName).listValue.insert(Symbol.at((yyvsp[-4]).variableName).listValue.end(), temp.listValue.begin(), temp.listValue.end());
+                                    break;
+                                default:
+                                {
+                                    yyerror("TypeError: '"+TypeString(temp)+"' object is not iterable");
+                                    YYERROR;
+                                }
+                            }
+                        }
+                        else
+                        {
+                            yyerror("TypeError: extend() takes exactly one argument ("+ to_string((yyvsp[-2]).listValue.size()) +" given)");
+                            YYERROR;
+                        }
+                    }
+                    else
+                    {
+                        yyerror("AttributeError: '" + TypeString(Symbol.at((yyvsp[-4]).variableName)) + "' object has no attribute 'extend'");
+                        YYERROR;
+                    }
+                    break;
+                default:
+                    yyerror("AttributeError: '" + TypeString((yyvsp[-4])) + "' object has no attribute 'append'");
+                    YYERROR;
+            }
+        }
+        else if ((yyvsp[-4]).attributeName == "index")
+        {
+            Value object = (yyvsp[-2]).listValue[0];
+            switch ((yyvsp[-4]).type)
+            {
+                case String:
+                    if ((yyvsp[-2]).listValue.size() > 3)
+                    {
+                        yyerror("TypeError: index() expected at most 3 arguments, got " + to_string((yyvsp[-2]).listValue.size()));
+                        YYERROR;
+                    }
+                    else
+                    {
+                        if (object.type == String)
+                        {
+                            int begin;
+                            string temp;
 
-                                        int pos = temp.find(object.stringValue, begin); // 使用string的find
-                                        if (pos == temp.npos)
-                                        {
-                                            yyerror("ValueError: substring not found");
-                                            YYERROR;
-                                        }
-                                        else
-                                        {
-                                            (yyval).type = Integer;
-                                            (yyval).integerValue = pos;
-                                        }
+                            if ((yyvsp[-2]).listValue.size() == 1) // 默认起始
+                                begin = 0;
+                            else if ((yyvsp[-2]).listValue.size() == 2 || (yyvsp[-2]).listValue.size() == 3)
+                                begin = (yyvsp[-2]).listValue[1].integerValue; // 第二个参数
+
+                            if ((yyvsp[-2]).listValue.size() == 1 || (yyvsp[-2]).listValue.size() == 2) // 默认结尾
+                                temp = (yyvsp[-4]).stringValue;
+                            else if ((yyvsp[-2]).listValue.size() == 3)
+                                temp = (yyvsp[-4]).stringValue.substr(0, (yyvsp[-2]).listValue[2].integerValue); // 第三个参数
+
+                            int pos = temp.find(object.stringValue, begin); // 使用string的find
+                            if (pos == temp.npos)
+                            {
+                                yyerror("ValueError: substring not found");
+                                YYERROR;
+                            }
+                            else
+                            {
+                                (yyval).type = Integer;
+                                (yyval).integerValue = pos;
+                            }
+                        }
+                        else
+                        {
+                            yyerror("TypeError: must be str, not " + TypeString(object));
+                            YYERROR;
+                        }
+                    }
+                    break;
+                case List:
+                case ListSlice:
+                {
+                    vector<struct value>::iterator begin, end;
+                    if ((yyvsp[-2]).listValue.size() == 1) // 默认起始
+                        begin = (yyvsp[-4]).listValue.begin();
+                    else if ((yyvsp[-2]).listValue.size() == 2 || (yyvsp[-2]).listValue.size() == 3)
+                        begin = (yyvsp[-4]).listValue.begin() + (yyvsp[-2]).listValue[1].integerValue; // 第二个参数
+
+                    if ((yyvsp[-2]).listValue.size() == 1 || (yyvsp[-2]).listValue.size() == 2) // 默认结尾
+                        end = (yyvsp[-4]).listValue.end();
+                    else if ((yyvsp[-2]).listValue.size() == 3)
+                        end = (yyvsp[-4]).listValue.begin() + (yyvsp[-2]).listValue[2].integerValue; // 第三个参数
+
+                    vector<struct value>::iterator pos = find(begin, end, object); // 使用algorithm 中的find
+                    if (pos == end)
+                    {
+                        cout << "ValueError: "; // 这里的错误信息处理的不太好
+                        Print(object);
+                        yyerror(" is not in list");
+                        YYERROR;
+                    }
+                    else
+                    {
+                        (yyval).type = Integer;
+                        (yyval).integerValue = distance((yyvsp[-4]).listValue.begin(), pos); // 使用algorithm中的distance
+                    }
+                    break;
+                }
+                case ListItem:
+                    switch ((*(yyvsp[-4]).begin).type)
+                    {
+                        case String:
+                            if ((yyvsp[-2]).listValue.size() > 3)
+                            {
+                                yyerror("TypeError: index() expected at most 3 arguments, got " + to_string((yyvsp[-2]).listValue.size()));
+                                YYERROR;
+                            }
+                            else
+                            {
+                                if (object.type == String)
+                                {
+                                    int begin;
+                                    string temp;
+
+                                    if ((yyvsp[-2]).listValue.size() == 1) // 默认起始
+                                        begin = 0;
+                                    else if ((yyvsp[-2]).listValue.size() == 2 || (yyvsp[-2]).listValue.size() == 3)
+                                        begin = (yyvsp[-2]).listValue[1].integerValue; // 第二个参数
+
+                                    if ((yyvsp[-2]).listValue.size() == 1 || (yyvsp[-2]).listValue.size() == 2) // 默认结尾
+                                        temp = (*(yyvsp[-4]).begin).stringValue;
+                                    else if ((yyvsp[-2]).listValue.size() == 3)
+                                        temp = (*(yyvsp[-4]).begin).stringValue.substr(0, (yyvsp[-2]).listValue[2].integerValue); // 第三个参数
+
+                                    int pos = temp.find(object.stringValue, begin); // 使用string的find
+                                    if (pos == temp.npos)
+                                    {
+                                        yyerror("ValueError: substring not found");
+                                        YYERROR;
                                     }
                                     else
                                     {
-                                        yyerror("TypeError: must be str, not " + TypeString(object));
-                                        YYERROR;
+                                        (yyval).type = Integer;
+                                        (yyval).integerValue = pos;
                                     }
                                 }
-                                break;
-                            case List:
+                                else
+                                {
+                                    yyerror("TypeError: must be str, not " + TypeString(object));
+                                    YYERROR;
+                                }
+                            }
+                            break;
+                        case List:
+                        {
+                            vector<struct value>::iterator begin, end;
+                            if ((yyvsp[-2]).listValue.size() == 1) // 默认起始
+                                begin = (yyvsp[-4]).listValue.begin();
+                            else if ((yyvsp[-2]).listValue.size() == 2 || (yyvsp[-2]).listValue.size() == 3)
+                                begin = (yyvsp[-4]).listValue.begin() + (yyvsp[-2]).listValue[1].integerValue; // 第二个参数
+
+                            if ((yyvsp[-2]).listValue.size() == 1 || (yyvsp[-2]).listValue.size() == 2) // 默认结尾
+                                end = (*(yyvsp[-4]).begin).listValue.end();
+                            else if ((yyvsp[-2]).listValue.size() == 3)
+                                end = (*(yyvsp[-4]).begin).listValue.begin() + (yyvsp[-2]).listValue[2].integerValue; // 第三个参数
+
+                            vector<struct value>::iterator pos = find(begin, end, object); // 使用algorithm 中的find
+                            if (pos == end)
+                            {
+                                cout << "ValueError: "; // 这里的错误信息处理的不太好
+                                Print(object);
+                                yyerror(" is not in list");
+                                YYERROR;
+                            }
+                            else
+                            {
+                                (yyval).type = Integer;
+                                (yyval).integerValue = distance((*(yyvsp[-4]).begin).listValue.begin(), pos); // 使用algorithm中的distance
+                            }
+                            break;
+                        }
+                        default:
+                            yyerror("AttributeError: '" + TypeString(*(yyvsp[-4]).begin) + "' object has no attribute 'count'");
+                            YYERROR;
+                    }
+                    break;
+                case Variable:
+                    switch (Symbol.at((yyvsp[-4]).variableName).type)
+                    {
+                        case String:
+                            if ((yyvsp[-2]).listValue.size() > 3)
+                            {
+                                yyerror("TypeError: range expected at most 3 arguments, got " + to_string((yyvsp[-2]).listValue.size()));
+                                YYERROR;
+                            }
+                            else
+                            {
+                                if (object.type == String)
+                                {
+                                    int begin;
+                                    string temp;
+
+                                    if ((yyvsp[-2]).listValue.size() == 1) // 默认起始
+                                        begin = 0;
+                                    else if ((yyvsp[-2]).listValue.size() == 2 || (yyvsp[-2]).listValue.size() == 3)
+                                        begin = (yyvsp[-2]).listValue[1].integerValue; // 第二个参数
+
+                                    if ((yyvsp[-2]).listValue.size() == 1 || (yyvsp[-2]).listValue.size() == 2) // 默认结尾
+                                        temp = Symbol.at((yyvsp[-4]).variableName).stringValue;
+                                    else if ((yyvsp[-2]).listValue.size() == 3)
+                                        temp = Symbol.at((yyvsp[-4]).variableName).stringValue.substr(0, (yyvsp[-2]).listValue[2].integerValue); // 第三个参数
+
+                                    int pos = temp.find(object.stringValue, begin); // 使用string的find
+                                    if (pos == temp.npos)
+                                    {
+                                        yyerror("ValueError: substring not found");
+                                        YYERROR;
+                                    }
+                                    else
+                                    {
+                                        (yyval).type = Integer;
+                                        (yyval).integerValue = pos;
+                                    }
+                                }
+                                else
+                                {
+                                    yyerror("TypeError: must be str, not " + TypeString(object));
+                                    YYERROR;
+                                }
+                            }
+                            break;
+                        case List:
+                        {
+                            if ((yyvsp[-2]).listValue.size() > 3)
+                            {
+                                yyerror("TypeError: index() expected at most 3 arguments, got " + to_string((yyvsp[-2]).listValue.size()));
+                                YYERROR;
+                            }
+                            else
                             {
                                 vector<struct value>::iterator begin, end;
                                 if ((yyvsp[-2]).listValue.size() == 1) // 默认起始
-                                    begin = (yyvsp[-4]).listValue.begin();
+                                    begin = Symbol.at((yyvsp[-4]).variableName).listValue.begin();
                                 else if ((yyvsp[-2]).listValue.size() == 2 || (yyvsp[-2]).listValue.size() == 3)
-                                    begin = (yyvsp[-4]).listValue.begin() + (yyvsp[-2]).listValue[1].integerValue; // 第二个参数
+                                    begin = Symbol.at((yyvsp[-4]).variableName).listValue.begin() + (yyvsp[-2]).listValue[1].integerValue; // 第二个参数
 
                                 if ((yyvsp[-2]).listValue.size() == 1 || (yyvsp[-2]).listValue.size() == 2) // 默认结尾
-                                    end = (*(yyvsp[-4]).begin).listValue.end();
+                                    end = Symbol.at((yyvsp[-4]).variableName).listValue.end();
                                 else if ((yyvsp[-2]).listValue.size() == 3)
-                                    end = (*(yyvsp[-4]).begin).listValue.begin() + (yyvsp[-2]).listValue[2].integerValue; // 第三个参数
+                                    end = Symbol.at((yyvsp[-4]).variableName).listValue.begin() + (yyvsp[-2]).listValue[2].integerValue; // 第三个参数
 
                                 vector<struct value>::iterator pos = find(begin, end, object); // 使用algorithm 中的find
                                 if (pos == end)
@@ -2860,1040 +2939,955 @@ yyreduce:
                                 else
                                 {
                                     (yyval).type = Integer;
-                                    (yyval).integerValue = distance((*(yyvsp[-4]).begin).listValue.begin(), pos); // 使用algorithm中的distance
+                                    (yyval).integerValue = distance(Symbol.at((yyvsp[-4]).variableName).listValue.begin(), pos); // 使用algorithm中的distance
                                 }
-                                break;
                             }
-                            default:
-                                yyerror("AttributeError: '" + TypeString(*(yyvsp[-4]).begin) + "' object has no attribute 'count'");
-                                YYERROR;
+                            break;
                         }
-                        break;
-                    case Variable:
-                        switch (Symbol.at((yyvsp[-4]).variableName).type)
-                        {
-                            case String:
-                                if ((yyvsp[-2]).listValue.size() > 3)
-                                {
-                                    yyerror("TypeError: range expected at most 3 arguments, got " + to_string((yyvsp[-2]).listValue.size()));
-                                    YYERROR;
-                                }
-                                else
-                                {
-                                    if (object.type == String)
-                                    {
-                                        int begin;
-                                        string temp;
 
-                                        if ((yyvsp[-2]).listValue.size() == 1) // 默认起始
-                                            begin = 0;
-                                        else if ((yyvsp[-2]).listValue.size() == 2 || (yyvsp[-2]).listValue.size() == 3)
-                                            begin = (yyvsp[-2]).listValue[1].integerValue; // 第二个参数
-
-                                        if ((yyvsp[-2]).listValue.size() == 1 || (yyvsp[-2]).listValue.size() == 2) // 默认结尾
-                                            temp = Symbol.at((yyvsp[-4]).variableName).stringValue;
-                                        else if ((yyvsp[-2]).listValue.size() == 3)
-                                            temp = Symbol.at((yyvsp[-4]).variableName).stringValue.substr(0, (yyvsp[-2]).listValue[2].integerValue); // 第三个参数
-
-                                        int pos = temp.find(object.stringValue, begin); // 使用string的find
-                                        if (pos == temp.npos)
-                                        {
-                                            yyerror("ValueError: substring not found");
-                                            YYERROR;
-                                        }
-                                        else
-                                        {
-                                            (yyval).type = Integer;
-                                            (yyval).integerValue = pos;
-                                        }
-                                    }
-                                    else
-                                    {
-                                        yyerror("TypeError: must be str, not " + TypeString(object));
-                                        YYERROR;
-                                    }
-                                }
-                                break;
-                            case List:
-                            {
-                                if ((yyvsp[-2]).listValue.size() > 3)
-                                {
-                                    yyerror("TypeError: index() expected at most 3 arguments, got " + to_string((yyvsp[-2]).listValue.size()));
-                                    YYERROR;
-                                }
-                                else
-                                {
-                                    vector<struct value>::iterator begin, end;
-                                    if ((yyvsp[-2]).listValue.size() == 1) // 默认起始
-                                        begin = Symbol.at((yyvsp[-4]).variableName).listValue.begin();
-                                    else if ((yyvsp[-2]).listValue.size() == 2 || (yyvsp[-2]).listValue.size() == 3)
-                                        begin = Symbol.at((yyvsp[-4]).variableName).listValue.begin() + (yyvsp[-2]).listValue[1].integerValue; // 第二个参数
-
-                                    if ((yyvsp[-2]).listValue.size() == 1 || (yyvsp[-2]).listValue.size() == 2) // 默认结尾
-                                        end = Symbol.at((yyvsp[-4]).variableName).listValue.end();
-                                    else if ((yyvsp[-2]).listValue.size() == 3)
-                                        end = Symbol.at((yyvsp[-4]).variableName).listValue.begin() + (yyvsp[-2]).listValue[2].integerValue; // 第三个参数
-
-                                    vector<struct value>::iterator pos = find(begin, end, object); // 使用algorithm 中的find
-                                    if (pos == end)
-                                    {
-                                        cout << "ValueError: "; // 这里的错误信息处理的不太好
-                                        Print(object);
-                                        yyerror(" is not in list");
-                                        YYERROR;
-                                    }
-                                    else
-                                    {
-                                        (yyval).type = Integer;
-                                        (yyval).integerValue = distance(Symbol.at((yyvsp[-4]).variableName).listValue.begin(), pos); // 使用algorithm中的distance
-                                    }
-                                }
-                                break;
-                            }
-
-                            default:
-                                yyerror("AttributeError: '" + TypeString(Symbol.at((yyvsp[-4]).variableName)) + "' object has no attribute 'index'");
-                                YYERROR;
-                        }
-                        break;
-                    default:
-                        yyerror("AttributeError: '" + TypeString((yyvsp[-4])) + "' object has no attribute 'index'");
-                        YYERROR;
-                }
+                        default:
+                            yyerror("AttributeError: '" + TypeString(Symbol.at((yyvsp[-4]).variableName)) + "' object has no attribute 'index'");
+                            YYERROR;
+                    }
+                    break;
+                default:
+                    yyerror("AttributeError: '" + TypeString((yyvsp[-4])) + "' object has no attribute 'index'");
+                    YYERROR;
             }
-            else if ((yyvsp[-4]).attributeName == "insert")
+        }
+        else if ((yyvsp[-4]).attributeName == "insert")
+        {
+            (yyval).type = None;
+            switch ((yyvsp[-4]).type)
             {
-                (yyval).type = None;
-                switch ((yyvsp[-4]).type)
-                {
-                    case List:
-                    case ListSlice:
+                case List:
+                case ListSlice:
+                    if ((yyvsp[-2]).listValue.size() == 2) // insert 有且仅有2个参数
+                    {
+                        int index = (yyvsp[-2]).listValue[0].integerValue;
+                        if (index < 0)
+                            index += Length((yyvsp[-4]));
+                        if (index < 0)
+                            index = 0;
+                        else if (index > Length((yyvsp[-4])))
+                            index = Length((yyvsp[-4]));
+                        (yyvsp[-4]).listValue.insert((yyvsp[-4]).listValue.begin() + index, (yyvsp[-2]).listValue[1]); // 这里的意义不是很大
+                    }
+                    else
+                    {
+                        yyerror("TypeError: insert() takes exactly 2 arguments ("+ to_string((yyvsp[-2]).listValue.size()) +" given)");
+                        YYERROR;
+                    }
+                    break;
+                case ListItem:
+                    if ((*(yyvsp[-4]).begin).type == List)
+                    {
                         if ((yyvsp[-2]).listValue.size() == 2) // insert 有且仅有2个参数
                         {
                             int index = (yyvsp[-2]).listValue[0].integerValue;
                             if (index < 0)
-                                index += Length((yyvsp[-4]));
+                                index += Length(*(yyvsp[-4]).begin);
                             if (index < 0)
                                 index = 0;
-                            else if (index > Length((yyvsp[-4])))
-                                index = Length((yyvsp[-4]));
-                            (yyvsp[-4]).listValue.insert((yyvsp[-4]).listValue.begin() + index, (yyvsp[-2]).listValue[1]); // 这里的意义不是很大
+                            else if (index > Length(*(yyvsp[-4]).begin))
+                                index = Length(*(yyvsp[-4]).begin);
+                            (*(yyvsp[-4]).begin).listValue.insert((*(yyvsp[-4]).begin).listValue.begin() + index, (yyvsp[-2]).listValue[1]);
                         }
                         else
                         {
                             yyerror("TypeError: insert() takes exactly 2 arguments ("+ to_string((yyvsp[-2]).listValue.size()) +" given)");
                             YYERROR;
                         }
-                        break;
-                    case ListItem:
-                        if ((*(yyvsp[-4]).begin).type == List)
-                        {
-                            if ((yyvsp[-2]).listValue.size() == 2) // insert 有且仅有2个参数
-                            {
-                                int index = (yyvsp[-2]).listValue[0].integerValue;
-                                if (index < 0)
-                                    index += Length(*(yyvsp[-4]).begin);
-                                if (index < 0)
-                                    index = 0;
-                                else if (index > Length(*(yyvsp[-4]).begin))
-                                    index = Length(*(yyvsp[-4]).begin);
-                                (*(yyvsp[-4]).begin).listValue.insert((*(yyvsp[-4]).begin).listValue.begin() + index, (yyvsp[-2]).listValue[1]);
-                            }
-                            else
-                            {
-                                yyerror("TypeError: insert() takes exactly 2 arguments ("+ to_string((yyvsp[-2]).listValue.size()) +" given)");
-                                YYERROR;
-                            }
-                        }
-                        else
-                        {
-                            yyerror("AttributeError: '" + TypeString(*(yyvsp[-4]).begin) + "' object has no attribute 'insert'");
-                            YYERROR;
-                        }
-                        break;
-                    case Variable:
-                        if (Symbol.at((yyvsp[-4]).variableName).type == List)
-                        {
-                            if ((yyvsp[-2]).listValue.size() == 2) // insert 有且仅有2个参数
-                            {
-                                int index = (yyvsp[-2]).listValue[0].integerValue;
-                                if (index < 0)
-                                    index += Length(Symbol.at((yyvsp[-4]).variableName));
-                                if (index < 0)
-                                    index = 0;
-                                else if (index > Length(Symbol.at((yyvsp[-4]).variableName)))
-                                    index = Length(Symbol.at((yyvsp[-4]).variableName));
-                                Symbol.at((yyvsp[-4]).variableName).listValue.insert(Symbol.at((yyvsp[-4]).variableName).listValue.begin() + index, (yyvsp[-2]).listValue[1]);
-                            }
-                            else
-                            {
-                                yyerror("TypeError: insert() takes exactly 2 arguments ("+ to_string((yyvsp[-2]).listValue.size()) +" given)");
-                                YYERROR;
-                            }
-                        }
-                        else
-                        {
-                            yyerror("AttributeError: '" + TypeString(Symbol.at((yyvsp[-4]).variableName)) + "' object has no attribute 'insert'");
-                            YYERROR;
-                        }
-                        break;
-                    default:
-                        yyerror("AttributeError: '" + TypeString((yyvsp[-4])) + "' object has no attribute 'insert'");
-                        YYERROR;
-                }
-            }
-            else if ((yyvsp[-4]).attributeName == "reverse")
-            {
-                switch ((yyvsp[-4]).type)
-                {
-                    case List:
-                    case ListSlice:
-                        yyerror("TypeError: reverse() takes no arguments ("+ to_string((yyvsp[-2]).listValue.size()) +" given)");
-                            YYERROR;
-                        break;
-                    case ListItem:
-                        if ((*(yyvsp[-4]).begin).type == List)
-                        {
-                            yyerror("TypeError: reverse() takes no arguments ("+ to_string((yyvsp[-2]).listValue.size()) +" given)");
-                            YYERROR;
-                        }
-                        else
-                        {
-                            yyerror("AttributeError: '" + TypeString(*(yyvsp[-4]).begin) + "' object has no attribute 'reverse'");
-                            YYERROR;
-                        }
-                        break;
-                    case Variable:
-                        if (Symbol.at((yyvsp[-4]).variableName).type == List)
-                        {
-                            yyerror("TypeError: reverse() takes no arguments ("+ to_string((yyvsp[-2]).listValue.size()) +" given)");
-                            YYERROR;
-                        }
-                        else
-                        {
-                            yyerror("AttributeError: '" + TypeString(Symbol.at((yyvsp[-4]).variableName)) + "' object has no attribute 'reverse'");
-                            YYERROR;
-                        }
-                        break;
-                    default:
-                        yyerror("AttributeError: '" + TypeString((yyvsp[-4])) + "' object has no attribute 'reverse'");
-                        YYERROR;
-                }
-            }
-            else if ((yyvsp[-4]).variableName == "print") // print函数
-            {
-                (yyval).type = None;
-                for (vector<struct value>::iterator i = (yyvsp[-2]).listValue.begin(); i != (yyvsp[-2]).listValue.end(); i++)
-                {
-                    if ((*i).type == None)
-                        cout << "None";
+                    }
                     else
-                        Print(*i);
-                    if (i != (yyvsp[-2]).listValue.end() - 1)
-                        cout << ' ';
-                }
-                cout << endl;
-            }
-            else if ((yyvsp[-4]).variableName == "range") // range函数
-            {
-                (yyval).type = List;
-                (yyval).listValue = vector<struct value>();
-                Value temp;
-                temp.type = Integer; // 整数列表
-
-                int begin, end, step;
-
-                if ((yyvsp[-2]).listValue.size() == 1 || (yyvsp[-2]).listValue.size() == 2) // 默认步长
-                    step = 1;
-                else if ((yyvsp[-2]).listValue.size() == 3)
-                    step = (yyvsp[-2]).listValue[2].integerValue; // 第三个参数
-                else if ((yyvsp[-2]).listValue.size() > 3)
-                {
-                    yyerror("TypeError: range expected at most 3 arguments, got " + to_string((yyvsp[-2]).listValue.size()));
+                    {
+                        yyerror("AttributeError: '" + TypeString(*(yyvsp[-4]).begin) + "' object has no attribute 'insert'");
+                        YYERROR;
+                    }
+                    break;
+                case Variable:
+                    if (Symbol.at((yyvsp[-4]).variableName).type == List)
+                    {
+                        if ((yyvsp[-2]).listValue.size() == 2) // insert 有且仅有2个参数
+                        {
+                            int index = (yyvsp[-2]).listValue[0].integerValue;
+                            if (index < 0)
+                                index += Length(Symbol.at((yyvsp[-4]).variableName));
+                            if (index < 0)
+                                index = 0;
+                            else if (index > Length(Symbol.at((yyvsp[-4]).variableName)))
+                                index = Length(Symbol.at((yyvsp[-4]).variableName));
+                            Symbol.at((yyvsp[-4]).variableName).listValue.insert(Symbol.at((yyvsp[-4]).variableName).listValue.begin() + index, (yyvsp[-2]).listValue[1]);
+                        }
+                        else
+                        {
+                            yyerror("TypeError: insert() takes exactly 2 arguments ("+ to_string((yyvsp[-2]).listValue.size()) +" given)");
+                            YYERROR;
+                        }
+                    }
+                    else
+                    {
+                        yyerror("AttributeError: '" + TypeString(Symbol.at((yyvsp[-4]).variableName)) + "' object has no attribute 'insert'");
+                        YYERROR;
+                    }
+                    break;
+                default:
+                    yyerror("AttributeError: '" + TypeString((yyvsp[-4])) + "' object has no attribute 'insert'");
                     YYERROR;
-                }
+            }
+        }
+        else if ((yyvsp[-4]).attributeName == "reverse")
+        {
+            switch ((yyvsp[-4]).type)
+            {
+                case List:
+                case ListSlice:
+                    yyerror("TypeError: reverse() takes no arguments ("+ to_string((yyvsp[-2]).listValue.size()) +" given)");
+                        YYERROR;
+                    break;
+                case ListItem:
+                    if ((*(yyvsp[-4]).begin).type == List)
+                    {
+                        yyerror("TypeError: reverse() takes no arguments ("+ to_string((yyvsp[-2]).listValue.size()) +" given)");
+                        YYERROR;
+                    }
+                    else
+                    {
+                        yyerror("AttributeError: '" + TypeString(*(yyvsp[-4]).begin) + "' object has no attribute 'reverse'");
+                        YYERROR;
+                    }
+                    break;
+                case Variable:
+                    if (Symbol.at((yyvsp[-4]).variableName).type == List)
+                    {
+                        yyerror("TypeError: reverse() takes no arguments ("+ to_string((yyvsp[-2]).listValue.size()) +" given)");
+                        YYERROR;
+                    }
+                    else
+                    {
+                        yyerror("AttributeError: '" + TypeString(Symbol.at((yyvsp[-4]).variableName)) + "' object has no attribute 'reverse'");
+                        YYERROR;
+                    }
+                    break;
+                default:
+                    yyerror("AttributeError: '" + TypeString((yyvsp[-4])) + "' object has no attribute 'reverse'");
+                    YYERROR;
+            }
+        }
+        else if ((yyvsp[-4]).variableName == "print") // print函数
+        {
+            (yyval).type = None;
+            for (vector<struct value>::iterator i = (yyvsp[-2]).listValue.begin(); i != (yyvsp[-2]).listValue.end(); i++)
+            {
+                if ((*i).type == None)
+                    cout << "None";
+                else
+                    Print(*i);
+                if (i != (yyvsp[-2]).listValue.end() - 1)
+                    cout << ' ';
+            }
+            cout << endl;
+        }
+        else if ((yyvsp[-4]).variableName == "range") // range函数
+        {
+            (yyval).type = List;
+            (yyval).listValue = vector<struct value>();
+            Value temp;
+            temp.type = Integer; // 整数列表
 
-                if (step > 0)
+            int begin, end, step;
+
+            if ((yyvsp[-2]).listValue.size() == 1 || (yyvsp[-2]).listValue.size() == 2) // 默认步长
+                step = 1;
+            else if ((yyvsp[-2]).listValue.size() == 3)
+                step = (yyvsp[-2]).listValue[2].integerValue; // 第三个参数
+            else if ((yyvsp[-2]).listValue.size() > 3)
+            {
+                yyerror("TypeError: range expected at most 3 arguments, got " + to_string((yyvsp[-2]).listValue.size()));
+                YYERROR;
+            }
+
+            if (step > 0)
+            {
+                if ((yyvsp[-2]).listValue.size() == 1) // 仅一个参数：从0到参数
                 {
-                    if ((yyvsp[-2]).listValue.size() == 1) // 仅一个参数：从0到参数
-                    {
-                        begin = 0;
-                        end = (yyvsp[-2]).listValue[0].integerValue;
-                    }
-                    else if ((yyvsp[-2]).listValue.size() == 2 || (yyvsp[-2]).listValue.size() == 3)
-                    {
-                        begin = (yyvsp[-2]).listValue[0].integerValue;
-                        end = (yyvsp[-2]).listValue[1].integerValue;
-                    }
-                    for (temp.integerValue = begin; temp.integerValue < end; temp.integerValue+=step)
-                        (yyval).listValue.push_back(temp);
+                    begin = 0;
+                    end = (yyvsp[-2]).listValue[0].integerValue;
                 }
-                else if (step < 0) // 一定有3个参数
+                else if ((yyvsp[-2]).listValue.size() == 2 || (yyvsp[-2]).listValue.size() == 3)
                 {
                     begin = (yyvsp[-2]).listValue[0].integerValue;
                     end = (yyvsp[-2]).listValue[1].integerValue;
-                    for (temp.integerValue = begin; temp.integerValue > end; temp.integerValue+=step)
-                        (yyval).listValue.push_back(temp);
                 }
-                else
-                {
-                    yyerror("ValueError: range() arg 3 must not be zero");
-                    YYERROR;
-                }
+                for (temp.integerValue = begin; temp.integerValue < end; temp.integerValue+=step)
+                    (yyval).listValue.push_back(temp);
             }
-            else if ((yyvsp[-4]).variableName == "list") // list函数
+            else if (step < 0) // 一定有3个参数
             {
-                (yyval).type = List;
-
-                if ((yyvsp[-2]).listValue.size() == 1) // list 有1个参数
-                {
-                    Value temp;
-                    Value temp_2; // 拆分字符串
-
-                    if ((*(yyvsp[-2]).listValue.begin()).type == Variable) // 变量替换为实体
-                    {
-                        if (Symbol.count((*(yyvsp[-2]).listValue.begin()).variableName) == 1) // 已在变量表中
-                            temp = Symbol.at((*(yyvsp[-2]).listValue.begin()).variableName);
-                        else
-                        {
-                            yyerror("NameError: name '" + (*(yyvsp[-2]).listValue.begin()).variableName + "' is not defined");
-                            YYERROR;
-                        }
-                    }
-                    else
-                        temp = (*(yyvsp[-2]).listValue.begin());
-
-                    switch (temp.type)
-                    {
-                        case String:
-                            (yyval).listValue = vector<struct value>();
-                            temp_2.type = String;
-                            for (int i = 0; i < temp.stringValue.length(); i++)
-                            {
-                                temp_2.stringValue = temp.stringValue[i];
-                                (yyval).listValue.push_back(temp_2);
-                            }
-                            break;
-                        case List:
-                            (yyval).listValue = vector<struct value>(temp.listValue);
-                            break;
-                        default:
-                        {
-                            yyerror("TypeError: '"+TypeString(temp)+"' object is not iterable");
-                            YYERROR;
-                        }
-                    }
-                }
-                else
-                {
-                    yyerror("TypeError: list expected at most 1 arguments, got " + to_string((yyvsp[-2]).listValue.size()));
-                    YYERROR;
-                }
+                begin = (yyvsp[-2]).listValue[0].integerValue;
+                end = (yyvsp[-2]).listValue[1].integerValue;
+                for (temp.integerValue = begin; temp.integerValue > end; temp.integerValue+=step)
+                    (yyval).listValue.push_back(temp);
             }
-            else if ((yyvsp[-4]).variableName == "type") // type函数
+            else
             {
-                (yyval).type = None;
-                if ((yyvsp[-2]).listValue.size() == 1 || (yyvsp[-2]).listValue.size() == 3)
+                yyerror("ValueError: range() arg 3 must not be zero");
+                YYERROR;
+            }
+        }
+        else if ((yyvsp[-4]).variableName == "list") // list函数
+        {
+            (yyval).type = List;
+
+            if ((yyvsp[-2]).listValue.size() == 1) // list 有1个参数
+            {
+                Value temp;
+                Value temp_2; // 拆分字符串
+
+                if ((*(yyvsp[-2]).listValue.begin()).type == Variable) // 变量替换为实体
                 {
-                    if ((yyvsp[-2]).listValue.size() == 1)
-                    {
-                        cout << "<type '" + TypeString(*(yyvsp[-2]).listValue.begin()) + "'>" << endl;
-                    }
+                    if (Symbol.count((*(yyvsp[-2]).listValue.begin()).variableName) == 1) // 已在变量表中
+                        temp = Symbol.at((*(yyvsp[-2]).listValue.begin()).variableName);
                     else
                     {
-                        yyerror("SyntaxError: not supported syntax of 3 arguments");
+                        yyerror("NameError: name '" + (*(yyvsp[-2]).listValue.begin()).variableName + "' is not defined");
                         YYERROR;
                     }
                 }
                 else
+                    temp = (*(yyvsp[-2]).listValue.begin());
+
+                switch (temp.type)
                 {
-                    yyerror("TypeError: type() takes 1 or 3 arguments");
-                    YYERROR;
-                }
-            }
-            else if ((yyvsp[-4]).variableName == "len") // len函数
-            {
-                if ((yyvsp[-2]).listValue.size() == 1) // list 有1个参数
-                {
-                    switch((*(yyvsp[-2]).listValue.begin()).type)
+                    case String:
+                        (yyval).listValue = vector<struct value>();
+                        temp_2.type = String;
+                        for (int i = 0; i < temp.stringValue.length(); i++)
+                        {
+                            temp_2.stringValue = temp.stringValue[i];
+                            (yyval).listValue.push_back(temp_2);
+                        }
+                        break;
+                    case List:
+                        (yyval).listValue = vector<struct value>(temp.listValue);
+                        break;
+                    default:
                     {
-                        case String:
-                        case List:
-                        case ListSlice:
-                        case ListItem:
-                        case Variable:
-                            (yyval).type = Integer;
-                            (yyval).integerValue = Length(*(yyvsp[-2]).listValue.begin());
-                            break;
-                        default:
-                            yyerror("TypeError: object of type '"+ TypeString(*(yyvsp[-2]).listValue.begin()) +"' has no len()");
-                            YYERROR;
+                        yyerror("TypeError: '"+TypeString(temp)+"' object is not iterable");
+                        YYERROR;
                     }
-                }
-                else
-                {
-                    yyerror("TypeError: len() takes exactly one argument (" + to_string((yyvsp[-2]).listValue.size()) + " given)");
-                    YYERROR;
                 }
             }
             else
             {
-                yyerror("AttributeError: '" + TypeString((yyvsp[-4])) + "' object has no attribute '"+ (yyvsp[-4]).attributeName +"\'");
+                yyerror("TypeError: list expected at most 1 arguments, got " + to_string((yyvsp[-2]).listValue.size()));
                 YYERROR;
             }
-
         }
-#line 3247 "y.tab.c" /* yacc.c:1646  */
-    break;
-
-  case 30:
-#line 1987 "minipy-lab.y" /* yacc.c:1646  */
-    {
-            if ((yyvsp[-2]).variableName == "quit") // quit函数
-                exit(0);
-            else if ((yyvsp[-2]).attributeName == "append")
+        else if ((yyvsp[-4]).variableName == "type") // type函数
+        {
+            (yyval).type = None;
+            if ((yyvsp[-2]).listValue.size() == 1 || (yyvsp[-2]).listValue.size() == 3)
             {
-                (yyval).type = None;
-                switch ((yyvsp[-2]).type)
+                if ((yyvsp[-2]).listValue.size() == 1)
                 {
-                    case List:
-                    case ListSlice:
-                        yyerror("TypeError: append() takes exactly one argument (0 given)");
-                        YYERROR;
-                        break;
-                    case ListItem:
-                        if ((*(yyvsp[-2]).begin).type == List)
-                        {
-                            yyerror("TypeError: append() takes exactly one argument (0 given)");
-                            YYERROR;
-                        }
-                        else
-                        {
-                            yyerror("AttributeError: '" + TypeString(*(yyvsp[-2]).begin) + "' object has no attribute 'append'");
-                            YYERROR;
-                        }
-                        break;
-                    case Variable:
-                        if (Symbol.at((yyvsp[-2]).variableName).type == List)
-                        {
-                            yyerror("TypeError: append() takes exactly one argument (0 given)");
-                            YYERROR;
-                        }
-                        else
-                        {
-                            yyerror("AttributeError: '" + TypeString(Symbol.at((yyvsp[-2]).variableName)) + "' object has no attribute 'append'");
-                            YYERROR;
-                        }
-                        break;
-                    default:
-                        yyerror("AttributeError: '" + TypeString((yyvsp[-2])) + "' object has no attribute 'append'");
-                        YYERROR;
+                    cout << "<type '" + TypeString(*(yyvsp[-2]).listValue.begin()) + "'>" << endl;
+                }
+                else
+                {
+                    yyerror("SyntaxError: not supported syntax of 3 arguments");
+                    YYERROR;
                 }
             }
-            else if ((yyvsp[-2]).attributeName == "count")
-            {
-                (yyval).type = None;
-                switch ((yyvsp[-2]).type)
-                {
-                    case String:
-                    case List:
-                    case ListSlice:
-                        yyerror("TypeError: count() takes exactly one argument (0 given)");
-                        YYERROR;
-                        break;
-                    case ListItem:
-                        if ((*(yyvsp[-2]).begin).type == List || (*(yyvsp[-2]).begin).type == String)
-                        {
-                            yyerror("TypeError: count() takes exactly one argument (0 given)");
-                            YYERROR;
-                        }
-                        else
-                        {
-                            yyerror("AttributeError: '" + TypeString(*(yyvsp[-2]).begin) + "' object has no attribute 'count'");
-                            YYERROR;
-                        }
-                        break;
-                    case Variable:
-                        if (Symbol.at((yyvsp[-2]).variableName).type == List || Symbol.at((yyvsp[-2]).variableName).type == String)
-                        {
-                            yyerror("TypeError: count() takes exactly one argument (0 given)");
-                            YYERROR;
-                        }
-                        else
-                        {
-                            yyerror("AttributeError: '" + TypeString(Symbol.at((yyvsp[-2]).variableName)) + "' object has no attribute 'count'");
-                            YYERROR;
-                        }
-                        break;
-                    default:
-                        yyerror("AttributeError: '" + TypeString((yyvsp[-2])) + "' object has no attribute 'count'");
-                        YYERROR;
-                }
-            }
-            else if ((yyvsp[-2]).attributeName == "extend")
-            {
-                (yyval).type = None;
-                switch ((yyvsp[-2]).type)
-                {
-                    case List:
-                    case ListSlice:
-                        yyerror("TypeError: extend() takes exactly one argument (0 given)");
-                        YYERROR;
-                        break;
-                    case ListItem:
-                        if ((*(yyvsp[-2]).begin).type == List)
-                        {
-                            yyerror("TypeError: extend() takes exactly one argument (0 given)");
-                            YYERROR;
-                        }
-                        else
-                        {
-                            yyerror("AttributeError: '" + TypeString(*(yyvsp[-2]).begin) + "' object has no attribute 'extend'");
-                            YYERROR;
-                        }
-                        break;
-                    case Variable:
-                        if (Symbol.at((yyvsp[-2]).variableName).type == List)
-                        {
-                            yyerror("TypeError: extend() takes exactly one argument (0 given)");
-                            YYERROR;
-                        }
-                        else
-                        {
-                            yyerror("AttributeError: '" + TypeString(Symbol.at((yyvsp[-2]).variableName)) + "' object has no attribute 'extend'");
-                            YYERROR;
-                        }
-                        break;
-                    default:
-                        yyerror("AttributeError: '" + TypeString((yyvsp[-2])) + "' object has no attribute 'extend'");
-                        YYERROR;
-                }
-            }
-            else if ((yyvsp[-2]).attributeName == "index")
-            {
-                (yyval).type = None;
-                switch ((yyvsp[-2]).type)
-                {
-                    case String:
-                    case List:
-                    case ListSlice:
-                        yyerror("TypeError: index() takes at least 1 argument (0 given)");
-                        YYERROR;
-                        break;
-                    case ListItem:
-                        if ((*(yyvsp[-2]).begin).type == List || (*(yyvsp[-2]).begin).type == String)
-                        {
-                            yyerror("TypeError: index() takes at least 1 argument (0 given)");
-                            YYERROR;
-                        }
-                        else
-                        {
-                            yyerror("AttributeError: '" + TypeString(*(yyvsp[-2]).begin) + "' object has no attribute 'index'");
-                            YYERROR;
-                        }
-                        break;
-                    case Variable:
-                        if (Symbol.at((yyvsp[-2]).variableName).type == List || Symbol.at((yyvsp[-2]).variableName).type == String)
-                        {
-                            yyerror("TypeError: index() takes at least 1 argument (0 given)");
-                            YYERROR;
-                        }
-                        else
-                        {
-                            yyerror("AttributeError: '" + TypeString(Symbol.at((yyvsp[-2]).variableName)) + "' object has no attribute 'index'");
-                            YYERROR;
-                        }
-                        break;
-                    default:
-                        yyerror("AttributeError: '" + TypeString((yyvsp[-2])) + "' object has no attribute 'index'");
-                        YYERROR;
-                }
-            }
-            else if ((yyvsp[-2]).attributeName == "insert")
-            {
-                (yyval).type = None;
-                switch ((yyvsp[-2]).type)
-                {
-                    case List:
-                    case ListSlice:
-                        yyerror("TypeError: insert() takes exactly 2 arguments (0 given)");
-                        YYERROR;
-                        break;
-                    case ListItem:
-                        if ((*(yyvsp[-2]).begin).type == List)
-                        {
-                            yyerror("TypeError: insert() takes exactly 2 arguments (0 given)");
-                            YYERROR;
-                        }
-                        else
-                        {
-                            yyerror("AttributeError: '" + TypeString(*(yyvsp[-2]).begin) + "' object has no attribute 'insert'");
-                            YYERROR;
-                        }
-                        break;
-                    case Variable:
-                        if (Symbol.at((yyvsp[-2]).variableName).type == List)
-                        {
-                            yyerror("TypeError: insert() takes exactly 2 arguments (0 given)");
-                            YYERROR;
-                        }
-                        else
-                        {
-                            yyerror("AttributeError: '" + TypeString(Symbol.at((yyvsp[-2]).variableName)) + "' object has no attribute 'insert'");
-                            YYERROR;
-                        }
-                        break;
-                    default:
-                        yyerror("AttributeError: '" + TypeString((yyvsp[-2])) + "' object has no attribute 'insert'");
-                        YYERROR;
-                }
-            }
-            else if ((yyvsp[-2]).attributeName == "reverse") // reverse方法
-            {
-                (yyval).type = None;
-                switch ((yyvsp[-2]).type)
-                {
-                    case List:
-                    case ListSlice:
-                        reverse((yyvsp[-2]).listValue.begin(), (yyvsp[-2]).listValue.end()); // 没有意义
-                        break;
-                    case ListItem:
-                        if ((*(yyvsp[-2]).begin).type == List)
-                        {
-                            reverse((*(yyvsp[-2]).begin).listValue.begin(), (*(yyvsp[-2]).begin).listValue.end()); // 调用algorithm中的reverse
-                        }
-                        else
-                        {
-                            yyerror("AttributeError: '" + TypeString(*(yyvsp[-2]).begin) + "' object has no attribute 'reverse'");
-                            YYERROR;
-                        }
-                        break;
-                    case Variable:
-                        if (Symbol.at((yyvsp[-2]).variableName).type == List)
-                        {
-                            reverse(Symbol.at((yyvsp[-2]).variableName).listValue.begin(), Symbol.at((yyvsp[-2]).variableName).listValue.end()); // 调用algorithm中的reverse
-                        }
-                        else
-                        {
-                            yyerror("AttributeError: '" + TypeString(Symbol.at((yyvsp[-2]).variableName)) + "' object has no attribute 'reverse'");
-                            YYERROR;
-                        }
-                        break;
-                    default:
-                        yyerror("AttributeError: '" + TypeString((yyvsp[-2])) + "' object has no attribute 'reverse'");
-                        YYERROR;
-                }
-            }
-            else if ((yyvsp[-2]).variableName == "print") // print函数
-            {
-                (yyval).type = None;
-                cout << endl;
-            }
-            else if ((yyvsp[-2]).variableName == "range")
-            {
-                yyerror("TypeError: range expected 1 arguments, got 0");
-                YYERROR;
-            }
-            else if ((yyvsp[-2]).variableName == "list") // list函数
-            {
-                (yyval).type = List;
-                (yyval).listValue = vector<struct value>();
-            }
-            else if ((yyvsp[-2]).variableName == "type")
+            else
             {
                 yyerror("TypeError: type() takes 1 or 3 arguments");
                 YYERROR;
             }
-            else if ((yyvsp[-2]).variableName == "len")
+        }
+        else if ((yyvsp[-4]).variableName == "len") // len函数
+        {
+            if ((yyvsp[-2]).listValue.size() == 1) // list 有1个参数
             {
-                yyerror("TypeError: len() takes exactly one argument (0 given)");
-                YYERROR;
+                switch((*(yyvsp[-2]).listValue.begin()).type)
+                {
+                    case String:
+                    case List:
+                    case ListSlice:
+                    case ListItem:
+                    case Variable:
+                        (yyval).type = Integer;
+                        (yyval).integerValue = Length(*(yyvsp[-2]).listValue.begin());
+                        break;
+                    default:
+                        yyerror("TypeError: object of type '"+ TypeString(*(yyvsp[-2]).listValue.begin()) +"' has no len()");
+                        YYERROR;
+                }
             }
             else
             {
-                yyerror("AttributeError: '" + TypeString((yyvsp[-2])) + "' object has no attribute '"+ (yyvsp[-2]).attributeName +"\'");
+                yyerror("TypeError: len() takes exactly one argument (" + to_string((yyvsp[-2]).listValue.size()) + " given)");
                 YYERROR;
             }
         }
-#line 3519 "y.tab.c" /* yacc.c:1646  */
+        else
+        {
+            yyerror("AttributeError: '" + TypeString((yyvsp[-4])) + "' object has no attribute '"+ (yyvsp[-4]).attributeName +"\'");
+            YYERROR;
+        }
+
+    }
+#line 3241 "y.tab.c" /* yacc.c:1646  */
     break;
 
-  case 31:
-#line 2258 "minipy-lab.y" /* yacc.c:1646  */
+  case 28:
+#line 1983 "minipy-lab.y" /* yacc.c:1646  */
+    {
+        if ((yyvsp[-2]).variableName == "quit") // quit函数
+            exit(0);
+        else if ((yyvsp[-2]).attributeName == "append")
+        {
+            (yyval).type = None;
+            switch ((yyvsp[-2]).type)
+            {
+                case List:
+                case ListSlice:
+                    yyerror("TypeError: append() takes exactly one argument (0 given)");
+                    YYERROR;
+                    break;
+                case ListItem:
+                    if ((*(yyvsp[-2]).begin).type == List)
+                    {
+                        yyerror("TypeError: append() takes exactly one argument (0 given)");
+                        YYERROR;
+                    }
+                    else
+                    {
+                        yyerror("AttributeError: '" + TypeString(*(yyvsp[-2]).begin) + "' object has no attribute 'append'");
+                        YYERROR;
+                    }
+                    break;
+                case Variable:
+                    if (Symbol.at((yyvsp[-2]).variableName).type == List)
+                    {
+                        yyerror("TypeError: append() takes exactly one argument (0 given)");
+                        YYERROR;
+                    }
+                    else
+                    {
+                        yyerror("AttributeError: '" + TypeString(Symbol.at((yyvsp[-2]).variableName)) + "' object has no attribute 'append'");
+                        YYERROR;
+                    }
+                    break;
+                default:
+                    yyerror("AttributeError: '" + TypeString((yyvsp[-2])) + "' object has no attribute 'append'");
+                    YYERROR;
+            }
+        }
+        else if ((yyvsp[-2]).attributeName == "count")
+        {
+            (yyval).type = None;
+            switch ((yyvsp[-2]).type)
+            {
+                case String:
+                case List:
+                case ListSlice:
+                    yyerror("TypeError: count() takes exactly one argument (0 given)");
+                    YYERROR;
+                    break;
+                case ListItem:
+                    if ((*(yyvsp[-2]).begin).type == List || (*(yyvsp[-2]).begin).type == String)
+                    {
+                        yyerror("TypeError: count() takes exactly one argument (0 given)");
+                        YYERROR;
+                    }
+                    else
+                    {
+                        yyerror("AttributeError: '" + TypeString(*(yyvsp[-2]).begin) + "' object has no attribute 'count'");
+                        YYERROR;
+                    }
+                    break;
+                case Variable:
+                    if (Symbol.at((yyvsp[-2]).variableName).type == List || Symbol.at((yyvsp[-2]).variableName).type == String)
+                    {
+                        yyerror("TypeError: count() takes exactly one argument (0 given)");
+                        YYERROR;
+                    }
+                    else
+                    {
+                        yyerror("AttributeError: '" + TypeString(Symbol.at((yyvsp[-2]).variableName)) + "' object has no attribute 'count'");
+                        YYERROR;
+                    }
+                    break;
+                default:
+                    yyerror("AttributeError: '" + TypeString((yyvsp[-2])) + "' object has no attribute 'count'");
+                    YYERROR;
+            }
+        }
+        else if ((yyvsp[-2]).attributeName == "extend")
+        {
+            (yyval).type = None;
+            switch ((yyvsp[-2]).type)
+            {
+                case List:
+                case ListSlice:
+                    yyerror("TypeError: extend() takes exactly one argument (0 given)");
+                    YYERROR;
+                    break;
+                case ListItem:
+                    if ((*(yyvsp[-2]).begin).type == List)
+                    {
+                        yyerror("TypeError: extend() takes exactly one argument (0 given)");
+                        YYERROR;
+                    }
+                    else
+                    {
+                        yyerror("AttributeError: '" + TypeString(*(yyvsp[-2]).begin) + "' object has no attribute 'extend'");
+                        YYERROR;
+                    }
+                    break;
+                case Variable:
+                    if (Symbol.at((yyvsp[-2]).variableName).type == List)
+                    {
+                        yyerror("TypeError: extend() takes exactly one argument (0 given)");
+                        YYERROR;
+                    }
+                    else
+                    {
+                        yyerror("AttributeError: '" + TypeString(Symbol.at((yyvsp[-2]).variableName)) + "' object has no attribute 'extend'");
+                        YYERROR;
+                    }
+                    break;
+                default:
+                    yyerror("AttributeError: '" + TypeString((yyvsp[-2])) + "' object has no attribute 'extend'");
+                    YYERROR;
+            }
+        }
+        else if ((yyvsp[-2]).attributeName == "index")
+        {
+            (yyval).type = None;
+            switch ((yyvsp[-2]).type)
+            {
+                case String:
+                case List:
+                case ListSlice:
+                    yyerror("TypeError: index() takes at least 1 argument (0 given)");
+                    YYERROR;
+                    break;
+                case ListItem:
+                    if ((*(yyvsp[-2]).begin).type == List || (*(yyvsp[-2]).begin).type == String)
+                    {
+                        yyerror("TypeError: index() takes at least 1 argument (0 given)");
+                        YYERROR;
+                    }
+                    else
+                    {
+                        yyerror("AttributeError: '" + TypeString(*(yyvsp[-2]).begin) + "' object has no attribute 'index'");
+                        YYERROR;
+                    }
+                    break;
+                case Variable:
+                    if (Symbol.at((yyvsp[-2]).variableName).type == List || Symbol.at((yyvsp[-2]).variableName).type == String)
+                    {
+                        yyerror("TypeError: index() takes at least 1 argument (0 given)");
+                        YYERROR;
+                    }
+                    else
+                    {
+                        yyerror("AttributeError: '" + TypeString(Symbol.at((yyvsp[-2]).variableName)) + "' object has no attribute 'index'");
+                        YYERROR;
+                    }
+                    break;
+                default:
+                    yyerror("AttributeError: '" + TypeString((yyvsp[-2])) + "' object has no attribute 'index'");
+                    YYERROR;
+            }
+        }
+        else if ((yyvsp[-2]).attributeName == "insert")
+        {
+            (yyval).type = None;
+            switch ((yyvsp[-2]).type)
+            {
+                case List:
+                case ListSlice:
+                    yyerror("TypeError: insert() takes exactly 2 arguments (0 given)");
+                    YYERROR;
+                    break;
+                case ListItem:
+                    if ((*(yyvsp[-2]).begin).type == List)
+                    {
+                        yyerror("TypeError: insert() takes exactly 2 arguments (0 given)");
+                        YYERROR;
+                    }
+                    else
+                    {
+                        yyerror("AttributeError: '" + TypeString(*(yyvsp[-2]).begin) + "' object has no attribute 'insert'");
+                        YYERROR;
+                    }
+                    break;
+                case Variable:
+                    if (Symbol.at((yyvsp[-2]).variableName).type == List)
+                    {
+                        yyerror("TypeError: insert() takes exactly 2 arguments (0 given)");
+                        YYERROR;
+                    }
+                    else
+                    {
+                        yyerror("AttributeError: '" + TypeString(Symbol.at((yyvsp[-2]).variableName)) + "' object has no attribute 'insert'");
+                        YYERROR;
+                    }
+                    break;
+                default:
+                    yyerror("AttributeError: '" + TypeString((yyvsp[-2])) + "' object has no attribute 'insert'");
+                    YYERROR;
+            }
+        }
+        else if ((yyvsp[-2]).attributeName == "reverse") // reverse方法
+        {
+            (yyval).type = None;
+            switch ((yyvsp[-2]).type)
+            {
+                case List:
+                case ListSlice:
+                    reverse((yyvsp[-2]).listValue.begin(), (yyvsp[-2]).listValue.end()); // 没有意义
+                    break;
+                case ListItem:
+                    if ((*(yyvsp[-2]).begin).type == List)
+                    {
+                        reverse((*(yyvsp[-2]).begin).listValue.begin(), (*(yyvsp[-2]).begin).listValue.end()); // 调用algorithm中的reverse
+                    }
+                    else
+                    {
+                        yyerror("AttributeError: '" + TypeString(*(yyvsp[-2]).begin) + "' object has no attribute 'reverse'");
+                        YYERROR;
+                    }
+                    break;
+                case Variable:
+                    if (Symbol.at((yyvsp[-2]).variableName).type == List)
+                    {
+                        reverse(Symbol.at((yyvsp[-2]).variableName).listValue.begin(), Symbol.at((yyvsp[-2]).variableName).listValue.end()); // 调用algorithm中的reverse
+                    }
+                    else
+                    {
+                        yyerror("AttributeError: '" + TypeString(Symbol.at((yyvsp[-2]).variableName)) + "' object has no attribute 'reverse'");
+                        YYERROR;
+                    }
+                    break;
+                default:
+                    yyerror("AttributeError: '" + TypeString((yyvsp[-2])) + "' object has no attribute 'reverse'");
+                    YYERROR;
+            }
+        }
+        else if ((yyvsp[-2]).variableName == "print") // print函数
+        {
+            (yyval).type = None;
+            cout << endl;
+        }
+        else if ((yyvsp[-2]).variableName == "range")
+        {
+            yyerror("TypeError: range expected 1 arguments, got 0");
+            YYERROR;
+        }
+        else if ((yyvsp[-2]).variableName == "list") // list函数
+        {
+            (yyval).type = List;
+            (yyval).listValue = vector<struct value>();
+        }
+        else if ((yyvsp[-2]).variableName == "type")
+        {
+            yyerror("TypeError: type() takes 1 or 3 arguments");
+            YYERROR;
+        }
+        else if ((yyvsp[-2]).variableName == "len")
+        {
+            yyerror("TypeError: len() takes exactly one argument (0 given)");
+            YYERROR;
+        }
+        else
+        {
+            yyerror("AttributeError: '" + TypeString((yyvsp[-2])) + "' object has no attribute '"+ (yyvsp[-2]).attributeName +"\'");
+            YYERROR;
+        }
+    }
+#line 3513 "y.tab.c" /* yacc.c:1646  */
+    break;
+
+  case 29:
+#line 2254 "minipy-lab.y" /* yacc.c:1646  */
     {
         (yyval).type = List;
         (yyval).listValue = vector<struct value>(1, (yyvsp[0])); // 用列表“框柱”参数
     }
-#line 3528 "y.tab.c" /* yacc.c:1646  */
+#line 3522 "y.tab.c" /* yacc.c:1646  */
     break;
 
-  case 32:
-#line 2263 "minipy-lab.y" /* yacc.c:1646  */
+  case 30:
+#line 2259 "minipy-lab.y" /* yacc.c:1646  */
     {
         (yyval).type = List;
         (yyvsp[-2]).listValue.push_back((yyvsp[0]));
         (yyval).listValue = vector<struct value>((yyvsp[-2]).listValue);
     }
-#line 3538 "y.tab.c" /* yacc.c:1646  */
+#line 3532 "y.tab.c" /* yacc.c:1646  */
     break;
 
-  case 33:
-#line 2272 "minipy-lab.y" /* yacc.c:1646  */
+  case 31:
+#line 2268 "minipy-lab.y" /* yacc.c:1646  */
     {
         (yyval).type = List;
         (yyval).listValue = vector<struct value>();
     }
-#line 3547 "y.tab.c" /* yacc.c:1646  */
+#line 3541 "y.tab.c" /* yacc.c:1646  */
     break;
 
-  case 34:
-#line 2277 "minipy-lab.y" /* yacc.c:1646  */
+  case 32:
+#line 2273 "minipy-lab.y" /* yacc.c:1646  */
     {
         (yyval).type = List;
         (yyval).listValue = vector<struct value>((yyvsp[-2]).listValue);
     }
-#line 3556 "y.tab.c" /* yacc.c:1646  */
+#line 3550 "y.tab.c" /* yacc.c:1646  */
     break;
 
-  case 37:
-#line 2290 "minipy-lab.y" /* yacc.c:1646  */
+  case 35:
+#line 2286 "minipy-lab.y" /* yacc.c:1646  */
     {
         (yyval).type = List;
         (yyval).listValue = vector<struct value>(1, (yyvsp[0])); // 用列表“框柱”变量
     }
-#line 3565 "y.tab.c" /* yacc.c:1646  */
+#line 3559 "y.tab.c" /* yacc.c:1646  */
     break;
 
-  case 38:
-#line 2295 "minipy-lab.y" /* yacc.c:1646  */
+  case 36:
+#line 2291 "minipy-lab.y" /* yacc.c:1646  */
     {
         (yyval).type = List;
         (yyvsp[-2]).listValue.push_back((yyvsp[0]));
         (yyval).listValue = vector<struct value>((yyvsp[-2]).listValue);
     }
-#line 3575 "y.tab.c" /* yacc.c:1646  */
+#line 3569 "y.tab.c" /* yacc.c:1646  */
     break;
 
-  case 39:
-#line 2304 "minipy-lab.y" /* yacc.c:1646  */
+  case 37:
+#line 2300 "minipy-lab.y" /* yacc.c:1646  */
     {
-            switch((yyvsp[-2]).type)
-            {
-                case Integer:
-                    switch((yyvsp[0]).type)
-                    {
-                        case Integer:
-                            (yyval).type = Integer;
-                            (yyval).integerValue = (yyvsp[-2]).integerValue + (yyvsp[0]).integerValue;
-                            break;
-                        case Real:
-                            (yyval).type = Real;
-                            (yyvsp[-2]).realValue = (double) (yyvsp[-2]).integerValue;
-                            (yyval).realValue = (yyvsp[-2]).realValue + (yyvsp[0]).realValue;
-                            break;
-                        // case List:
-                        //     $$.type = List;
-                        //     $$.listValue = vector<struct value>($3.listValue);
-                        //     $$.listValue.insert($$.listValue.begin(), $1); // 在头部插入
-                        //     break;
-                        default:
-                            yyerror("TypeError: unsupported operand type(s) for +: 'int' and '" + TypeString((yyvsp[0])) + "\'");
-                            YYERROR;
-                    }
-                    break;
-                case Real:
-                    switch((yyvsp[0]).type)
-                    {
-                        case Integer:
-                            (yyval).type = Real;
-                            (yyvsp[0]).realValue = (double) (yyvsp[0]).integerValue;
-                            (yyval).realValue = (yyvsp[-2]).realValue + (yyvsp[0]).realValue;
-                            break;
-                        case Real:
-                            (yyval).type = Real;
-                            (yyval).realValue = (yyvsp[-2]).realValue + (yyvsp[0]).realValue;
-                            break;
-                        // case List:
-                        //     $$.type = List;
-                        //     $$.listValue = vector<struct value>($3.listValue);
-                        //     $$.listValue.insert($$.listValue.begin(), $1); // 在头部插入
-                        //     break;
-                        default:
-                            yyerror("TypeError: unsupported operand type(s) for +: 'float' and '" + TypeString((yyvsp[0])) + "\'");
-                            YYERROR;
-                    }
-                    break;
-                case String:
-                    switch((yyvsp[0]).type)
-                    {
-                        case String:
-                            (yyval).type = String;
-                            (yyval).stringValue = (yyvsp[-2]).stringValue + (yyvsp[0]).stringValue;
-                            break;
-                        // case List:
-                        //     $$.type = List;
-                        //     $$.listValue = vector<struct value>($3.listValue);
-                        //     $$.listValue.insert($$.listValue.begin(), $1); // 在头部插入
-                        //     break;
-                        default:
-                            yyerror("TypeError: can only concatenate str (not \"" + TypeString((yyvsp[0])) + "\") to str");
-                            YYERROR;
-                    }
-                    break;
-                case List:
-                    (yyval).type = List;
-                    (yyval).listValue = vector<struct value>((yyvsp[-2]).listValue);
-                    switch((yyvsp[0]).type)
-                    {
-                        case Integer:
-                            (yyval).listValue.insert((yyval).listValue.end(), (yyvsp[0])); // 在尾部插入
-                            break;
-                        case Real:
-                            (yyval).listValue.insert((yyval).listValue.end(), (yyvsp[0])); // 在尾部插入
-                            break;
-                        case String:
-                            (yyval).listValue.insert((yyval).listValue.end(), (yyvsp[0])); // 在尾部插入
-                            break;
-                        case List:
-                            (yyval).listValue.insert((yyval).listValue.end(), (yyvsp[0]).listValue.begin(), (yyvsp[0]).listValue.end()); // 在尾部插入
-                            break;
-                        default:
-                            yyerror("TypeError: can only concatenate list (not \"" + TypeString((yyvsp[0])) + "\") to list");
-                            YYERROR;
-                    }
-                    break;
-                default:
-                    yyerror("TypeError: not supported type");
-                    YYERROR;
-            }
+        switch((yyvsp[-2]).type)
+        {
+            case Integer:
+                switch((yyvsp[0]).type)
+                {
+                    case Integer:
+                        (yyval).type = Integer;
+                        (yyval).integerValue = (yyvsp[-2]).integerValue + (yyvsp[0]).integerValue;
+                        break;
+                    case Real:
+                        (yyval).type = Real;
+                        (yyvsp[-2]).realValue = (double) (yyvsp[-2]).integerValue;
+                        (yyval).realValue = (yyvsp[-2]).realValue + (yyvsp[0]).realValue;
+                        break;
+                    // case List:
+                    //     $$.type = List;
+                    //     $$.listValue = vector<struct value>($3.listValue);
+                    //     $$.listValue.insert($$.listValue.begin(), $1); // 在头部插入
+                    //     break;
+                    default:
+                        yyerror("TypeError: unsupported operand type(s) for +: 'int' and '" + TypeString((yyvsp[0])) + "\'");
+                        YYERROR;
+                }
+                break;
+            case Real:
+                switch((yyvsp[0]).type)
+                {
+                    case Integer:
+                        (yyval).type = Real;
+                        (yyvsp[0]).realValue = (double) (yyvsp[0]).integerValue;
+                        (yyval).realValue = (yyvsp[-2]).realValue + (yyvsp[0]).realValue;
+                        break;
+                    case Real:
+                        (yyval).type = Real;
+                        (yyval).realValue = (yyvsp[-2]).realValue + (yyvsp[0]).realValue;
+                        break;
+                    // case List:
+                    //     $$.type = List;
+                    //     $$.listValue = vector<struct value>($3.listValue);
+                    //     $$.listValue.insert($$.listValue.begin(), $1); // 在头部插入
+                    //     break;
+                    default:
+                        yyerror("TypeError: unsupported operand type(s) for +: 'float' and '" + TypeString((yyvsp[0])) + "\'");
+                        YYERROR;
+                }
+                break;
+            case String:
+                switch((yyvsp[0]).type)
+                {
+                    case String:
+                        (yyval).type = String;
+                        (yyval).stringValue = (yyvsp[-2]).stringValue + (yyvsp[0]).stringValue;
+                        break;
+                    // case List:
+                    //     $$.type = List;
+                    //     $$.listValue = vector<struct value>($3.listValue);
+                    //     $$.listValue.insert($$.listValue.begin(), $1); // 在头部插入
+                    //     break;
+                    default:
+                        yyerror("TypeError: can only concatenate str (not \"" + TypeString((yyvsp[0])) + "\") to str");
+                        YYERROR;
+                }
+                break;
+            case List:
+                (yyval).type = List;
+                (yyval).listValue = vector<struct value>((yyvsp[-2]).listValue);
+                switch((yyvsp[0]).type)
+                {
+                    case Integer:
+                        (yyval).listValue.insert((yyval).listValue.end(), (yyvsp[0])); // 在尾部插入
+                        break;
+                    case Real:
+                        (yyval).listValue.insert((yyval).listValue.end(), (yyvsp[0])); // 在尾部插入
+                        break;
+                    case String:
+                        (yyval).listValue.insert((yyval).listValue.end(), (yyvsp[0])); // 在尾部插入
+                        break;
+                    case List:
+                        (yyval).listValue.insert((yyval).listValue.end(), (yyvsp[0]).listValue.begin(), (yyvsp[0]).listValue.end()); // 在尾部插入
+                        break;
+                    default:
+                        yyerror("TypeError: can only concatenate list (not \"" + TypeString((yyvsp[0])) + "\") to list");
+                        YYERROR;
+                }
+                break;
+            default:
+                yyerror("TypeError: not supported type");
+                YYERROR;
         }
-#line 3671 "y.tab.c" /* yacc.c:1646  */
+    }
+#line 3665 "y.tab.c" /* yacc.c:1646  */
+    break;
+
+  case 38:
+#line 2392 "minipy-lab.y" /* yacc.c:1646  */
+    {
+        switch((yyvsp[-2]).type)
+        {
+            case Integer:
+                switch((yyvsp[0]).type)
+                {
+                    case Integer:
+                        (yyval).type = Integer;
+                        (yyval).integerValue = (yyvsp[-2]).integerValue - (yyvsp[0]).integerValue;
+                        break;
+                    case Real:
+                        (yyval).type = Real;
+                        (yyvsp[-2]).realValue = (double) (yyvsp[-2]).integerValue;
+                        (yyval).realValue = (yyvsp[-2]).realValue - (yyvsp[0]).realValue;
+                        break;
+                    default:
+                        yyerror("TypeError: unsupported operand type(s) for +: 'int' and '" + TypeString((yyvsp[0])) + "\'");
+                        YYERROR;
+                }
+                break;
+            case Real:
+                switch((yyvsp[0]).type)
+                {
+                    case Integer:
+                        (yyval).type = Real;
+                        (yyvsp[0]).realValue = (double) (yyvsp[0]).integerValue;
+                        (yyval).realValue = (yyvsp[-2]).realValue - (yyvsp[0]).realValue;
+                        break;
+                    case Real:
+                        (yyval).type = Real;
+                        (yyval).realValue = (yyvsp[-2]).realValue - (yyvsp[0]).realValue;
+                        break;
+                    default:
+                        yyerror("TypeError: unsupported operand type(s) for +: 'int' and '" + TypeString((yyvsp[0])) + "\'");
+                        YYERROR;
+                }
+                break;
+            default:
+                yyerror("TypeError: unsupported operand type(s) for +: '"+ TypeString((yyvsp[-2])) +"' and '" + TypeString((yyvsp[0])) + "\'");
+                YYERROR;
+        }
+    }
+#line 3712 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 40:
-#line 2396 "minipy-lab.y" /* yacc.c:1646  */
+#line 2439 "minipy-lab.y" /* yacc.c:1646  */
     {
-            switch((yyvsp[-2]).type)
-            {
-                case Integer:
-                    switch((yyvsp[0]).type)
-                    {
-                        case Integer:
-                            (yyval).type = Integer;
-                            (yyval).integerValue = (yyvsp[-2]).integerValue - (yyvsp[0]).integerValue;
-                            break;
-                        case Real:
-                            (yyval).type = Real;
-                            (yyvsp[-2]).realValue = (double) (yyvsp[-2]).integerValue;
-                            (yyval).realValue = (yyvsp[-2]).realValue - (yyvsp[0]).realValue;
-                            break;
-                        default:
-                            yyerror("TypeError: unsupported operand type(s) for +: 'int' and '" + TypeString((yyvsp[0])) + "\'");
-                            YYERROR;
-                    }
-                    break;
-                case Real:
-                    switch((yyvsp[0]).type)
-                    {
-                        case Integer:
-                            (yyval).type = Real;
-                            (yyvsp[0]).realValue = (double) (yyvsp[0]).integerValue;
-                            (yyval).realValue = (yyvsp[-2]).realValue - (yyvsp[0]).realValue;
-                            break;
-                        case Real:
-                            (yyval).type = Real;
-                            (yyval).realValue = (yyvsp[-2]).realValue - (yyvsp[0]).realValue;
-                            break;
-                        default:
-                            yyerror("TypeError: unsupported operand type(s) for +: 'int' and '" + TypeString((yyvsp[0])) + "\'");
-                            YYERROR;
-                    }
-                    break;
-                default:
-                    yyerror("TypeError: unsupported operand type(s) for +: '"+ TypeString((yyvsp[-2])) +"' and '" + TypeString((yyvsp[0])) + "\'");
-                    YYERROR;
-            }
+        switch((yyvsp[-2]).type)
+        {
+            case Integer:
+                switch((yyvsp[0]).type)
+                {
+                    case Integer:
+                        (yyval).type = Integer;
+                        (yyval).integerValue = (yyvsp[-2]).integerValue * (yyvsp[0]).integerValue;
+                        break;
+                    case Real:
+                        (yyval).type = Real;
+                        (yyvsp[-2]).realValue = (double) (yyvsp[-2]).integerValue;
+                        (yyval).realValue = (yyvsp[-2]).realValue * (yyvsp[0]).realValue;
+                        break;
+                    case List:
+                        (yyval).type = List;
+                        (yyval).listValue = vector<struct value>((yyvsp[0]).listValue);
+                        for (int i = 1; i < (yyvsp[-2]).integerValue; i++)
+                            (yyval).listValue.insert((yyval).listValue.end(), (yyvsp[0]).listValue.begin(), (yyvsp[0]).listValue.end()); // 循环插入
+                        break;
+                    default:
+                        yyerror("TypeError: not supported type");
+                        YYERROR;
+                }
+                break;
+            case Real:
+                switch((yyvsp[0]).type)
+                {
+                    case Integer:
+                        (yyval).type = Real;
+                        (yyvsp[0]).realValue = (double) (yyvsp[0]).integerValue;
+                        (yyval).realValue = (yyvsp[-2]).realValue * (yyvsp[0]).realValue;
+                        break;
+                    case Real:
+                        (yyval).type = Real;
+                        (yyval).realValue = (yyvsp[-2]).realValue * (yyvsp[0]).realValue;
+                        break;
+                    case String:
+                    case List:
+                        yyerror("TypeError: can't multiply sequence by non-int of type 'float'");
+                        YYERROR;
+                        break;
+                    default:
+                        yyerror("TypeError: not supported type");
+                        YYERROR;
+                }
+                break;
+            case String:
+                switch((yyvsp[0]).type)
+                {
+                    case Integer:
+                        (yyval).type = String;
+                        (yyval).stringValue = (yyvsp[-2]).stringValue;
+                        for (int i = 1; i < (yyvsp[0]).integerValue; i++)
+                            (yyval).stringValue += (yyvsp[-2]).stringValue;
+                        break;
+                    default:
+                        yyerror("TypeError: can't multiply sequence by non-int of type '" + TypeString((yyvsp[0])) + "\'");
+                        YYERROR;
+                }
+                break;
+            case List:
+                switch((yyvsp[0]).type)
+                {
+                    case Integer:
+                        (yyval).type = List;
+                        (yyval).listValue = vector<struct value>((yyvsp[-2]).listValue);
+                        for (int i = 1; i < (yyvsp[0]).integerValue; i++)
+                            (yyval).listValue.insert((yyval).listValue.end(), (yyvsp[-2]).listValue.begin(), (yyvsp[-2]).listValue.end()); // 循环插入
+                        break;
+                    default:
+                        yyerror("TypeError: can't multiply sequence by non-int of type '" + TypeString((yyvsp[0])) + "\'");
+                        YYERROR;
+                }
+            default:
+                yyerror("TypeError: not supported type");
+                YYERROR;
         }
-#line 3718 "y.tab.c" /* yacc.c:1646  */
+    }
+#line 3797 "y.tab.c" /* yacc.c:1646  */
+    break;
+
+  case 41:
+#line 2520 "minipy-lab.y" /* yacc.c:1646  */
+    {
+        (yyval).type = Real;
+        if (((yyvsp[-2]).type == Integer || (yyvsp[-2]).type == Real) && ((yyvsp[0]).type == Integer || (yyvsp[0]).type == Real))
+        {
+            if ( (yyvsp[-2]).type == Integer )
+                (yyvsp[-2]).realValue = (double) (yyvsp[-2]).integerValue;
+            if ( (yyvsp[0]).type == Integer )
+                (yyvsp[0]).realValue = (double) (yyvsp[0]).integerValue;
+            (yyval).realValue = (yyvsp[-2]).realValue / (yyvsp[0]).realValue;
+        }
+        else
+        {
+            yyerror("TypeError: unsupported operand type(s) for /: '"+ TypeString((yyvsp[-2])) +"' and '" + TypeString((yyvsp[0])) + "\'");
+            YYERROR;
+        }
+    }
+#line 3818 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 42:
-#line 2443 "minipy-lab.y" /* yacc.c:1646  */
+#line 2537 "minipy-lab.y" /* yacc.c:1646  */
     {
-            switch((yyvsp[-2]).type)
-            {
-                case Integer:
-                    switch((yyvsp[0]).type)
-                    {
-                        case Integer:
-                            (yyval).type = Integer;
-                            (yyval).integerValue = (yyvsp[-2]).integerValue * (yyvsp[0]).integerValue;
-                            break;
-                        case Real:
-                            (yyval).type = Real;
-                            (yyvsp[-2]).realValue = (double) (yyvsp[-2]).integerValue;
-                            (yyval).realValue = (yyvsp[-2]).realValue * (yyvsp[0]).realValue;
-                            break;
-                        case List:
-                            (yyval).type = List;
-                            (yyval).listValue = vector<struct value>((yyvsp[0]).listValue);
-                            for (int i = 1; i < (yyvsp[-2]).integerValue; i++)
-                                (yyval).listValue.insert((yyval).listValue.end(), (yyvsp[0]).listValue.begin(), (yyvsp[0]).listValue.end()); // 循环插入
-                            break;
-                        default:
-                            yyerror("TypeError: not supported type");
-                            YYERROR;
-                    }
-                    break;
-                case Real:
-                    switch((yyvsp[0]).type)
-                    {
-                        case Integer:
-                            (yyval).type = Real;
-                            (yyvsp[0]).realValue = (double) (yyvsp[0]).integerValue;
-                            (yyval).realValue = (yyvsp[-2]).realValue * (yyvsp[0]).realValue;
-                            break;
-                        case Real:
-                            (yyval).type = Real;
-                            (yyval).realValue = (yyvsp[-2]).realValue * (yyvsp[0]).realValue;
-                            break;
-                        case String:
-                        case List:
-                            yyerror("TypeError: can't multiply sequence by non-int of type 'float'");
-                            YYERROR;
-                            break;
-                        default:
-                            yyerror("TypeError: not supported type");
-                            YYERROR;
-                    }
-                    break;
-                case String:
-                    switch((yyvsp[0]).type)
-                    {
-                        case Integer:
-                            (yyval).type = String;
-                            (yyval).stringValue = (yyvsp[-2]).stringValue;
-                            for (int i = 1; i < (yyvsp[0]).integerValue; i++)
-                                (yyval).stringValue += (yyvsp[-2]).stringValue;
-                            break;
-                        default:
-                            yyerror("TypeError: can't multiply sequence by non-int of type '" + TypeString((yyvsp[0])) + "\'");
-                            YYERROR;
-                    }
-                    break;
-                case List:
-                    switch((yyvsp[0]).type)
-                    {
-                        case Integer:
-                            (yyval).type = List;
-                            (yyval).listValue = vector<struct value>((yyvsp[-2]).listValue);
-                            for (int i = 1; i < (yyvsp[0]).integerValue; i++)
-                                (yyval).listValue.insert((yyval).listValue.end(), (yyvsp[-2]).listValue.begin(), (yyvsp[-2]).listValue.end()); // 循环插入
-                            break;
-                        default:
-                            yyerror("TypeError: can't multiply sequence by non-int of type '" + TypeString((yyvsp[0])) + "\'");
-                            YYERROR;
-                    }
-                default:
-                    yyerror("TypeError: not supported type");
-                    YYERROR;
-            }
+        // 整除
+        (yyval).type = Integer;
+        if (((yyvsp[-2]).type == Integer || (yyvsp[-2]).type == Real) && ((yyvsp[0]).type == Integer || (yyvsp[0]).type == Real))
+        {
+            if ( (yyvsp[-2]).type == Real )
+                (yyvsp[-2]).integerValue = round((yyvsp[-2]).realValue);
+            if ( (yyvsp[0]).type == Real )
+                (yyvsp[0]).integerValue = round((yyvsp[0]).realValue);
+            (yyval).integerValue = (yyvsp[-2]).integerValue / (yyvsp[0]).integerValue;
         }
-#line 3803 "y.tab.c" /* yacc.c:1646  */
+        else
+        {
+            yyerror("TypeError: unsupported operand type(s) for //: '"+ TypeString((yyvsp[-2])) +"' and '" + TypeString((yyvsp[0])) + "\'");
+            YYERROR;
+        }
+
+    }
+#line 3841 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 43:
-#line 2524 "minipy-lab.y" /* yacc.c:1646  */
+#line 2556 "minipy-lab.y" /* yacc.c:1646  */
     {
-            (yyval).type = Real;
-            if (((yyvsp[-2]).type == Integer || (yyvsp[-2]).type == Real) && ((yyvsp[0]).type == Integer || (yyvsp[0]).type == Real))
+        if (((yyvsp[-2]).type == Integer || (yyvsp[-2]).type == Real) && ((yyvsp[0]).type == Integer || (yyvsp[0]).type == Real))
+        {
+            if (((yyvsp[-2]).type == Integer) && ( (yyvsp[0]).type == Integer ))
             {
+                (yyval).type = Integer;
+                (yyval).integerValue = (yyvsp[-2]).integerValue % (yyvsp[0]).integerValue;
+                if ((yyvsp[-2]).integerValue * (yyvsp[0]).integerValue < 0) // 取余的符号问题
+                    (yyval).integerValue += (yyvsp[0]).integerValue;
+            }
+            else
+            {
+                (yyval).type = Real;
                 if ( (yyvsp[-2]).type == Integer )
                     (yyvsp[-2]).realValue = (double) (yyvsp[-2]).integerValue;
                 if ( (yyvsp[0]).type == Integer )
                     (yyvsp[0]).realValue = (double) (yyvsp[0]).integerValue;
-                (yyval).realValue = (yyvsp[-2]).realValue / (yyvsp[0]).realValue;
-            }
-            else
-            {
-                yyerror("TypeError: unsupported operand type(s) for /: '"+ TypeString((yyvsp[-2])) +"' and '" + TypeString((yyvsp[0])) + "\'");
-                YYERROR;
+                int temp = (int)((yyvsp[-2]).realValue / (yyvsp[0]).realValue); // 手动实现实数取余
+                (yyval).realValue = (yyvsp[-2]).realValue - ((yyvsp[0]).realValue * temp);
+                if ((yyvsp[-2]).realValue * (yyvsp[0]).realValue < 0)
+                    (yyval).realValue += (yyvsp[0]).realValue;
             }
         }
-#line 3824 "y.tab.c" /* yacc.c:1646  */
+        else
+        {
+            yyerror("TypeError: unsupported operand type(s) for %: '"+ TypeString((yyvsp[-2])) +"' and '" + TypeString((yyvsp[0])) + "\'");
+            YYERROR;
+        }
+    }
+#line 3875 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 44:
-#line 2541 "minipy-lab.y" /* yacc.c:1646  */
-    {
-            // 整除
-            (yyval).type = Integer;
-            if (((yyvsp[-2]).type == Integer || (yyvsp[-2]).type == Real) && ((yyvsp[0]).type == Integer || (yyvsp[0]).type == Real))
-            {
-                if ( (yyvsp[-2]).type == Real )
-                    (yyvsp[-2]).integerValue = round((yyvsp[-2]).realValue);
-                if ( (yyvsp[0]).type == Real )
-                    (yyvsp[0]).integerValue = round((yyvsp[0]).realValue);
-                (yyval).integerValue = (yyvsp[-2]).integerValue / (yyvsp[0]).integerValue;
-            }
-            else
-            {
-                yyerror("TypeError: unsupported operand type(s) for //: '"+ TypeString((yyvsp[-2])) +"' and '" + TypeString((yyvsp[0])) + "\'");
-                YYERROR;
-            }
-
-        }
-#line 3847 "y.tab.c" /* yacc.c:1646  */
-    break;
-
-  case 45:
-#line 2560 "minipy-lab.y" /* yacc.c:1646  */
-    {
-            if (((yyvsp[-2]).type == Integer || (yyvsp[-2]).type == Real) && ((yyvsp[0]).type == Integer || (yyvsp[0]).type == Real))
-            {
-                if (((yyvsp[-2]).type == Integer) && ( (yyvsp[0]).type == Integer ))
-                {
-                    (yyval).type = Integer;
-                    (yyval).integerValue = (yyvsp[-2]).integerValue % (yyvsp[0]).integerValue;
-                    if ((yyvsp[-2]).integerValue * (yyvsp[0]).integerValue < 0) // 取余的符号问题
-                        (yyval).integerValue += (yyvsp[0]).integerValue;
-                }
-                else
-                {
-                    (yyval).type = Real;
-                    if ( (yyvsp[-2]).type == Integer )
-                        (yyvsp[-2]).realValue = (double) (yyvsp[-2]).integerValue;
-                    if ( (yyvsp[0]).type == Integer )
-                        (yyvsp[0]).realValue = (double) (yyvsp[0]).integerValue;
-                    int temp = (int)((yyvsp[-2]).realValue / (yyvsp[0]).realValue); // 手动实现实数取余
-                    (yyval).realValue = (yyvsp[-2]).realValue - ((yyvsp[0]).realValue * temp);
-                    if ((yyvsp[-2]).realValue * (yyvsp[0]).realValue < 0)
-                        (yyval).realValue += (yyvsp[0]).realValue;
-                }
-            }
-            else
-            {
-                yyerror("TypeError: unsupported operand type(s) for %: '"+ TypeString((yyvsp[-2])) +"' and '" + TypeString((yyvsp[0])) + "\'");
-                YYERROR;
-            }
-        }
+#line 2585 "minipy-lab.y" /* yacc.c:1646  */
+    { (yyval) = (yyvsp[-1]); }
 #line 3881 "y.tab.c" /* yacc.c:1646  */
     break;
 
-  case 46:
-#line 2589 "minipy-lab.y" /* yacc.c:1646  */
+  case 45:
+#line 2586 "minipy-lab.y" /* yacc.c:1646  */
     { (yyval) = (yyvsp[-1]); }
 #line 3887 "y.tab.c" /* yacc.c:1646  */
     break;
 
-  case 47:
-#line 2590 "minipy-lab.y" /* yacc.c:1646  */
-    { (yyval) = (yyvsp[-1]); }
-#line 3893 "y.tab.c" /* yacc.c:1646  */
-    break;
 
-
-#line 3897 "y.tab.c" /* yacc.c:1646  */
+#line 3891 "y.tab.c" /* yacc.c:1646  */
       default: break;
     }
   /* User semantic actions sometimes alter yychar, and that requires
@@ -4121,17 +4115,87 @@ yyreturn:
 #endif
   return yyresult;
 }
-#line 2594 "minipy-lab.y" /* yacc.c:1906  */
+#line 2590 "minipy-lab.y" /* yacc.c:1906  */
 
 
 int main()
 {
-	return yyparse();
+    string KeyBoardStream;
+    int cursor = 0; // 光标位置
+    yy_buffer_state * buffer;
+    while (true)
+    {
+        int c;
+        printf("%c[2K", 27);
+        printf("\33[2K\r"); // 清除本行
+        cout << "miniPy> " << KeyBoardStream;
+        for (int i = KeyBoardStream.length() ;i > cursor; i--)
+            printf("\b"); // 移动光标
+        switch(c = getch())
+        {
+            case 27:
+                switch(c = getch())
+                {
+                    case 91:
+                        switch(c = getch())
+                        {
+                            case 65: // Up
+                                break;
+                            case 66: // Down
+                                break;
+                            case 67: // Right
+                                cursor++;
+                                if (cursor > KeyBoardStream.length())
+                                    cursor = KeyBoardStream.length();
+                                printf("\033[1C");
+                                break;
+                            case 68: // Left
+                                cursor--;
+                                if (cursor < 0)
+                                    cursor = 0;
+                                printf("\033[1D");
+                                break;
+                            default:
+                                break;
+                        }
+                        break;
+                    default:
+                        break;
+                }
+                break;
+            case 3: // Ctrl + C
+                yy_flush_buffer(buffer); // 清空缓冲区
+                KeyBoardStream = ""; // 清空流
+                cursor = 0;
+                cout << "KeyboardInterrupt" << endl;
+                break;
+            case 9: // Tab
+                cout << "\t" << endl;
+                break;
+            case 13: // Enter
+                putchar('\n');
+                // KeyBoardStream += "\n";
+                buffer = yy_scan_string(KeyBoardStream.c_str());
+                yyparse();
+                yy_flush_buffer(buffer);
+                KeyBoardStream = "";
+                cursor = 0;
+                break;
+            case 127: // Backspace
+                KeyBoardStream.erase(--cursor, 1); // 删除流中字符
+                break;
+            default:
+                KeyBoardStream.insert(cursor++, 1, (char)(c)); // 插入字符
+        }
+    }
+    yy_delete_buffer(buffer);
+
+    return 0;
 }
 
 void yyerror(string s)
 {
-	cout << s << endl << "miniPy> ";
+	cout << s << endl;
 }
 
 int yywrap()
@@ -4217,4 +4281,27 @@ int Length(Value x) // 将枚举类型返回实体长度，用于len(), insert()
             return(Length(Symbol.at(x.variableName)));
             break;
     }
+}
+
+int getch(void)
+{
+     struct termios tm, tm_old;
+     int fd = 0, c;
+
+     if (tcgetattr(fd, &tm) < 0) {//保存现在的终端设置
+          return -1;
+     }
+
+     tm_old = tm;
+     cfmakeraw(&tm);//更改终端设置为原始模式，该模式下所有的输入数据以字节为单位被处理
+     if (tcsetattr(fd, TCSANOW, &tm) < 0) {//设置上更改之后的设置
+          return -1;
+     }
+
+     c = getchar();
+     if (tcsetattr(fd, TCSANOW, &tm_old) < 0) {//更改设置为最初的样子
+          return -1;
+     }
+
+     return c;
 }
