@@ -109,8 +109,7 @@ Lines:
                 Print($2);
             cout << endl;
         }
-    }
-    Lines |
+    } |
     /* empty production */ |
     error '\n' { yyerrok; }
 ;
@@ -1873,6 +1872,80 @@ atom_expr:
                     YYERROR;
             }
         }
+        else if ($1.attributeName == "remove") // remove方法
+        {
+            $$.type = None;
+            vector<struct value>::iterator pos;
+            switch ($1.type)
+            {
+                case List:
+                case ListSlice:
+                    if ($3.listValue.size() == 1) // remove 有且仅有1个参数
+                    {
+                        pos = find($1.listValue.begin(), $1.listValue.end(), *$3.listValue.begin());
+                        if (pos == $1.listValue.end())
+                            yyerror("ValueError: list.remove(x): x not in list ");
+                        else
+                            $1.listValue.erase(pos);
+                    }
+                    else
+                    {
+                        yyerror("TypeError: remove() takes exactly one argument ("+ to_string($3.listValue.size()) +" given)");
+                        YYERROR;
+                    }
+                    break;
+                case ListItem:
+                    switch ((*$1.begin).type)
+                    {
+                        case List:
+                            if ($3.listValue.size() == 1) // remove 有且仅有1个参数
+                            {
+                                pos = find((*$1.begin).listValue.begin(), (*$1.begin).listValue.end(), *$3.listValue.begin());
+                                if (pos == (*$1.begin).listValue.end())
+                                    yyerror("ValueError: list.remove(x): x not in list ");
+                                else
+                                    (*$1.begin).listValue.erase(pos);
+                            }
+
+                            else
+                            {
+                                yyerror("TypeError: remove() takes exactly one argument ("+ to_string($3.listValue.size()) +" given)");
+                                YYERROR;
+                            }
+                            break;
+                        default:
+                            yyerror("AttributeError: '" + TypeString(*$1.begin) + "' object has no attribute 'remove'");
+                            YYERROR;
+                    }
+                    break;
+                case Variable:
+                    switch (Symbol.at($1.variableName).type)
+                    {
+                        case List:
+                            if ($3.listValue.size() == 1) // remove 有且仅有1个参数
+                            {
+                                pos = find(Symbol.at($1.variableName).listValue.begin(), Symbol.at($1.variableName).listValue.end(), *$3.listValue.begin());
+                                if (pos == Symbol.at($1.variableName).listValue.end())
+                                    yyerror("ValueError: list.remove(x): x not in list ");
+                                else
+                                    Symbol.at($1.variableName).listValue.erase(pos);
+                            }
+                            else
+                            {
+                                yyerror("TypeError: remove() takes exactly one argument ("+ to_string($3.listValue.size()) +" given)");
+                                YYERROR;
+                            }
+                            break;
+                        default:
+                            yyerror("AttributeError: '" + TypeString(Symbol.at($1.variableName)) + "' object has no attribute 'remove'");
+                            YYERROR;
+                    }
+                    break;
+                default:
+                    yyerror("AttributeError: '" + TypeString($1) + "' object has no attribute 'remove'");
+                    YYERROR;
+            }
+        }
         else if ($1.attributeName == "reverse")
         {
             switch ($1.type)
@@ -2334,6 +2407,45 @@ atom_expr:
                     break;
                 default:
                     yyerror("AttributeError: '" + TypeString($1) + "' object has no attribute 'pop'");
+                    YYERROR;
+            }
+        }
+        else if ($1.attributeName == "remove")
+        {
+            $$.type = None;
+            switch ($1.type)
+            {
+                case List:
+                case ListSlice:
+                    yyerror("TypeError: remove() takes exactly one argument (0 given)");
+                    YYERROR;
+                    break;
+                case ListItem:
+                    if ((*$1.begin).type == List)
+                    {
+                        yyerror("TypeError: remove() takes exactly one argument (0 given)");
+                        YYERROR;
+                    }
+                    else
+                    {
+                        yyerror("AttributeError: '" + TypeString(*$1.begin) + "' object has no attribute 'remove'");
+                        YYERROR;
+                    }
+                    break;
+                case Variable:
+                    if (Symbol.at($1.variableName).type == List)
+                    {
+                        yyerror("TypeError: remove() takes exactly one argument (0 given)");
+                        YYERROR;
+                    }
+                    else
+                    {
+                        yyerror("AttributeError: '" + TypeString(Symbol.at($1.variableName)) + "' object has no attribute 'remove'");
+                        YYERROR;
+                    }
+                    break;
+                default:
+                    yyerror("AttributeError: '" + TypeString($1) + "' object has no attribute 'remove'");
                     YYERROR;
             }
         }
@@ -2811,7 +2923,7 @@ int main()
                 break;
             case 127: // Backspace
                 cursor--;
-                if (cursor <= 0)
+                if (cursor < 0)
                     cursor = 0;
                 else
                     KeyBoardStream.erase(cursor, 1); // 删除流中字符

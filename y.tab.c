@@ -459,16 +459,16 @@ union yyalloc
 /* YYFINAL -- State number of the termination state.  */
 #define YYFINAL  5
 /* YYLAST -- Last index in YYTABLE.  */
-#define YYLAST   108
+#define YYLAST   103
 
 /* YYNTOKENS -- Number of terminals.  */
 #define YYNTOKENS  23
 /* YYNNTS -- Number of nonterminals.  */
-#define YYNNTS  18
+#define YYNNTS  17
 /* YYNRULES -- Number of rules.  */
-#define YYNRULES  46
+#define YYNRULES  45
 /* YYNSTATES -- Number of states.  */
-#define YYNSTATES  74
+#define YYNSTATES  72
 
 /* YYTRANSLATE[YYX] -- Symbol number corresponding to YYX as returned
    by yylex, with out-of-bounds checking.  */
@@ -515,11 +515,11 @@ static const yytype_uint8 yytranslate[] =
   /* YYRLINE[YYN] -- Source line where rule number YYN was defined.  */
 static const yytype_uint16 yyrline[] =
 {
-       0,    97,    97,   102,   101,   113,   115,   120,   124,   173,
-     177,   178,   182,   195,   208,   242,   243,   244,   245,   249,
-     250,   264,   265,   269,   270,   935,  1122,  1129,  2077,  2410,
-    2415,  2424,  2429,  2436,  2438,  2442,  2447,  2456,  2548,  2591,
-    2595,  2676,  2693,  2712,  2742,  2743,  2744
+       0,    97,    97,   101,   112,   114,   119,   123,   172,   176,
+     177,   181,   194,   207,   241,   242,   243,   244,   248,   249,
+     263,   264,   268,   269,   934,  1121,  1128,  2150,  2522,  2527,
+    2536,  2541,  2548,  2550,  2554,  2559,  2568,  2660,  2703,  2707,
+    2788,  2805,  2824,  2854,  2855,  2856
 };
 #endif
 
@@ -531,9 +531,9 @@ static const char *const yytname[] =
   "$end", "error", "$undefined", "ID", "INT", "REAL", "STRING_LITERAL",
   "DIV", "'+'", "'-'", "'*'", "'/'", "'%'", "UMINUS", "'\\n'", "'='",
   "':'", "'['", "']'", "'.'", "'('", "')'", "','", "$accept", "Start",
-  "Lines", "$@1", "stat", "assignExpr", "number", "factor", "atom",
-  "slice_op", "sub_expr", "atom_expr", "arglist", "List", "opt_comma",
-  "List_items", "add_expr", "mul_expr", YY_NULLPTR
+  "Lines", "stat", "assignExpr", "number", "factor", "atom", "slice_op",
+  "sub_expr", "atom_expr", "arglist", "List", "opt_comma", "List_items",
+  "add_expr", "mul_expr", YY_NULLPTR
 };
 #endif
 
@@ -553,7 +553,7 @@ static const yytype_uint16 yytoknum[] =
 #define yypact_value_is_default(Yystate) \
   (!!((Yystate) == (-13)))
 
-#define YYTABLE_NINF -6
+#define YYTABLE_NINF -5
 
 #define yytable_value_is_error(Yytable_value) \
   0
@@ -562,14 +562,14 @@ static const yytype_uint16 yytoknum[] =
      STATE-NUM.  */
 static const yytype_int8 yypact[] =
 {
-       7,     0,    17,    76,   -13,   -13,   -13,   -13,   -13,   -13,
-      83,    83,    58,    76,   -13,   -13,   -13,   -13,   -13,    82,
-     -13,    -5,    96,   -13,    21,   -13,   -13,     6,    -5,    -3,
-      32,     7,    76,    76,    19,    51,    76,    76,    76,    76,
-      76,    76,    76,    28,   -13,   -13,    76,   -13,    31,    11,
-     -13,   -13,    26,    -5,    96,    96,   -13,   -13,   -13,   -13,
-      -5,   -13,    76,   -13,    76,    30,    33,    -5,    -5,   -13,
-      76,    47,    -5,   -13
+       7,     0,    17,    61,   -13,   -13,   -13,   -13,   -13,   -13,
+      79,    79,    54,    61,   -13,   -13,   -13,   -13,   -13,     6,
+     -13,    -5,    88,   -13,    27,   -13,   -13,    19,    -5,    -3,
+      82,    61,    61,    16,    34,    61,    61,    61,    61,    61,
+      61,    61,    10,   -13,   -13,   -13,    29,    68,   -13,   -13,
+      39,    -5,    88,    88,   -13,   -13,   -13,   -13,    -5,   -13,
+      61,   -13,    61,    28,    52,    -5,    -5,   -13,    61,    55,
+      -5,   -13
 };
 
   /* YYDEFACT[STATE-NUM] -- Default reduction number in state STATE-NUM.
@@ -577,28 +577,28 @@ static const yytype_int8 yypact[] =
      means the default is an error.  */
 static const yytype_uint8 yydefact[] =
 {
-       0,     0,     0,     2,     6,     1,    15,    10,    11,    16,
-       0,     0,     0,     0,     3,     7,    18,    46,    23,    14,
-      17,     9,    39,    12,    14,    13,    31,    33,    35,     0,
-      39,     0,     0,    21,     0,     0,     0,     0,     0,     0,
-       0,     0,    34,     0,    44,    45,     4,     8,     0,    22,
-      26,    28,    33,    29,    37,    38,    42,    40,    41,    43,
-      36,    32,    21,    25,    34,     0,    19,    22,    30,    27,
-       0,     0,    20,    24
+       0,     0,     0,     2,     5,     1,    14,     9,    10,    15,
+       0,     0,     0,     0,     3,     6,    17,    45,    22,    13,
+      16,     8,    38,    11,    13,    12,    30,    32,    34,     0,
+      38,     0,    20,     0,     0,     0,     0,     0,     0,     0,
+       0,    33,     0,    43,    44,     7,     0,    21,    25,    27,
+      32,    28,    36,    37,    41,    39,    40,    42,    35,    31,
+      20,    24,    33,     0,    18,    21,    29,    26,     0,     0,
+      19,    23
 };
 
   /* YYPGOTO[NTERM-NUM].  */
 static const yytype_int8 yypgoto[] =
 {
-     -13,   -13,    38,   -13,   -13,    41,   -13,    15,   -13,   -13,
-       8,    -1,   -13,   -13,    22,   -13,   -12,    -4
+     -13,   -13,   -13,   -13,    44,   -13,    42,   -13,   -13,    20,
+      -1,   -13,   -13,    40,   -13,   -12,    -4
 };
 
   /* YYDEFGOTO[NTERM-NUM].  */
 static const yytype_int8 yydefgoto[] =
 {
-      -1,     2,     3,    31,    14,    15,    16,    17,    18,    71,
-      48,    24,    52,    20,    43,    27,    21,    22
+      -1,     2,     3,    14,    15,    16,    17,    18,    69,    46,
+      24,    50,    20,    42,    27,    21,    22
 };
 
   /* YYTABLE[YYPACT[STATE-NUM]] -- What to do in state STATE-NUM.  If
@@ -606,32 +606,32 @@ static const yytype_int8 yydefgoto[] =
      number is the opposite.  If YYTABLE_NINF, syntax error.  */
 static const yytype_int8 yytable[] =
 {
-      28,    29,    19,    36,    37,    36,    37,    -5,     1,    30,
-      -5,    -5,    -5,    -5,     4,    -5,    -5,     5,    44,    36,
-      37,    49,    50,    53,    -5,    23,    25,    -5,    42,    63,
-      60,    19,    54,    55,    56,    57,    58,    59,    33,    38,
-      34,    35,    39,    40,    41,    19,    61,    62,    64,    70,
-      67,    69,    68,    45,     6,     7,     8,     9,    72,    10,
-      11,     6,     7,     8,     9,    73,    10,    11,    12,    46,
-      66,    13,    51,    47,    65,    12,    26,     0,    13,     6,
-       7,     8,     9,     0,    10,    11,     6,     7,     8,     9,
-       0,    10,    11,    12,     0,     0,    13,    32,     0,    33,
-      12,    34,    35,    38,     0,     0,    39,    40,    41
+      28,    29,    19,    35,    36,    35,    36,    -4,     1,    30,
+      -4,    -4,    -4,    -4,     4,    -4,    -4,     5,    43,    48,
+      47,    31,    51,    32,    -4,    33,    34,    -4,    59,    58,
+      19,    52,    53,    54,    55,    56,    57,     6,     7,     8,
+       9,    41,    10,    11,    32,    60,    33,    34,    65,    67,
+      66,    12,    23,    25,    13,    49,    70,     6,     7,     8,
+       9,    62,    10,    11,     6,     7,     8,     9,    68,    10,
+      11,    12,    26,    71,    13,    45,    35,    36,    12,     0,
+      64,    13,     6,     7,     8,     9,    61,    10,    11,    37,
+      63,     0,    38,    39,    40,    37,    12,     0,    38,    39,
+      40,     0,     0,    44
 };
 
 static const yytype_int8 yycheck[] =
 {
       12,    13,     3,     8,     9,     8,     9,     0,     1,    13,
-       3,     4,     5,     6,    14,     8,     9,     0,    21,     8,
-       9,    33,     3,    35,    17,    10,    11,    20,    22,    18,
-      42,    32,    36,    37,    38,    39,    40,    41,    17,     7,
-      19,    20,    10,    11,    12,    46,    18,    16,    22,    16,
-      62,    21,    64,    21,     3,     4,     5,     6,    70,     8,
-       9,     3,     4,     5,     6,    18,     8,     9,    17,    31,
-      62,    20,    21,    32,    52,    17,    18,    -1,    20,     3,
-       4,     5,     6,    -1,     8,     9,     3,     4,     5,     6,
-      -1,     8,     9,    17,    -1,    -1,    20,    15,    -1,    17,
-      17,    19,    20,     7,    -1,    -1,    10,    11,    12
+       3,     4,     5,     6,    14,     8,     9,     0,    21,     3,
+      32,    15,    34,    17,    17,    19,    20,    20,    18,    41,
+      31,    35,    36,    37,    38,    39,    40,     3,     4,     5,
+       6,    22,     8,     9,    17,    16,    19,    20,    60,    21,
+      62,    17,    10,    11,    20,    21,    68,     3,     4,     5,
+       6,    22,     8,     9,     3,     4,     5,     6,    16,     8,
+       9,    17,    18,    18,    20,    31,     8,     9,    17,    -1,
+      60,    20,     3,     4,     5,     6,    18,     8,     9,     7,
+      50,    -1,    10,    11,    12,     7,    17,    -1,    10,    11,
+      12,    -1,    -1,    21
 };
 
   /* YYSTOS[STATE-NUM] -- The (internal number of the) accessing
@@ -639,33 +639,33 @@ static const yytype_int8 yycheck[] =
 static const yytype_uint8 yystos[] =
 {
        0,     1,    24,    25,    14,     0,     3,     4,     5,     6,
-       8,     9,    17,    20,    27,    28,    29,    30,    31,    34,
-      36,    39,    40,    30,    34,    30,    18,    38,    39,    39,
-      40,    26,    15,    17,    19,    20,     8,     9,     7,    10,
-      11,    12,    22,    37,    21,    21,    25,    28,    33,    39,
-       3,    21,    35,    39,    40,    40,    40,    40,    40,    40,
-      39,    18,    16,    18,    22,    37,    33,    39,    39,    21,
-      16,    32,    39,    18
+       8,     9,    17,    20,    26,    27,    28,    29,    30,    33,
+      35,    38,    39,    29,    33,    29,    18,    37,    38,    38,
+      39,    15,    17,    19,    20,     8,     9,     7,    10,    11,
+      12,    22,    36,    21,    21,    27,    32,    38,     3,    21,
+      34,    38,    39,    39,    39,    39,    39,    39,    38,    18,
+      16,    18,    22,    36,    32,    38,    38,    21,    16,    31,
+      38,    18
 };
 
   /* YYR1[YYN] -- Symbol number of symbol that rule YYN derives.  */
 static const yytype_uint8 yyr1[] =
 {
-       0,    23,    24,    26,    25,    25,    25,    27,    28,    28,
-      29,    29,    30,    30,    30,    31,    31,    31,    31,    32,
-      32,    33,    33,    34,    34,    34,    34,    34,    34,    35,
-      35,    36,    36,    37,    37,    38,    38,    39,    39,    39,
-      40,    40,    40,    40,    40,    40,    40
+       0,    23,    24,    25,    25,    25,    26,    27,    27,    28,
+      28,    29,    29,    29,    30,    30,    30,    30,    31,    31,
+      32,    32,    33,    33,    33,    33,    33,    33,    34,    34,
+      35,    35,    36,    36,    37,    37,    38,    38,    38,    39,
+      39,    39,    39,    39,    39,    39
 };
 
   /* YYR2[YYN] -- Number of symbols on the right hand side of rule YYN.  */
 static const yytype_uint8 yyr2[] =
 {
-       0,     2,     1,     0,     4,     0,     2,     1,     3,     1,
-       1,     1,     2,     2,     1,     1,     1,     1,     1,     0,
-       2,     0,     1,     1,     7,     4,     3,     5,     3,     1,
-       3,     2,     4,     0,     1,     1,     3,     3,     3,     1,
-       3,     3,     3,     3,     3,     3,     1
+       0,     2,     1,     2,     0,     2,     1,     3,     1,     1,
+       1,     2,     2,     1,     1,     1,     1,     1,     0,     2,
+       0,     1,     1,     7,     4,     3,     5,     3,     1,     3,
+       2,     4,     0,     1,     1,     3,     3,     3,     1,     3,
+       3,     3,     3,     3,     3,     1
 };
 
 
@@ -1357,14 +1357,14 @@ yyreduce:
 #line 1358 "y.tab.c" /* yacc.c:1646  */
     break;
 
-  case 6:
-#line 115 "minipy-lab.y" /* yacc.c:1646  */
+  case 5:
+#line 114 "minipy-lab.y" /* yacc.c:1646  */
     { yyerrok; }
 #line 1364 "y.tab.c" /* yacc.c:1646  */
     break;
 
-  case 8:
-#line 125 "minipy-lab.y" /* yacc.c:1646  */
+  case 7:
+#line 124 "minipy-lab.y" /* yacc.c:1646  */
     {
         (yyval).type = None;
         Value temp;
@@ -1416,8 +1416,8 @@ yyreduce:
 #line 1417 "y.tab.c" /* yacc.c:1646  */
     break;
 
-  case 12:
-#line 183 "minipy-lab.y" /* yacc.c:1646  */
+  case 11:
+#line 182 "minipy-lab.y" /* yacc.c:1646  */
     {
         (yyval).type = (yyvsp[0]).type;
         if ((yyvsp[0]).type == Integer)
@@ -1433,8 +1433,8 @@ yyreduce:
 #line 1434 "y.tab.c" /* yacc.c:1646  */
     break;
 
-  case 13:
-#line 196 "minipy-lab.y" /* yacc.c:1646  */
+  case 12:
+#line 195 "minipy-lab.y" /* yacc.c:1646  */
     {
         (yyval).type = (yyvsp[0]).type;
         if ((yyvsp[0]).type == Integer)
@@ -1450,8 +1450,8 @@ yyreduce:
 #line 1451 "y.tab.c" /* yacc.c:1646  */
     break;
 
-  case 14:
-#line 209 "minipy-lab.y" /* yacc.c:1646  */
+  case 13:
+#line 208 "minipy-lab.y" /* yacc.c:1646  */
     {
         switch ((yyvsp[0]).type)
         {
@@ -1485,14 +1485,14 @@ yyreduce:
 #line 1486 "y.tab.c" /* yacc.c:1646  */
     break;
 
-  case 19:
-#line 249 "minipy-lab.y" /* yacc.c:1646  */
+  case 18:
+#line 248 "minipy-lab.y" /* yacc.c:1646  */
     { (yyval).type = None; }
 #line 1492 "y.tab.c" /* yacc.c:1646  */
     break;
 
-  case 20:
-#line 251 "minipy-lab.y" /* yacc.c:1646  */
+  case 19:
+#line 250 "minipy-lab.y" /* yacc.c:1646  */
     {
         (yyval).type = Integer;
         if ((yyvsp[0]).type == Integer)
@@ -1506,14 +1506,14 @@ yyreduce:
 #line 1507 "y.tab.c" /* yacc.c:1646  */
     break;
 
-  case 21:
-#line 264 "minipy-lab.y" /* yacc.c:1646  */
+  case 20:
+#line 263 "minipy-lab.y" /* yacc.c:1646  */
     { (yyval).type = None; }
 #line 1513 "y.tab.c" /* yacc.c:1646  */
     break;
 
-  case 24:
-#line 271 "minipy-lab.y" /* yacc.c:1646  */
+  case 23:
+#line 270 "minipy-lab.y" /* yacc.c:1646  */
     {
         int begin, end, step;
 
@@ -2181,8 +2181,8 @@ yyreduce:
 #line 2182 "y.tab.c" /* yacc.c:1646  */
     break;
 
-  case 25:
-#line 936 "minipy-lab.y" /* yacc.c:1646  */
+  case 24:
+#line 935 "minipy-lab.y" /* yacc.c:1646  */
     {
         switch ((yyvsp[-3]).type)
         {
@@ -2372,8 +2372,8 @@ yyreduce:
 #line 2373 "y.tab.c" /* yacc.c:1646  */
     break;
 
-  case 26:
-#line 1123 "minipy-lab.y" /* yacc.c:1646  */
+  case 25:
+#line 1122 "minipy-lab.y" /* yacc.c:1646  */
     {
         (yyval).type = (yyvsp[-2]).type;
 
@@ -2383,8 +2383,8 @@ yyreduce:
 #line 2384 "y.tab.c" /* yacc.c:1646  */
     break;
 
-  case 27:
-#line 1130 "minipy-lab.y" /* yacc.c:1646  */
+  case 26:
+#line 1129 "minipy-lab.y" /* yacc.c:1646  */
     {
         if ((yyvsp[-4]).attributeName == "append") // append方法
         {
@@ -3131,6 +3131,80 @@ yyreduce:
                     YYERROR;
             }
         }
+        else if ((yyvsp[-4]).attributeName == "remove") // remove方法
+        {
+            (yyval).type = None;
+            vector<struct value>::iterator pos;
+            switch ((yyvsp[-4]).type)
+            {
+                case List:
+                case ListSlice:
+                    if ((yyvsp[-2]).listValue.size() == 1) // remove 有且仅有1个参数
+                    {
+                        pos = find((yyvsp[-4]).listValue.begin(), (yyvsp[-4]).listValue.end(), *(yyvsp[-2]).listValue.begin());
+                        if (pos == (yyvsp[-4]).listValue.end())
+                            yyerror("ValueError: list.remove(x): x not in list ");
+                        else
+                            (yyvsp[-4]).listValue.erase(pos);
+                    }
+                    else
+                    {
+                        yyerror("TypeError: remove() takes exactly one argument ("+ to_string((yyvsp[-2]).listValue.size()) +" given)");
+                        YYERROR;
+                    }
+                    break;
+                case ListItem:
+                    switch ((*(yyvsp[-4]).begin).type)
+                    {
+                        case List:
+                            if ((yyvsp[-2]).listValue.size() == 1) // remove 有且仅有1个参数
+                            {
+                                pos = find((*(yyvsp[-4]).begin).listValue.begin(), (*(yyvsp[-4]).begin).listValue.end(), *(yyvsp[-2]).listValue.begin());
+                                if (pos == (*(yyvsp[-4]).begin).listValue.end())
+                                    yyerror("ValueError: list.remove(x): x not in list ");
+                                else
+                                    (*(yyvsp[-4]).begin).listValue.erase(pos);
+                            }
+
+                            else
+                            {
+                                yyerror("TypeError: remove() takes exactly one argument ("+ to_string((yyvsp[-2]).listValue.size()) +" given)");
+                                YYERROR;
+                            }
+                            break;
+                        default:
+                            yyerror("AttributeError: '" + TypeString(*(yyvsp[-4]).begin) + "' object has no attribute 'remove'");
+                            YYERROR;
+                    }
+                    break;
+                case Variable:
+                    switch (Symbol.at((yyvsp[-4]).variableName).type)
+                    {
+                        case List:
+                            if ((yyvsp[-2]).listValue.size() == 1) // remove 有且仅有1个参数
+                            {
+                                pos = find(Symbol.at((yyvsp[-4]).variableName).listValue.begin(), Symbol.at((yyvsp[-4]).variableName).listValue.end(), *(yyvsp[-2]).listValue.begin());
+                                if (pos == Symbol.at((yyvsp[-4]).variableName).listValue.end())
+                                    yyerror("ValueError: list.remove(x): x not in list ");
+                                else
+                                    Symbol.at((yyvsp[-4]).variableName).listValue.erase(pos);
+                            }
+                            else
+                            {
+                                yyerror("TypeError: remove() takes exactly one argument ("+ to_string((yyvsp[-2]).listValue.size()) +" given)");
+                                YYERROR;
+                            }
+                            break;
+                        default:
+                            yyerror("AttributeError: '" + TypeString(Symbol.at((yyvsp[-4]).variableName)) + "' object has no attribute 'remove'");
+                            YYERROR;
+                    }
+                    break;
+                default:
+                    yyerror("AttributeError: '" + TypeString((yyvsp[-4])) + "' object has no attribute 'remove'");
+                    YYERROR;
+            }
+        }
         else if ((yyvsp[-4]).attributeName == "reverse")
         {
             switch ((yyvsp[-4]).type)
@@ -3332,11 +3406,11 @@ yyreduce:
         }
 
     }
-#line 3336 "y.tab.c" /* yacc.c:1646  */
+#line 3410 "y.tab.c" /* yacc.c:1646  */
     break;
 
-  case 28:
-#line 2078 "minipy-lab.y" /* yacc.c:1646  */
+  case 27:
+#line 2151 "minipy-lab.y" /* yacc.c:1646  */
     {
         if ((yyvsp[-2]).variableName == "quit") // quit函数
             exit(0);
@@ -3599,6 +3673,45 @@ yyreduce:
                     YYERROR;
             }
         }
+        else if ((yyvsp[-2]).attributeName == "remove")
+        {
+            (yyval).type = None;
+            switch ((yyvsp[-2]).type)
+            {
+                case List:
+                case ListSlice:
+                    yyerror("TypeError: remove() takes exactly one argument (0 given)");
+                    YYERROR;
+                    break;
+                case ListItem:
+                    if ((*(yyvsp[-2]).begin).type == List)
+                    {
+                        yyerror("TypeError: remove() takes exactly one argument (0 given)");
+                        YYERROR;
+                    }
+                    else
+                    {
+                        yyerror("AttributeError: '" + TypeString(*(yyvsp[-2]).begin) + "' object has no attribute 'remove'");
+                        YYERROR;
+                    }
+                    break;
+                case Variable:
+                    if (Symbol.at((yyvsp[-2]).variableName).type == List)
+                    {
+                        yyerror("TypeError: remove() takes exactly one argument (0 given)");
+                        YYERROR;
+                    }
+                    else
+                    {
+                        yyerror("AttributeError: '" + TypeString(Symbol.at((yyvsp[-2]).variableName)) + "' object has no attribute 'remove'");
+                        YYERROR;
+                    }
+                    break;
+                default:
+                    yyerror("AttributeError: '" + TypeString((yyvsp[-2])) + "' object has no attribute 'remove'");
+                    YYERROR;
+            }
+        }
         else if ((yyvsp[-2]).attributeName == "reverse") // reverse方法
         {
             (yyval).type = None;
@@ -3666,67 +3779,67 @@ yyreduce:
             YYERROR;
         }
     }
-#line 3670 "y.tab.c" /* yacc.c:1646  */
+#line 3783 "y.tab.c" /* yacc.c:1646  */
     break;
 
-  case 29:
-#line 2411 "minipy-lab.y" /* yacc.c:1646  */
+  case 28:
+#line 2523 "minipy-lab.y" /* yacc.c:1646  */
     {
         (yyval).type = List;
         (yyval).listValue = vector<struct value>(1, (yyvsp[0])); // 用列表“框柱”参数
     }
-#line 3679 "y.tab.c" /* yacc.c:1646  */
+#line 3792 "y.tab.c" /* yacc.c:1646  */
     break;
 
-  case 30:
-#line 2416 "minipy-lab.y" /* yacc.c:1646  */
+  case 29:
+#line 2528 "minipy-lab.y" /* yacc.c:1646  */
     {
         (yyval).type = List;
         (yyvsp[-2]).listValue.push_back((yyvsp[0]));
         (yyval).listValue = vector<struct value>((yyvsp[-2]).listValue);
     }
-#line 3689 "y.tab.c" /* yacc.c:1646  */
+#line 3802 "y.tab.c" /* yacc.c:1646  */
     break;
 
-  case 31:
-#line 2425 "minipy-lab.y" /* yacc.c:1646  */
+  case 30:
+#line 2537 "minipy-lab.y" /* yacc.c:1646  */
     {
         (yyval).type = List;
         (yyval).listValue = vector<struct value>();
     }
-#line 3698 "y.tab.c" /* yacc.c:1646  */
+#line 3811 "y.tab.c" /* yacc.c:1646  */
     break;
 
-  case 32:
-#line 2430 "minipy-lab.y" /* yacc.c:1646  */
+  case 31:
+#line 2542 "minipy-lab.y" /* yacc.c:1646  */
     {
         (yyval).type = List;
         (yyval).listValue = vector<struct value>((yyvsp[-2]).listValue);
     }
-#line 3707 "y.tab.c" /* yacc.c:1646  */
+#line 3820 "y.tab.c" /* yacc.c:1646  */
     break;
 
-  case 35:
-#line 2443 "minipy-lab.y" /* yacc.c:1646  */
+  case 34:
+#line 2555 "minipy-lab.y" /* yacc.c:1646  */
     {
         (yyval).type = List;
         (yyval).listValue = vector<struct value>(1, (yyvsp[0])); // 用列表“框柱”变量
     }
-#line 3716 "y.tab.c" /* yacc.c:1646  */
+#line 3829 "y.tab.c" /* yacc.c:1646  */
     break;
 
-  case 36:
-#line 2448 "minipy-lab.y" /* yacc.c:1646  */
+  case 35:
+#line 2560 "minipy-lab.y" /* yacc.c:1646  */
     {
         (yyval).type = List;
         (yyvsp[-2]).listValue.push_back((yyvsp[0]));
         (yyval).listValue = vector<struct value>((yyvsp[-2]).listValue);
     }
-#line 3726 "y.tab.c" /* yacc.c:1646  */
+#line 3839 "y.tab.c" /* yacc.c:1646  */
     break;
 
-  case 37:
-#line 2457 "minipy-lab.y" /* yacc.c:1646  */
+  case 36:
+#line 2569 "minipy-lab.y" /* yacc.c:1646  */
     {
         switch((yyvsp[-2]).type)
         {
@@ -3818,11 +3931,11 @@ yyreduce:
                 YYERROR;
         }
     }
-#line 3822 "y.tab.c" /* yacc.c:1646  */
+#line 3935 "y.tab.c" /* yacc.c:1646  */
     break;
 
-  case 38:
-#line 2549 "minipy-lab.y" /* yacc.c:1646  */
+  case 37:
+#line 2661 "minipy-lab.y" /* yacc.c:1646  */
     {
         switch((yyvsp[-2]).type)
         {
@@ -3865,11 +3978,11 @@ yyreduce:
                 YYERROR;
         }
     }
-#line 3869 "y.tab.c" /* yacc.c:1646  */
+#line 3982 "y.tab.c" /* yacc.c:1646  */
     break;
 
-  case 40:
-#line 2596 "minipy-lab.y" /* yacc.c:1646  */
+  case 39:
+#line 2708 "minipy-lab.y" /* yacc.c:1646  */
     {
         switch((yyvsp[-2]).type)
         {
@@ -3950,11 +4063,11 @@ yyreduce:
                 YYERROR;
         }
     }
-#line 3954 "y.tab.c" /* yacc.c:1646  */
+#line 4067 "y.tab.c" /* yacc.c:1646  */
     break;
 
-  case 41:
-#line 2677 "minipy-lab.y" /* yacc.c:1646  */
+  case 40:
+#line 2789 "minipy-lab.y" /* yacc.c:1646  */
     {
         (yyval).type = Real;
         if (((yyvsp[-2]).type == Integer || (yyvsp[-2]).type == Real) && ((yyvsp[0]).type == Integer || (yyvsp[0]).type == Real))
@@ -3971,11 +4084,11 @@ yyreduce:
             YYERROR;
         }
     }
-#line 3975 "y.tab.c" /* yacc.c:1646  */
+#line 4088 "y.tab.c" /* yacc.c:1646  */
     break;
 
-  case 42:
-#line 2694 "minipy-lab.y" /* yacc.c:1646  */
+  case 41:
+#line 2806 "minipy-lab.y" /* yacc.c:1646  */
     {
         // 整除
         (yyval).type = Integer;
@@ -3994,11 +4107,11 @@ yyreduce:
         }
 
     }
-#line 3998 "y.tab.c" /* yacc.c:1646  */
+#line 4111 "y.tab.c" /* yacc.c:1646  */
     break;
 
-  case 43:
-#line 2713 "minipy-lab.y" /* yacc.c:1646  */
+  case 42:
+#line 2825 "minipy-lab.y" /* yacc.c:1646  */
     {
         if (((yyvsp[-2]).type == Integer || (yyvsp[-2]).type == Real) && ((yyvsp[0]).type == Integer || (yyvsp[0]).type == Real))
         {
@@ -4028,23 +4141,23 @@ yyreduce:
             YYERROR;
         }
     }
-#line 4032 "y.tab.c" /* yacc.c:1646  */
+#line 4145 "y.tab.c" /* yacc.c:1646  */
+    break;
+
+  case 43:
+#line 2854 "minipy-lab.y" /* yacc.c:1646  */
+    { (yyval) = (yyvsp[-1]); }
+#line 4151 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 44:
-#line 2742 "minipy-lab.y" /* yacc.c:1646  */
+#line 2855 "minipy-lab.y" /* yacc.c:1646  */
     { (yyval) = (yyvsp[-1]); }
-#line 4038 "y.tab.c" /* yacc.c:1646  */
-    break;
-
-  case 45:
-#line 2743 "minipy-lab.y" /* yacc.c:1646  */
-    { (yyval) = (yyvsp[-1]); }
-#line 4044 "y.tab.c" /* yacc.c:1646  */
+#line 4157 "y.tab.c" /* yacc.c:1646  */
     break;
 
 
-#line 4048 "y.tab.c" /* yacc.c:1646  */
+#line 4161 "y.tab.c" /* yacc.c:1646  */
       default: break;
     }
   /* User semantic actions sometimes alter yychar, and that requires
@@ -4272,7 +4385,7 @@ yyreturn:
 #endif
   return yyresult;
 }
-#line 2747 "minipy-lab.y" /* yacc.c:1906  */
+#line 2859 "minipy-lab.y" /* yacc.c:1906  */
 
 
 int main()
@@ -4340,7 +4453,7 @@ int main()
                 break;
             case 127: // Backspace
                 cursor--;
-                if (cursor <= 0)
+                if (cursor < 0)
                     cursor = 0;
                 else
                     KeyBoardStream.erase(cursor, 1); // 删除流中字符
