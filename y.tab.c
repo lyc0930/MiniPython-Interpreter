@@ -511,9 +511,9 @@ static const yytype_uint16 yyrline[] =
 {
        0,    91,    91,    96,    95,   108,   108,   110,   114,   118,
      122,   171,   175,   176,   180,   193,   206,   240,   241,   242,
-     243,   248,   251,   266,   269,   273,   274,   661,   751,   758,
-    1611,  1882,  1887,  1896,  1901,  1908,  1910,  1914,  1919,  1928,
-    2020,  2063,  2067,  2148,  2165,  2184,  2214,  2215,  2216
+     243,   248,   251,   266,   269,   273,   274,   939,  1126,  1133,
+    1986,  2257,  2262,  2271,  2276,  2283,  2285,  2289,  2294,  2303,
+    2395,  2438,  2442,  2523,  2540,  2559,  2589,  2590,  2591
 };
 #endif
 
@@ -1622,7 +1622,7 @@ yyreduce:
                     }
                     break;
                 case List:
-                    (yyval).type = List; // 列表元素类型
+                    (yyval).type = List; // 实体列表的切片不作为切片类型处理
                     (yyval).listValue = vector<struct value>();
                     if (step > 0)
                     {
@@ -1705,6 +1705,284 @@ yyreduce:
 
                         for (vector<struct value>::iterator i = (yyvsp[-6]).listValue.begin() + begin; i != (yyvsp[-6]).listValue.begin() + end; i += step)
                             (yyval).listValue.push_back(*i); // 逐个取元素
+                    }
+                    break;
+                case ListSlice:
+                    (yyval).type = ListSlice; // 列表元素类型
+                    (yyval).variableName = (yyvsp[-6]).variableName;
+                    (yyval).listValue = vector<struct value>();
+                    if (step > 0)
+                    {
+                        if ((yyvsp[-4]).type == None) // 默认起始
+                            (yyval).begin = (yyvsp[-6]).begin;
+                        else if ((yyvsp[-4]).type == Integer)
+                        {
+                            begin = (yyvsp[-4]).integerValue;
+                            if (begin < 0)
+                                begin += (yyvsp[-6]).listValue.size();
+                            if (begin < 0)
+                                begin = 0;
+                            else if (begin > (yyvsp[-6]).listValue.size())
+                                begin = (yyvsp[-6]).listValue.size();
+                            (yyval).begin = (yyvsp[-6]).begin + begin;
+                        }
+                        else
+                        {
+                            yyerror("TypeError: slice indices must be integers or None");
+                            YYERROR;
+                        }
+
+                        if ((yyvsp[-2]).type == None) // 默认结束
+                            (yyval).end = (yyvsp[-6]).end;
+                        else if ((yyvsp[-2]).type == Integer)
+                        {
+                            end = (yyvsp[-2]).integerValue;
+                            if (end < 0)
+                                end += (yyvsp[-6]).listValue.size();
+                            if (end < 0)
+                                end = 0;
+                            else if (end > (yyvsp[-6]).listValue.size())
+                                end = (yyvsp[-6]).listValue.size();
+                            (yyval).end = (yyvsp[-6]).begin + end;
+                        }
+                        else
+                        {
+                            yyerror("TypeError: slice indices must be integers or None");
+                            YYERROR;
+                        }
+
+                        for (vector<struct value>::iterator i = (yyval).begin; i != (yyval).end; i += step)
+                            (yyval).listValue.push_back(*i); // 逐个取子串
+
+                    }
+                    else if (step < 0)
+                    {
+                        if ((yyvsp[-4]).type == None) // 默认起始
+                            (yyval).begin = (yyvsp[-6]).end - 1;
+                        else if ((yyvsp[-4]).type == Integer)
+                        {
+                            begin = (yyvsp[-4]).integerValue;
+                            if (begin < 0)
+                                begin += (yyvsp[-6]).listValue.size();
+                            if (begin < 0)
+                                begin = 0;
+                            else if (begin > (yyvsp[-6]).listValue.size())
+                                begin = (yyvsp[-6]).listValue.size() - 1;
+                            (yyval).begin = (yyvsp[-6]).begin + begin;
+                        }
+                        else
+                        {
+                            yyerror("TypeError: slice indices must be integers or None");
+                            YYERROR;
+                        }
+
+                        if ((yyvsp[-2]).type == None) // 默认结束
+                            (yyval).end = (yyvsp[-6]).begin - 1;
+                        else if ((yyvsp[-2]).type == Integer)
+                        {
+                            end = (yyvsp[-2]).integerValue;
+                            if (end < 0)
+                                end += (yyvsp[-6]).listValue.size();
+                            if (end < 0)
+                                end = -1;
+                            else if (end > (yyvsp[-6]).listValue.size())
+                                end = (yyvsp[-6]).listValue.size();
+                            (yyval).end = (yyvsp[-6]).begin + end;
+                        }
+                        else
+                        {
+                            yyerror("TypeError: slice indices must be integers or None");
+                            YYERROR;
+                        }
+
+                        for (vector<struct value>::iterator i = (yyval).begin; i != (yyval).end; i += step)
+                            (yyval).listValue.push_back(*i); // 逐个取子串
+                    }
+                    break;
+                case ListItem:
+                    switch ((*(yyvsp[-6]).begin).type)
+                    {
+                        case String:
+                            (yyval).type = String;
+                            (yyval).stringValue = "";
+
+                            if (step > 0)
+                            {
+                                if ((yyvsp[-4]).type == None) // 默认起始
+                                    begin = 0;
+                                else if ((yyvsp[-4]).type == Integer)
+                                {
+                                    begin = (yyvsp[-4]).integerValue;
+                                    if (begin < 0)
+                                        begin += (*(yyvsp[-6]).begin).stringValue.length();
+                                    if (begin < 0)
+                                        begin = 0;
+                                    else if (begin >= (*(yyvsp[-6]).begin).stringValue.length())
+                                        begin = (*(yyvsp[-6]).begin).stringValue.length();
+                                }
+                                else
+                                {
+                                    yyerror("TypeError: slice indices must be integers or None");
+                                    YYERROR;
+                                }
+
+                                if ((yyvsp[-2]).type == None) // 默认结束
+                                    end = (*(yyvsp[-6]).begin).stringValue.length();
+                                else if ((yyvsp[-2]).type == Integer)
+                                {
+                                    end = (yyvsp[-2]).integerValue;
+                                    if (end < 0)
+                                        end += (*(yyvsp[-6]).begin).stringValue.length();
+                                    if (end < 0)
+                                        end = 0;
+                                    else if (end >= (*(yyvsp[-6]).begin).stringValue.length())
+                                        end = (*(yyvsp[-6]).begin).stringValue.length();
+                                }
+                                else
+                                {
+                                    yyerror("TypeError: slice indices must be integers or None");
+                                    YYERROR;
+                                }
+                                for (int i = begin; i < end; i += step)
+                                    (yyval).stringValue += (*(yyvsp[-6]).begin).stringValue[i]; // 逐个取子串
+                            }
+                            else if (step < 0) // 负步长
+                            {
+                                if ((yyvsp[-4]).type == None) // 默认起始
+                                    begin = (*(yyvsp[-6]).begin).stringValue.length() - 1;
+                                else if ((yyvsp[-4]).type == Integer)
+                                {
+                                    begin = (yyvsp[-4]).integerValue;
+                                    if (begin < 0)
+                                        begin += (*(yyvsp[-6]).begin).stringValue.length();
+                                    if (begin < 0)
+                                        begin = 0;
+                                    else if (begin >= (*(yyvsp[-6]).begin).stringValue.length())
+                                        begin = (*(yyvsp[-6]).begin).stringValue.length() - 1;
+                                }
+                                else
+                                {
+                                    yyerror("TypeError: slice indices must be integers or None");
+                                    YYERROR;
+                                }
+
+                                if ((yyvsp[-2]).type == None) // 默认结束
+                                    end = -1;
+                                else if ((yyvsp[-2]).type == Integer)
+                                {
+                                    end = (yyvsp[-2]).integerValue;
+                                    if (end < 0)
+                                        end += (*(yyvsp[-6]).begin).stringValue.length();
+                                    if (end < 0)
+                                        end = -1;
+                                    else if (end >= (*(yyvsp[-6]).begin).stringValue.length())
+                                        end = (*(yyvsp[-6]).begin).stringValue.length();
+                                }
+                                else
+                                {
+                                    yyerror("TypeError: slice indices must be integers or None");
+                                    YYERROR;
+                                }
+
+                                for (int i = begin; i > end; i += step)
+                                    (yyval).stringValue += (*(yyvsp[-6]).begin).stringValue[i]; // 逐个取子串
+                            }
+                            break;
+                        case List:
+                            (yyval).type = ListSlice; // 列表元素类型
+                            (yyval).variableName = (yyvsp[-6]).variableName;
+                            (yyval).listValue = vector<struct value>();
+                            if (step > 0)
+                            {
+                                if ((yyvsp[-4]).type == None) // 默认起始
+                                    (yyval).begin = (*(yyvsp[-6]).begin).begin;
+                                else if ((yyvsp[-4]).type == Integer)
+                                {
+                                    begin = (yyvsp[-4]).integerValue;
+                                    if (begin < 0)
+                                        begin += (*(yyvsp[-6]).begin).listValue.size();
+                                    if (begin < 0)
+                                        begin = 0;
+                                    else if (begin > (*(yyvsp[-6]).begin).listValue.size())
+                                        begin = (*(yyvsp[-6]).begin).listValue.size();
+                                    (yyval).begin = (*(yyvsp[-6]).begin).begin + begin;
+                                }
+                                else
+                                {
+                                    yyerror("TypeError: slice indices must be integers or None");
+                                    YYERROR;
+                                }
+
+                                if ((yyvsp[-2]).type == None) // 默认结束
+                                    (yyval).end = (*(yyvsp[-6]).begin).end;
+                                else if ((yyvsp[-2]).type == Integer)
+                                {
+                                    end = (yyvsp[-2]).integerValue;
+                                    if (end < 0)
+                                        end += (*(yyvsp[-6]).begin).listValue.size();
+                                    if (end < 0)
+                                        end = 0;
+                                    else if (end > (*(yyvsp[-6]).begin).listValue.size())
+                                        end = (*(yyvsp[-6]).begin).listValue.size();
+                                    (yyval).end = (*(yyvsp[-6]).begin).begin + end;
+                                }
+                                else
+                                {
+                                    yyerror("TypeError: slice indices must be integers or None");
+                                    YYERROR;
+                                }
+
+                                for (vector<struct value>::iterator i = (yyval).begin; i != (yyval).end; i += step)
+                                    (yyval).listValue.push_back(*i); // 逐个取子串
+
+                            }
+                            else if (step < 0)
+                            {
+                                if ((yyvsp[-4]).type == None) // 默认起始
+                                    (yyval).begin = (*(yyvsp[-6]).begin).end - 1;
+                                else if ((yyvsp[-4]).type == Integer)
+                                {
+                                    begin = (yyvsp[-4]).integerValue;
+                                    if (begin < 0)
+                                        begin += (*(yyvsp[-6]).begin).listValue.size();
+                                    if (begin < 0)
+                                        begin = 0;
+                                    else if (begin > (*(yyvsp[-6]).begin).listValue.size())
+                                        begin = (*(yyvsp[-6]).begin).listValue.size() - 1;
+                                    (yyval).begin = (*(yyvsp[-6]).begin).begin + begin;
+                                }
+                                else
+                                {
+                                    yyerror("TypeError: slice indices must be integers or None");
+                                    YYERROR;
+                                }
+
+                                if ((yyvsp[-2]).type == None) // 默认结束
+                                    (yyval).end = (*(yyvsp[-6]).begin).begin - 1;
+                                else if ((yyvsp[-2]).type == Integer)
+                                {
+                                    end = (yyvsp[-2]).integerValue;
+                                    if (end < 0)
+                                        end += (*(yyvsp[-6]).begin).listValue.size();
+                                    if (end < 0)
+                                        end = -1;
+                                    else if (end > (*(yyvsp[-6]).begin).listValue.size())
+                                        end = (*(yyvsp[-6]).begin).listValue.size();
+                                    (yyval).end = (*(yyvsp[-6]).begin).begin + end;
+                                }
+                                else
+                                {
+                                    yyerror("TypeError: slice indices must be integers or None");
+                                    YYERROR;
+                                }
+
+                                for (vector<struct value>::iterator i = (yyval).begin; i != (yyval).end; i += step)
+                                    (yyval).listValue.push_back(*i); // 逐个取子串
+                            }
+                            break;
+                        default:
+                            yyerror("TypeError: '"+ TypeString((*(yyvsp[-6]).begin)) +"' object is not subscriptable");
+                            YYERROR;
                     }
                     break;
                 case Variable:
@@ -1906,21 +2184,21 @@ yyreduce:
                     YYERROR;
             }
         }
-#line 1910 "y.tab.c" /* yacc.c:1646  */
+#line 2188 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 27:
-#line 662 "minipy-lab.y" /* yacc.c:1646  */
+#line 940 "minipy-lab.y" /* yacc.c:1646  */
     {
-            if ((yyvsp[-1]).type == Integer)
+            switch ((yyvsp[-3]).type)
             {
-                int index = (yyvsp[-1]).integerValue;
-                switch ((yyvsp[-3]).type)
-                {
-                    case String:
+                case String:
+                    if ((yyvsp[-1]).type == Integer)
+                    {
+                        int index = (yyvsp[-1]).integerValue;
                         if (index < 0)
                             index += (yyvsp[-3]).stringValue.length();
-                        if (index > (yyvsp[-3]).stringValue.length() || index < 0)
+                        if (index >= (yyvsp[-3]).stringValue.length() || index < 0)
                         {
                             yyerror("IndexError: string index out of range");
                             YYERROR;
@@ -1930,11 +2208,20 @@ yyreduce:
                             (yyval).type = String;
                             (yyval).stringValue = (yyvsp[-3]).stringValue[index]; // 字符和字符串同等
                         }
-                        break;
-                    case List:
+                    }
+                    else
+                    {
+                        yyerror("TypeError: string indices must be integers");
+                        YYERROR;
+                    }
+                    break;
+                case List:
+                    if ((yyvsp[-1]).type == Integer)
+                    {
+                        int index = (yyvsp[-1]).integerValue;
                         if (index < 0)
                             index += (yyvsp[-3]).listValue.size();
-                        if (index > (yyvsp[-3]).listValue.size() || index < 0)
+                        if (index >= (yyvsp[-3]).listValue.size() || index < 0)
                         {
                             yyerror("IndexError: list index out of range");
                             YYERROR;
@@ -1944,8 +2231,95 @@ yyreduce:
                             (yyval).type = ListItem; // 列表元素类型
                             (yyval).begin = (yyvsp[-3]).listValue.begin() + index; // 取列表元素地址
                         }
-                        break;
-                    case Variable:
+                    }
+                    else
+                    {
+                        yyerror("TypeError: list indices must be integers or slices, not " + TypeString((yyvsp[-1])));
+                        YYERROR;
+                    }
+                    break;
+                case ListSlice:
+                    if ((yyvsp[-1]).type == Integer)
+                    {
+                        int index = (yyvsp[-1]).integerValue;
+                        if (index < 0)
+                            index += (yyvsp[-3]).listValue.size();
+                        if (index >= (yyvsp[-3]).listValue.size() || index < 0)
+                        {
+                            yyerror("IndexError: list index out of range");
+                            YYERROR;
+                        }
+                        else
+                        {
+                            (yyval).type = ListItem; // 列表元素类型
+                            (yyval).begin = (yyvsp[-3]).begin + index; // 取列表元素地址
+                            // $$.begin = $1.listValue.begin() + index; // 取列表元素地址
+                        }
+                    }
+                    else
+                    {
+                        yyerror("TypeError: list indices must be integers or slices, not " + TypeString((yyvsp[-1])));
+                        YYERROR;
+                    }
+                    break;
+                case ListItem:
+                    switch ((*(yyvsp[-3]).begin).type)
+                    {
+                        case String:
+                            if ((yyvsp[-1]).type == Integer)
+                            {
+                                int index = (yyvsp[-1]).integerValue;
+                                if (index < 0)
+                                    index += (*(yyvsp[-3]).begin).stringValue.length();
+                                if (index >= (*(yyvsp[-3]).begin).stringValue.length() || index < 0)
+                                {
+                                    yyerror("IndexError: string index out of range");
+                                    YYERROR;
+                                }
+                                else
+                                {
+                                    (yyval).type = String;
+                                    (yyval).stringValue = (*(yyvsp[-3]).begin).stringValue[index]; // 字符和字符串同等
+                                }
+                            }
+                            else
+                            {
+                                yyerror("TypeError: string indices must be integers");
+                                YYERROR;
+                            }
+                            break;
+                        case List:
+                            if ((yyvsp[-1]).type == Integer)
+                            {
+                                int index = (yyvsp[-1]).integerValue;
+                                if (index < 0)
+                                    index += (*(yyvsp[-3]).begin).listValue.size();
+                                if (index > (*(yyvsp[-3]).begin).listValue.size() || index < 0)
+                                {
+                                    yyerror("IndexError: list index out of range");
+                                    YYERROR;
+                                }
+                                else
+                                {
+                                    (yyval).type = ListItem; // 列表元素类型
+                                    (yyval).begin = (*(yyvsp[-3]).begin).listValue.begin() + index; // 取列表元素地址
+                                }
+                            }
+                            else
+                            {
+                                yyerror("TypeError: list indices must be integers or slices, not " + TypeString((yyvsp[-1])));
+                                YYERROR;
+                            }
+                            break;
+                        default:
+                            yyerror("TypeError: '"+ TypeString((*(yyvsp[-3]).begin)) +"' object is not subscriptable");
+                            YYERROR;
+                    }
+                    break;
+                case Variable:
+                    if ((yyvsp[-1]).type == Integer)
+                    {
+                        int index = (yyvsp[-1]).integerValue;
                         if ((Symbol.count((yyvsp[-3]).variableName) == 1)) // 已在变量表内
                         {
                             switch (Symbol.at((yyvsp[-3]).variableName).type)
@@ -1953,7 +2327,7 @@ yyreduce:
                                 case String:
                                     if (index < 0)
                                         index += Symbol.at((yyvsp[-3]).variableName).stringValue.length();
-                                    if (index > Symbol.at((yyvsp[-3]).variableName).stringValue.length() || index < 0)
+                                    if (index >= Symbol.at((yyvsp[-3]).variableName).stringValue.length() || index < 0)
                                     {
                                         yyerror("IndexError: string index out of range");
                                         YYERROR;
@@ -1967,7 +2341,7 @@ yyreduce:
                                 case List:
                                     if (index < 0)
                                         index += Symbol.at((yyvsp[-3]).variableName).listValue.size();
-                                    if (index > Symbol.at((yyvsp[-3]).variableName).listValue.size() || index < 0)
+                                    if (index >= Symbol.at((yyvsp[-3]).variableName).listValue.size() || index < 0)
                                     {
                                         yyerror("IndexError: list index out of range");
                                         YYERROR;
@@ -1988,34 +2362,35 @@ yyreduce:
                             yyerror("NameError: name '" + (yyvsp[-3]).variableName + "' is not defined");
                             YYERROR;
                         }
-                        break;
-                    default:
-                        yyerror("TypeError: '"+ TypeString((yyvsp[-3])) +"' object is not subscriptable");
+                    }
+                    else
+                    {
+                        yyerror("TypeError: list indices must be integers or slices, not " + TypeString((yyvsp[-1])));
                         YYERROR;
-                }
+                    }
+                    break;
+                default:
+                    yyerror("TypeError: '"+ TypeString((yyvsp[-3])) +"' object is not subscriptable");
+                    YYERROR;
             }
-            else
-            {
-                yyerror("TypeError: list indices must be integers or slices, not " + TypeString((yyvsp[-1])));
-                YYERROR;
-            }
+
         }
-#line 2004 "y.tab.c" /* yacc.c:1646  */
+#line 2379 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 28:
-#line 752 "minipy-lab.y" /* yacc.c:1646  */
+#line 1127 "minipy-lab.y" /* yacc.c:1646  */
     {
             (yyval).type = (yyvsp[-2]).type;
 
             (yyval).variableName = (yyvsp[-2]).variableName; // 变量名
             (yyval).attributeName = (yyvsp[0]).variableName; // 属性或方法名
         }
-#line 2015 "y.tab.c" /* yacc.c:1646  */
+#line 2390 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 29:
-#line 759 "minipy-lab.y" /* yacc.c:1646  */
+#line 1134 "minipy-lab.y" /* yacc.c:1646  */
     {
             if ((yyvsp[-4]).attributeName == "append") // append方法
             {
@@ -2868,11 +3243,11 @@ yyreduce:
             }
 
         }
-#line 2872 "y.tab.c" /* yacc.c:1646  */
+#line 3247 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 30:
-#line 1612 "minipy-lab.y" /* yacc.c:1646  */
+#line 1987 "minipy-lab.y" /* yacc.c:1646  */
     {
             if ((yyvsp[-2]).variableName == "quit") // quit函数
                 exit(0);
@@ -3140,67 +3515,67 @@ yyreduce:
                 YYERROR;
             }
         }
-#line 3144 "y.tab.c" /* yacc.c:1646  */
+#line 3519 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 31:
-#line 1883 "minipy-lab.y" /* yacc.c:1646  */
+#line 2258 "minipy-lab.y" /* yacc.c:1646  */
     {
         (yyval).type = List;
         (yyval).listValue = vector<struct value>(1, (yyvsp[0])); // 用列表“框柱”参数
     }
-#line 3153 "y.tab.c" /* yacc.c:1646  */
+#line 3528 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 32:
-#line 1888 "minipy-lab.y" /* yacc.c:1646  */
+#line 2263 "minipy-lab.y" /* yacc.c:1646  */
     {
         (yyval).type = List;
         (yyvsp[-2]).listValue.push_back((yyvsp[0]));
         (yyval).listValue = vector<struct value>((yyvsp[-2]).listValue);
     }
-#line 3163 "y.tab.c" /* yacc.c:1646  */
+#line 3538 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 33:
-#line 1897 "minipy-lab.y" /* yacc.c:1646  */
+#line 2272 "minipy-lab.y" /* yacc.c:1646  */
     {
         (yyval).type = List;
         (yyval).listValue = vector<struct value>();
     }
-#line 3172 "y.tab.c" /* yacc.c:1646  */
+#line 3547 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 34:
-#line 1902 "minipy-lab.y" /* yacc.c:1646  */
+#line 2277 "minipy-lab.y" /* yacc.c:1646  */
     {
         (yyval).type = List;
         (yyval).listValue = vector<struct value>((yyvsp[-2]).listValue);
     }
-#line 3181 "y.tab.c" /* yacc.c:1646  */
+#line 3556 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 37:
-#line 1915 "minipy-lab.y" /* yacc.c:1646  */
+#line 2290 "minipy-lab.y" /* yacc.c:1646  */
     {
         (yyval).type = List;
         (yyval).listValue = vector<struct value>(1, (yyvsp[0])); // 用列表“框柱”变量
     }
-#line 3190 "y.tab.c" /* yacc.c:1646  */
+#line 3565 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 38:
-#line 1920 "minipy-lab.y" /* yacc.c:1646  */
+#line 2295 "minipy-lab.y" /* yacc.c:1646  */
     {
         (yyval).type = List;
         (yyvsp[-2]).listValue.push_back((yyvsp[0]));
         (yyval).listValue = vector<struct value>((yyvsp[-2]).listValue);
     }
-#line 3200 "y.tab.c" /* yacc.c:1646  */
+#line 3575 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 39:
-#line 1929 "minipy-lab.y" /* yacc.c:1646  */
+#line 2304 "minipy-lab.y" /* yacc.c:1646  */
     {
             switch((yyvsp[-2]).type)
             {
@@ -3292,11 +3667,11 @@ yyreduce:
                     YYERROR;
             }
         }
-#line 3296 "y.tab.c" /* yacc.c:1646  */
+#line 3671 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 40:
-#line 2021 "minipy-lab.y" /* yacc.c:1646  */
+#line 2396 "minipy-lab.y" /* yacc.c:1646  */
     {
             switch((yyvsp[-2]).type)
             {
@@ -3339,11 +3714,11 @@ yyreduce:
                     YYERROR;
             }
         }
-#line 3343 "y.tab.c" /* yacc.c:1646  */
+#line 3718 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 42:
-#line 2068 "minipy-lab.y" /* yacc.c:1646  */
+#line 2443 "minipy-lab.y" /* yacc.c:1646  */
     {
             switch((yyvsp[-2]).type)
             {
@@ -3424,11 +3799,11 @@ yyreduce:
                     YYERROR;
             }
         }
-#line 3428 "y.tab.c" /* yacc.c:1646  */
+#line 3803 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 43:
-#line 2149 "minipy-lab.y" /* yacc.c:1646  */
+#line 2524 "minipy-lab.y" /* yacc.c:1646  */
     {
             (yyval).type = Real;
             if (((yyvsp[-2]).type == Integer || (yyvsp[-2]).type == Real) && ((yyvsp[0]).type == Integer || (yyvsp[0]).type == Real))
@@ -3445,11 +3820,11 @@ yyreduce:
                 YYERROR;
             }
         }
-#line 3449 "y.tab.c" /* yacc.c:1646  */
+#line 3824 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 44:
-#line 2166 "minipy-lab.y" /* yacc.c:1646  */
+#line 2541 "minipy-lab.y" /* yacc.c:1646  */
     {
             // 整除
             (yyval).type = Integer;
@@ -3468,11 +3843,11 @@ yyreduce:
             }
 
         }
-#line 3472 "y.tab.c" /* yacc.c:1646  */
+#line 3847 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 45:
-#line 2185 "minipy-lab.y" /* yacc.c:1646  */
+#line 2560 "minipy-lab.y" /* yacc.c:1646  */
     {
             if (((yyvsp[-2]).type == Integer || (yyvsp[-2]).type == Real) && ((yyvsp[0]).type == Integer || (yyvsp[0]).type == Real))
             {
@@ -3502,23 +3877,23 @@ yyreduce:
                 YYERROR;
             }
         }
-#line 3506 "y.tab.c" /* yacc.c:1646  */
+#line 3881 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 46:
-#line 2214 "minipy-lab.y" /* yacc.c:1646  */
+#line 2589 "minipy-lab.y" /* yacc.c:1646  */
     { (yyval) = (yyvsp[-1]); }
-#line 3512 "y.tab.c" /* yacc.c:1646  */
+#line 3887 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 47:
-#line 2215 "minipy-lab.y" /* yacc.c:1646  */
+#line 2590 "minipy-lab.y" /* yacc.c:1646  */
     { (yyval) = (yyvsp[-1]); }
-#line 3518 "y.tab.c" /* yacc.c:1646  */
+#line 3893 "y.tab.c" /* yacc.c:1646  */
     break;
 
 
-#line 3522 "y.tab.c" /* yacc.c:1646  */
+#line 3897 "y.tab.c" /* yacc.c:1646  */
       default: break;
     }
   /* User semantic actions sometimes alter yychar, and that requires
@@ -3746,7 +4121,7 @@ yyreturn:
 #endif
   return yyresult;
 }
-#line 2219 "minipy-lab.y" /* yacc.c:1906  */
+#line 2594 "minipy-lab.y" /* yacc.c:1906  */
 
 
 int main()

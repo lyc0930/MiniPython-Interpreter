@@ -374,7 +374,7 @@ atom_expr:
                     }
                     break;
                 case List:
-                    $$.type = List; // 列表元素类型
+                    $$.type = List; // 实体列表的切片不作为切片类型处理
                     $$.listValue = vector<struct value>();
                     if (step > 0)
                     {
@@ -457,6 +457,284 @@ atom_expr:
 
                         for (vector<struct value>::iterator i = $1.listValue.begin() + begin; i != $1.listValue.begin() + end; i += step)
                             $$.listValue.push_back(*i); // 逐个取元素
+                    }
+                    break;
+                case ListSlice:
+                    $$.type = ListSlice; // 列表元素类型
+                    $$.variableName = $1.variableName;
+                    $$.listValue = vector<struct value>();
+                    if (step > 0)
+                    {
+                        if ($3.type == None) // 默认起始
+                            $$.begin = $1.begin;
+                        else if ($3.type == Integer)
+                        {
+                            begin = $3.integerValue;
+                            if (begin < 0)
+                                begin += $1.listValue.size();
+                            if (begin < 0)
+                                begin = 0;
+                            else if (begin > $1.listValue.size())
+                                begin = $1.listValue.size();
+                            $$.begin = $1.begin + begin;
+                        }
+                        else
+                        {
+                            yyerror("TypeError: slice indices must be integers or None");
+                            YYERROR;
+                        }
+
+                        if ($5.type == None) // 默认结束
+                            $$.end = $1.end;
+                        else if ($5.type == Integer)
+                        {
+                            end = $5.integerValue;
+                            if (end < 0)
+                                end += $1.listValue.size();
+                            if (end < 0)
+                                end = 0;
+                            else if (end > $1.listValue.size())
+                                end = $1.listValue.size();
+                            $$.end = $1.begin + end;
+                        }
+                        else
+                        {
+                            yyerror("TypeError: slice indices must be integers or None");
+                            YYERROR;
+                        }
+
+                        for (vector<struct value>::iterator i = $$.begin; i != $$.end; i += step)
+                            $$.listValue.push_back(*i); // 逐个取子串
+
+                    }
+                    else if (step < 0)
+                    {
+                        if ($3.type == None) // 默认起始
+                            $$.begin = $1.end - 1;
+                        else if ($3.type == Integer)
+                        {
+                            begin = $3.integerValue;
+                            if (begin < 0)
+                                begin += $1.listValue.size();
+                            if (begin < 0)
+                                begin = 0;
+                            else if (begin > $1.listValue.size())
+                                begin = $1.listValue.size() - 1;
+                            $$.begin = $1.begin + begin;
+                        }
+                        else
+                        {
+                            yyerror("TypeError: slice indices must be integers or None");
+                            YYERROR;
+                        }
+
+                        if ($5.type == None) // 默认结束
+                            $$.end = $1.begin - 1;
+                        else if ($5.type == Integer)
+                        {
+                            end = $5.integerValue;
+                            if (end < 0)
+                                end += $1.listValue.size();
+                            if (end < 0)
+                                end = -1;
+                            else if (end > $1.listValue.size())
+                                end = $1.listValue.size();
+                            $$.end = $1.begin + end;
+                        }
+                        else
+                        {
+                            yyerror("TypeError: slice indices must be integers or None");
+                            YYERROR;
+                        }
+
+                        for (vector<struct value>::iterator i = $$.begin; i != $$.end; i += step)
+                            $$.listValue.push_back(*i); // 逐个取子串
+                    }
+                    break;
+                case ListItem:
+                    switch ((*$1.begin).type)
+                    {
+                        case String:
+                            $$.type = String;
+                            $$.stringValue = "";
+
+                            if (step > 0)
+                            {
+                                if ($3.type == None) // 默认起始
+                                    begin = 0;
+                                else if ($3.type == Integer)
+                                {
+                                    begin = $3.integerValue;
+                                    if (begin < 0)
+                                        begin += (*$1.begin).stringValue.length();
+                                    if (begin < 0)
+                                        begin = 0;
+                                    else if (begin >= (*$1.begin).stringValue.length())
+                                        begin = (*$1.begin).stringValue.length();
+                                }
+                                else
+                                {
+                                    yyerror("TypeError: slice indices must be integers or None");
+                                    YYERROR;
+                                }
+
+                                if ($5.type == None) // 默认结束
+                                    end = (*$1.begin).stringValue.length();
+                                else if ($5.type == Integer)
+                                {
+                                    end = $5.integerValue;
+                                    if (end < 0)
+                                        end += (*$1.begin).stringValue.length();
+                                    if (end < 0)
+                                        end = 0;
+                                    else if (end >= (*$1.begin).stringValue.length())
+                                        end = (*$1.begin).stringValue.length();
+                                }
+                                else
+                                {
+                                    yyerror("TypeError: slice indices must be integers or None");
+                                    YYERROR;
+                                }
+                                for (int i = begin; i < end; i += step)
+                                    $$.stringValue += (*$1.begin).stringValue[i]; // 逐个取子串
+                            }
+                            else if (step < 0) // 负步长
+                            {
+                                if ($3.type == None) // 默认起始
+                                    begin = (*$1.begin).stringValue.length() - 1;
+                                else if ($3.type == Integer)
+                                {
+                                    begin = $3.integerValue;
+                                    if (begin < 0)
+                                        begin += (*$1.begin).stringValue.length();
+                                    if (begin < 0)
+                                        begin = 0;
+                                    else if (begin >= (*$1.begin).stringValue.length())
+                                        begin = (*$1.begin).stringValue.length() - 1;
+                                }
+                                else
+                                {
+                                    yyerror("TypeError: slice indices must be integers or None");
+                                    YYERROR;
+                                }
+
+                                if ($5.type == None) // 默认结束
+                                    end = -1;
+                                else if ($5.type == Integer)
+                                {
+                                    end = $5.integerValue;
+                                    if (end < 0)
+                                        end += (*$1.begin).stringValue.length();
+                                    if (end < 0)
+                                        end = -1;
+                                    else if (end >= (*$1.begin).stringValue.length())
+                                        end = (*$1.begin).stringValue.length();
+                                }
+                                else
+                                {
+                                    yyerror("TypeError: slice indices must be integers or None");
+                                    YYERROR;
+                                }
+
+                                for (int i = begin; i > end; i += step)
+                                    $$.stringValue += (*$1.begin).stringValue[i]; // 逐个取子串
+                            }
+                            break;
+                        case List:
+                            $$.type = ListSlice; // 列表元素类型
+                            $$.variableName = $1.variableName;
+                            $$.listValue = vector<struct value>();
+                            if (step > 0)
+                            {
+                                if ($3.type == None) // 默认起始
+                                    $$.begin = (*$1.begin).begin;
+                                else if ($3.type == Integer)
+                                {
+                                    begin = $3.integerValue;
+                                    if (begin < 0)
+                                        begin += (*$1.begin).listValue.size();
+                                    if (begin < 0)
+                                        begin = 0;
+                                    else if (begin > (*$1.begin).listValue.size())
+                                        begin = (*$1.begin).listValue.size();
+                                    $$.begin = (*$1.begin).begin + begin;
+                                }
+                                else
+                                {
+                                    yyerror("TypeError: slice indices must be integers or None");
+                                    YYERROR;
+                                }
+
+                                if ($5.type == None) // 默认结束
+                                    $$.end = (*$1.begin).end;
+                                else if ($5.type == Integer)
+                                {
+                                    end = $5.integerValue;
+                                    if (end < 0)
+                                        end += (*$1.begin).listValue.size();
+                                    if (end < 0)
+                                        end = 0;
+                                    else if (end > (*$1.begin).listValue.size())
+                                        end = (*$1.begin).listValue.size();
+                                    $$.end = (*$1.begin).begin + end;
+                                }
+                                else
+                                {
+                                    yyerror("TypeError: slice indices must be integers or None");
+                                    YYERROR;
+                                }
+
+                                for (vector<struct value>::iterator i = $$.begin; i != $$.end; i += step)
+                                    $$.listValue.push_back(*i); // 逐个取子串
+
+                            }
+                            else if (step < 0)
+                            {
+                                if ($3.type == None) // 默认起始
+                                    $$.begin = (*$1.begin).end - 1;
+                                else if ($3.type == Integer)
+                                {
+                                    begin = $3.integerValue;
+                                    if (begin < 0)
+                                        begin += (*$1.begin).listValue.size();
+                                    if (begin < 0)
+                                        begin = 0;
+                                    else if (begin > (*$1.begin).listValue.size())
+                                        begin = (*$1.begin).listValue.size() - 1;
+                                    $$.begin = (*$1.begin).begin + begin;
+                                }
+                                else
+                                {
+                                    yyerror("TypeError: slice indices must be integers or None");
+                                    YYERROR;
+                                }
+
+                                if ($5.type == None) // 默认结束
+                                    $$.end = (*$1.begin).begin - 1;
+                                else if ($5.type == Integer)
+                                {
+                                    end = $5.integerValue;
+                                    if (end < 0)
+                                        end += (*$1.begin).listValue.size();
+                                    if (end < 0)
+                                        end = -1;
+                                    else if (end > (*$1.begin).listValue.size())
+                                        end = (*$1.begin).listValue.size();
+                                    $$.end = (*$1.begin).begin + end;
+                                }
+                                else
+                                {
+                                    yyerror("TypeError: slice indices must be integers or None");
+                                    YYERROR;
+                                }
+
+                                for (vector<struct value>::iterator i = $$.begin; i != $$.end; i += step)
+                                    $$.listValue.push_back(*i); // 逐个取子串
+                            }
+                            break;
+                        default:
+                            yyerror("TypeError: '"+ TypeString((*$1.begin)) +"' object is not subscriptable");
+                            YYERROR;
                     }
                     break;
                 case Variable:
@@ -660,15 +938,15 @@ atom_expr:
         }|
     atom_expr  '[' add_expr ']'
         {
-            if ($3.type == Integer)
+            switch ($1.type)
             {
-                int index = $3.integerValue;
-                switch ($1.type)
-                {
-                    case String:
+                case String:
+                    if ($3.type == Integer)
+                    {
+                        int index = $3.integerValue;
                         if (index < 0)
                             index += $1.stringValue.length();
-                        if (index > $1.stringValue.length() || index < 0)
+                        if (index >= $1.stringValue.length() || index < 0)
                         {
                             yyerror("IndexError: string index out of range");
                             YYERROR;
@@ -678,11 +956,20 @@ atom_expr:
                             $$.type = String;
                             $$.stringValue = $1.stringValue[index]; // 字符和字符串同等
                         }
-                        break;
-                    case List:
+                    }
+                    else
+                    {
+                        yyerror("TypeError: string indices must be integers");
+                        YYERROR;
+                    }
+                    break;
+                case List:
+                    if ($3.type == Integer)
+                    {
+                        int index = $3.integerValue;
                         if (index < 0)
                             index += $1.listValue.size();
-                        if (index > $1.listValue.size() || index < 0)
+                        if (index >= $1.listValue.size() || index < 0)
                         {
                             yyerror("IndexError: list index out of range");
                             YYERROR;
@@ -692,8 +979,95 @@ atom_expr:
                             $$.type = ListItem; // 列表元素类型
                             $$.begin = $1.listValue.begin() + index; // 取列表元素地址
                         }
-                        break;
-                    case Variable:
+                    }
+                    else
+                    {
+                        yyerror("TypeError: list indices must be integers or slices, not " + TypeString($3));
+                        YYERROR;
+                    }
+                    break;
+                case ListSlice:
+                    if ($3.type == Integer)
+                    {
+                        int index = $3.integerValue;
+                        if (index < 0)
+                            index += $1.listValue.size();
+                        if (index >= $1.listValue.size() || index < 0)
+                        {
+                            yyerror("IndexError: list index out of range");
+                            YYERROR;
+                        }
+                        else
+                        {
+                            $$.type = ListItem; // 列表元素类型
+                            $$.begin = $1.begin + index; // 取列表元素地址
+                            // $$.begin = $1.listValue.begin() + index; // 取列表元素地址
+                        }
+                    }
+                    else
+                    {
+                        yyerror("TypeError: list indices must be integers or slices, not " + TypeString($3));
+                        YYERROR;
+                    }
+                    break;
+                case ListItem:
+                    switch ((*$1.begin).type)
+                    {
+                        case String:
+                            if ($3.type == Integer)
+                            {
+                                int index = $3.integerValue;
+                                if (index < 0)
+                                    index += (*$1.begin).stringValue.length();
+                                if (index >= (*$1.begin).stringValue.length() || index < 0)
+                                {
+                                    yyerror("IndexError: string index out of range");
+                                    YYERROR;
+                                }
+                                else
+                                {
+                                    $$.type = String;
+                                    $$.stringValue = (*$1.begin).stringValue[index]; // 字符和字符串同等
+                                }
+                            }
+                            else
+                            {
+                                yyerror("TypeError: string indices must be integers");
+                                YYERROR;
+                            }
+                            break;
+                        case List:
+                            if ($3.type == Integer)
+                            {
+                                int index = $3.integerValue;
+                                if (index < 0)
+                                    index += (*$1.begin).listValue.size();
+                                if (index > (*$1.begin).listValue.size() || index < 0)
+                                {
+                                    yyerror("IndexError: list index out of range");
+                                    YYERROR;
+                                }
+                                else
+                                {
+                                    $$.type = ListItem; // 列表元素类型
+                                    $$.begin = (*$1.begin).listValue.begin() + index; // 取列表元素地址
+                                }
+                            }
+                            else
+                            {
+                                yyerror("TypeError: list indices must be integers or slices, not " + TypeString($3));
+                                YYERROR;
+                            }
+                            break;
+                        default:
+                            yyerror("TypeError: '"+ TypeString((*$1.begin)) +"' object is not subscriptable");
+                            YYERROR;
+                    }
+                    break;
+                case Variable:
+                    if ($3.type == Integer)
+                    {
+                        int index = $3.integerValue;
                         if ((Symbol.count($1.variableName) == 1)) // 已在变量表内
                         {
                             switch (Symbol.at($1.variableName).type)
@@ -701,7 +1075,7 @@ atom_expr:
                                 case String:
                                     if (index < 0)
                                         index += Symbol.at($1.variableName).stringValue.length();
-                                    if (index > Symbol.at($1.variableName).stringValue.length() || index < 0)
+                                    if (index >= Symbol.at($1.variableName).stringValue.length() || index < 0)
                                     {
                                         yyerror("IndexError: string index out of range");
                                         YYERROR;
@@ -715,7 +1089,7 @@ atom_expr:
                                 case List:
                                     if (index < 0)
                                         index += Symbol.at($1.variableName).listValue.size();
-                                    if (index > Symbol.at($1.variableName).listValue.size() || index < 0)
+                                    if (index >= Symbol.at($1.variableName).listValue.size() || index < 0)
                                     {
                                         yyerror("IndexError: list index out of range");
                                         YYERROR;
@@ -736,17 +1110,18 @@ atom_expr:
                             yyerror("NameError: name '" + $1.variableName + "' is not defined");
                             YYERROR;
                         }
-                        break;
-                    default:
-                        yyerror("TypeError: '"+ TypeString($1) +"' object is not subscriptable");
+                    }
+                    else
+                    {
+                        yyerror("TypeError: list indices must be integers or slices, not " + TypeString($3));
                         YYERROR;
-                }
+                    }
+                    break;
+                default:
+                    yyerror("TypeError: '"+ TypeString($1) +"' object is not subscriptable");
+                    YYERROR;
             }
-            else
-            {
-                yyerror("TypeError: list indices must be integers or slices, not " + TypeString($3));
-                YYERROR;
-            }
+
         }|
     atom_expr '.' ID
         {
