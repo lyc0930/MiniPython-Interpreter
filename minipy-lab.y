@@ -246,6 +246,7 @@ atom:
 
 slice_op:
     /* empty production */ { $$.type = None; } |
+    ':' { $$.type = None; } |
     ':' add_expr
     {
         $$.type = Integer;
