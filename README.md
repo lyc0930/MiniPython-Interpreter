@@ -1,5 +1,5 @@
 # MiniPython-Interpreter
-Compiler Lab 1
+郑启龙老师编译原理与技术课程的实验，使用yacc与lex开发了一个交互式的迷你Python解释器。
 
 ## Function
 1. 包含：
@@ -7,22 +7,52 @@ Compiler Lab 1
     - 串(`STRING_LITERAL`)
     - 列表(`List`)
     - ……
-    
-   等数据类型
-2. 包含加减乘除等基本运算
-3. 支持取列表元素、取列表片段等操作
-4. 支持列表的方法（至少实现`append()`方法）和内置函数（`range()`, `print()`, `len()`, `list()`等）调用
 
-## Deadline
-- 10月底：完成相关数据结构（属性）的设计并提交备查
-- 11月底：检查实验
-
-## Members
-- 嵇帆
-- 罗晏宸
-- 牛辛汉
+   等数据类型及变量定义
+2. 包含以上类型间加`+`减`-`乘`*`除`/` `//`等基本运算
+3. 支持取列表元素、取列表切片等操作
+4. 支持列表的方法
+    - `append()`
+    - `count()`
+    - `extend()`
+    - `index()`
+    - `insert()`
+    - `pop()`
+    - `remove()`
+    - `reverse()`
+5. 支持内置函数调用
+    - `len()`
+    - `list()`
+    - `print()`
+    - `range()`
+    - `type()`
+    - `quit()`
+6. 终端设计
+    - 左右方向键移动光标
+    - 上下方向键调出输入历史
+    - `Ctrl` + `C`实现键盘终端
 
 ***
+## Environment
+- Windows Subsystem for Linux: Ubuntu 18.04 LTS
+```shell
+$ uname -r
+4.4.0-18362-Microsoft
+```
+- bison 3.0.4
+```shell
+$ bison --version
+bison (GNU Bison) 3.0.4
+Written by Robert Corbett and Richard Stallman.
+
+Copyright (C) 2015 Free Software Foundation, Inc.
+This is free software; see the source for copying conditions.  There is NO warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+```
+- flex 2.6.4
+```shell
+$ flex --version
+flex 2.6.4
+```
 ## How to Build & Run
 ```shell
 yacc -d minipy-lab.y
@@ -38,25 +68,15 @@ To make clean:
 ```shell
 make clean
 ```
-## About Git
-### Commit Form
-```
-Type<scope>:Title
-	Body
-```
-- `Type`：用于说明commit的类别
-    - `FEAT`：新增功能
-    - `FIX`：修复bug
-    - `DOCS`：修改项目文档
-    - `REFACTOR`：局部功能代码重构，未新增任何功能和修复任何bug
-    - `STYLE`：仅仅修改了空格、缩进等，或增加注释，修改变量名等增加代码可读性的文字修改，不改变代码逻辑
-    - `REVERT`：回滚到上一个版本
-- `scope`：用于说明本次commit的影响范围，例如<minipython-lab.y>
-- `Title`：本次commit的简要标题，尽量简短，例如“修改了算术运算符的产生式”
-- `Body`：详细描述本次commit，多行
+***
+## Timeline
+- 10月底：完成相关数据结构（属性）的设计并提交备查
+- 11月底：检查实验
 
-### Tags
-在完成相关数据结构（属性）的设计后，也即10月底前，项目tag应迭代至0.5.0以上，完整功能的项目tag不低于1.0.0
+## Members
+- 嵇帆
+- 罗晏宸
+- 牛辛汉
 
 ## Reference
 - [CPython](https://github.com/python/cpython/)
