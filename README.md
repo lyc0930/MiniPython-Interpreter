@@ -1,4 +1,8 @@
 # MiniPython-Interpreter
+## 编译原理与技术课程实验
+## Principles and Techniques of Compiler
+![](https://img.shields.io/badge/USTC-2019Fall-critical.svg?style=flat)
+
 郑启龙老师编译原理与技术课程的实验，使用yacc与lex开发了一个交互式的迷你Python解释器。
 
 ## Function
@@ -30,7 +34,7 @@
 6. 终端设计
     - 左右方向键移动光标
     - 上下方向键调出输入历史
-    - `Ctrl` + `C`实现键盘终端
+    - `Ctrl` + `C`实现键盘中断
 
 ***
 ## Environment
@@ -74,9 +78,9 @@ make clean
 - 11月底：检查实验
 
 ## Members
-- 嵇帆
-- 罗晏宸
-- 牛辛汉
+- [嵇帆](https://git.lug.ustc.edu.cn/whitepuppy)
+- [罗晏宸](https://github.com/lyc0930)
+- [牛辛汉](https://git.lug.ustc.edu.cn/NXH)
 
 ## Reference
 - [CPython](https://github.com/python/cpython/)

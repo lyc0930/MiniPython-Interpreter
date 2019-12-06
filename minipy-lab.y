@@ -26,7 +26,7 @@
         vector<struct value> listValue; /* value for list type */
         string variableName;            /* name of the Variable */
         string attributeName;           /* name of the attribute */
-
+        bool transparent;               /* display(false) or not */
         // slice or item of List
         vector<struct value>::iterator begin; // slice 起始位置 或 item 坐标
         vector<struct value>::iterator end;
@@ -100,11 +100,14 @@ Lines:
         Value temp;
         if ($2.type != None)
         {
-            if ($2.type == Variable) /* 单独的变量 */
-                Print(Symbol.at($2.variableName));
-            else
-                Print($2);
-            cout << endl;
+            if ($2.transparent == false)
+            {
+                if ($2.type == Variable) /* 单独的变量 */
+                    Print(Symbol.at($2.variableName));
+                else
+                    Print($2);
+                cout << endl;
+            }
         }
     } |
     /* empty production */ |
@@ -119,14 +122,12 @@ stat:
 assignExpr:
     atom_expr '=' assignExpr
     {
-        $$.type = None;
         Value temp;
         if ($3.type == Variable)
             temp = Symbol.at($3.variableName);
         else
             temp = $3;
-        vector<struct value> temp_for_string = vector<struct value>();
-        Value temp_for_string_2; // 拆分字符串
+
         switch ($1.type)
         {
             case Variable:
@@ -139,23 +140,78 @@ assignExpr:
                 switch (temp.type)
                 {
                     case List:
-                        Symbol[$1.variableName].listValue.erase($1.begin, $1.end);
-                        Symbol[$1.variableName].listValue.insert($1.begin, temp.listValue.begin(), temp.listValue.end()); // 插入
+                        if ($1.step == 1) // 默认步长
+                        {
+                            Symbol[$1.variableName].listValue.erase($1.begin, $1.end);
+                            Symbol[$1.variableName].listValue.insert($1.begin, temp.listValue.begin(), temp.listValue.end()); // 插入
+                        }
+                        else
+                        {
+                            if ($1.listValue.size() == temp.listValue.size()) // 长度对等
+                            {
+                                for (vector<struct value>::iterator i = $1.begin, j = temp.listValue.begin(); j < temp.listValue.end(); i += $1.step, j++)
+                                    *i = *j;
+                                $1.listValue = temp.listValue;
+                            }
+                            else
+                            {
+                                yyerror("ValueError: attempt to assign sequence of size " + to_string(temp.listValue.size()) + " to extended slice of size " + to_string($1.listValue.size()));
+                                YYERROR;
+                            }
+                        }
                         break;
                     case ListSlice:
-                        Symbol[$1.variableName].listValue.erase($1.begin, $1.end);
-                        Symbol[$1.variableName].listValue.insert($1.begin, temp.begin, temp.end); // 插入
+                        if ($1.step == 1) // 默认步长
+                        {
+                            Symbol[$1.variableName].listValue.erase($1.begin, $1.end);
+                            Symbol[$1.variableName].listValue.insert($1.begin, temp.listValue.begin(), temp.listValue.end()); // 插入
+                        }
+                        else
+                        {
+                            if ($1.listValue.size() == temp.listValue.size()) // 长度对等
+                            {
+                                for (vector<struct value>::iterator i = $1.begin, j = temp.listValue.begin(); j < temp.listValue.end(); i += $1.step, j++)
+                                    *i = *j;
+                                $1.listValue = temp.listValue;
+                            }
+                            else
+                            {
+                                yyerror("ValueError: attempt to assign sequence of size " + to_string(temp.listValue.size()) + " to extended slice of size " + to_string($1.listValue.size()));
+                                YYERROR;
+                            }
+                        }
                         break;
                     case String:
-                        temp_for_string_2.type = String;
+                    {
+                        vector<struct value> tempString = vector<struct value>();
+                        Value tempChar; // 拆分字符串
+                        tempChar.type = String;
                         for (int i = 0; i < temp.stringValue.length(); i++)
                         {
-                            temp_for_string_2.stringValue = temp.stringValue[i];
-                            temp_for_string.push_back(temp_for_string_2);
+                            tempChar.stringValue = temp.stringValue[i];
+                            tempString.push_back(tempChar);
                         }
-                        Symbol[$1.variableName].listValue.erase($1.begin, $1.end);
-                        Symbol[$1.variableName].listValue.insert($1.begin, temp_for_string.begin(), temp_for_string.end()); // 插入
+
+                        if ($1.step == 1) // 默认步长
+                        {
+                            Symbol[$1.variableName].listValue.erase($1.begin, $1.end);
+                            Symbol[$1.variableName].listValue.insert($1.begin, tempString.begin(), tempString.end()); // 插入
+                        }
+                        else
+                        {
+                            if ($1.listValue.size() == tempString.size()) // 长度对等
+                            {
+                                for (vector<struct value>::iterator i = $1.begin, j = tempString.begin(); j < tempString.end(); i += $1.step, j++)
+                                    *i = *j;
+                            }
+                            else
+                            {
+                                yyerror("ValueError: attempt to assign sequence of size " + to_string(tempString.size()) + " to extended slice of size " + to_string($1.listValue.size()));
+                                YYERROR;
+                            }
+                        }
                         break;
+                    }
                     default:
                         yyerror("TypeError: can only assign an iterable");
                         YYERROR;
@@ -165,6 +221,8 @@ assignExpr:
                 yyerror("SyntaxError: can't assign to literal");
                 YYERROR;
         }
+        $$ = $1;
+        $$.transparent = true;
     } |
     add_expr
 ;
@@ -266,25 +324,24 @@ atom_expr:
     atom |
     atom_expr  '[' sub_expr  ':' sub_expr  slice_op ']'
     {
-        int begin, end, step;
+        int begin, end;
 
         if ($6.type == None) // 默认步长
-            step = 1;
+            $$.step = 1;
         else if ($6.type == Integer)
-            step = $6.integerValue;
+            $$.step = $6.integerValue;
         else
         {
             yyerror("TypeError: slice indices must be integers or None");
             YYERROR;
         }
-
         switch ($1.type)
         {
             case String:
                 $$.type = String;
                 $$.stringValue = "";
 
-                if (step > 0)
+                if ($$.step > 0)
                 {
                     if ($3.type == None) // 默认起始
                         begin = 0;
@@ -321,10 +378,10 @@ atom_expr:
                         yyerror("TypeError: slice indices must be integers or None");
                         YYERROR;
                     }
-                    for (int i = begin; i < end; i += step)
+                    for (int i = begin; i < end; i += $$.step)
                         $$.stringValue += $1.stringValue[i]; // 逐个取子串
                 }
-                else if (step < 0) // 负步长
+                else if ($$.step < 0) // 负步长
                 {
                     if ($3.type == None) // 默认起始
                         begin = $1.stringValue.length() - 1;
@@ -362,14 +419,14 @@ atom_expr:
                         YYERROR;
                     }
 
-                    for (int i = begin; i > end; i += step)
+                    for (int i = begin; i > end; i += $$.step)
                         $$.stringValue += $1.stringValue[i]; // 逐个取子串
                 }
                 break;
             case List:
                 $$.type = List; // 实体列表的切片不作为切片类型处理
                 $$.listValue = vector<struct value>();
-                if (step > 0)
+                if ($$.step > 0)
                 {
                     if ($3.type == None) // 默认起始
                         begin = 0;
@@ -407,10 +464,10 @@ atom_expr:
                         YYERROR;
                     }
 
-                    for (vector<struct value>::iterator i = $1.listValue.begin() + begin; i != $1.listValue.begin() + end; i += step)
+                    for (vector<struct value>::iterator i = $1.listValue.begin() + begin; i < $1.listValue.begin() + end; i += $$.step)
                         $$.listValue.push_back(*i); // 逐个取元素
                 }
-                else if (step < 0)
+                else if ($$.step < 0)
                 {
                     if ($3.type == None) // 默认起始
                         begin = $1.listValue.size() - 1;
@@ -448,7 +505,7 @@ atom_expr:
                         YYERROR;
                     }
 
-                    for (vector<struct value>::iterator i = $1.listValue.begin() + begin; i != $1.listValue.begin() + end; i += step)
+                    for (vector<struct value>::iterator i = $1.listValue.begin() + begin; i > $1.listValue.begin() + end; i += $$.step)
                         $$.listValue.push_back(*i); // 逐个取元素
                 }
                 break;
@@ -456,7 +513,7 @@ atom_expr:
                 $$.type = ListSlice; // 列表元素类型
                 $$.variableName = $1.variableName;
                 $$.listValue = vector<struct value>();
-                if (step > 0)
+                if ($$.step > 0)
                 {
                     if ($3.type == None) // 默认起始
                         $$.begin = $1.begin;
@@ -496,11 +553,11 @@ atom_expr:
                         YYERROR;
                     }
 
-                    for (vector<struct value>::iterator i = $$.begin; i != $$.end; i += step)
+                    for (vector<struct value>::iterator i = $$.begin; i < $$.end; i += $$.step)
                         $$.listValue.push_back(*i); // 逐个取子串
 
                 }
-                else if (step < 0)
+                else if ($$.step < 0)
                 {
                     if ($3.type == None) // 默认起始
                         $$.begin = $1.end - 1;
@@ -540,7 +597,7 @@ atom_expr:
                         YYERROR;
                     }
 
-                    for (vector<struct value>::iterator i = $$.begin; i != $$.end; i += step)
+                    for (vector<struct value>::iterator i = $$.begin; i > $$.end; i += $$.step)
                         $$.listValue.push_back(*i); // 逐个取子串
                 }
                 break;
@@ -551,7 +608,7 @@ atom_expr:
                         $$.type = String;
                         $$.stringValue = "";
 
-                        if (step > 0)
+                        if ($$.step > 0)
                         {
                             if ($3.type == None) // 默认起始
                                 begin = 0;
@@ -588,10 +645,10 @@ atom_expr:
                                 yyerror("TypeError: slice indices must be integers or None");
                                 YYERROR;
                             }
-                            for (int i = begin; i < end; i += step)
+                            for (int i = begin; i < end; i += $$.step)
                                 $$.stringValue += (*$1.begin).stringValue[i]; // 逐个取子串
                         }
-                        else if (step < 0) // 负步长
+                        else if ($$.step < 0) // 负步长
                         {
                             if ($3.type == None) // 默认起始
                                 begin = (*$1.begin).stringValue.length() - 1;
@@ -629,7 +686,7 @@ atom_expr:
                                 YYERROR;
                             }
 
-                            for (int i = begin; i > end; i += step)
+                            for (int i = begin; i > end; i += $$.step)
                                 $$.stringValue += (*$1.begin).stringValue[i]; // 逐个取子串
                         }
                         break;
@@ -637,7 +694,7 @@ atom_expr:
                         $$.type = ListSlice; // 列表元素类型
                         $$.variableName = $1.variableName;
                         $$.listValue = vector<struct value>();
-                        if (step > 0)
+                        if ($$.step > 0)
                         {
                             if ($3.type == None) // 默认起始
                                 $$.begin = (*$1.begin).begin;
@@ -677,11 +734,11 @@ atom_expr:
                                 YYERROR;
                             }
 
-                            for (vector<struct value>::iterator i = $$.begin; i != $$.end; i += step)
+                            for (vector<struct value>::iterator i = $$.begin; i < $$.end; i += $$.step)
                                 $$.listValue.push_back(*i); // 逐个取子串
 
                         }
-                        else if (step < 0)
+                        else if ($$.step < 0)
                         {
                             if ($3.type == None) // 默认起始
                                 $$.begin = (*$1.begin).end - 1;
@@ -721,7 +778,7 @@ atom_expr:
                                 YYERROR;
                             }
 
-                            for (vector<struct value>::iterator i = $$.begin; i != $$.end; i += step)
+                            for (vector<struct value>::iterator i = $$.begin; i > $$.end; i += $$.step)
                                 $$.listValue.push_back(*i); // 逐个取子串
                         }
                         break;
@@ -739,7 +796,7 @@ atom_expr:
                             $$.type = String;
                             $$.stringValue = "";
 
-                            if (step > 0)
+                            if ($$.step > 0)
                             {
                                 if ($3.type == None) // 默认起始
                                     begin = 0;
@@ -776,10 +833,10 @@ atom_expr:
                                     yyerror("TypeError: slice indices must be integers or None");
                                     YYERROR;
                                 }
-                                for (int i = begin; i < end; i += step)
+                                for (int i = begin; i < end; i += $$.step)
                                     $$.stringValue += Symbol.at($1.variableName).stringValue[i]; // 逐个取子串
                             }
-                            else if (step < 0) // 负步长
+                            else if ($$.step < 0) // 负步长
                             {
                                 if ($3.type == None) // 默认起始
                                     begin = Symbol.at($1.variableName).stringValue.length() - 1;
@@ -817,7 +874,7 @@ atom_expr:
                                     YYERROR;
                                 }
 
-                                for (int i = begin; i > end; i += step)
+                                for (int i = begin; i > end; i += $$.step)
                                     $$.stringValue += Symbol.at($1.variableName).stringValue[i]; // 逐个取子串
                             }
                             break;
@@ -825,7 +882,7 @@ atom_expr:
                             $$.type = ListSlice; // 列表元素类型
                             $$.variableName = $1.variableName;
                             $$.listValue = vector<struct value>();
-                            if (step > 0)
+                            if ($$.step > 0)
                             {
                                 if ($3.type == None) // 默认起始
                                     $$.begin = Symbol.at($1.variableName).listValue.begin();
@@ -865,11 +922,11 @@ atom_expr:
                                     YYERROR;
                                 }
 
-                                for (vector<struct value>::iterator i = $$.begin; i != $$.end; i += step)
+                                for (vector<struct value>::iterator i = $$.begin; i < $$.end; i += $$.step)
                                     $$.listValue.push_back(*i); // 逐个取子串
 
                             }
-                            else if (step < 0)
+                            else if ($$.step < 0)
                             {
                                 if ($3.type == None) // 默认起始
                                     $$.begin = Symbol.at($1.variableName).listValue.end() - 1;
@@ -909,7 +966,7 @@ atom_expr:
                                     YYERROR;
                                 }
 
-                                for (vector<struct value>::iterator i = $$.begin; i != $$.end; i += step)
+                                for (vector<struct value>::iterator i = $$.begin; i > $$.end; i += $$.step)
                                     $$.listValue.push_back(*i); // 逐个取子串
                             }
                             break;
@@ -1128,6 +1185,7 @@ atom_expr:
         if ($1.attributeName == "append") // append方法
         {
             $$.type = None;
+            $$.transparent = true;
             switch ($1.type)
             {
                 case List:
@@ -1323,6 +1381,7 @@ atom_expr:
         else if ($1.attributeName == "extend") // extend方法
         {
             $$.type = None;
+            $$.transparent = true;
             switch ($1.type)
             {
                 case List:
@@ -1985,6 +2044,7 @@ atom_expr:
         else if ($1.variableName == "print") // print函数
         {
             $$.type = None;
+            $$.transparent = true;
             for (vector<struct value>::iterator i = $3.listValue.begin(); i != $3.listValue.end(); i++)
             {
                 if ((*i).type == None)
@@ -2095,6 +2155,7 @@ atom_expr:
         else if ($1.variableName == "type") // type函数
         {
             $$.type = None;
+            $$.transparent = true;
             if ($3.listValue.size() == 1 || $3.listValue.size() == 3)
             {
                 if ($3.listValue.size() == 1)
@@ -2152,6 +2213,7 @@ atom_expr:
         else if ($1.attributeName == "append")
         {
             $$.type = None;
+            $$.transparent = true;
             switch ($1.type)
             {
                 case List:
@@ -2191,6 +2253,7 @@ atom_expr:
         else if ($1.attributeName == "count")
         {
             $$.type = None;
+            $$.transparent = true;
             switch ($1.type)
             {
                 case String:
@@ -2231,6 +2294,7 @@ atom_expr:
         else if ($1.attributeName == "extend")
         {
             $$.type = None;
+            $$.transparent = true;
             switch ($1.type)
             {
                 case List:
@@ -2270,6 +2334,7 @@ atom_expr:
         else if ($1.attributeName == "index")
         {
             $$.type = None;
+            $$.transparent = true;
             switch ($1.type)
             {
                 case String:
@@ -2310,6 +2375,7 @@ atom_expr:
         else if ($1.attributeName == "insert")
         {
             $$.type = None;
+            $$.transparent = true;
             switch ($1.type)
             {
                 case List:
@@ -2411,6 +2477,7 @@ atom_expr:
         else if ($1.attributeName == "remove")
         {
             $$.type = None;
+            $$.transparent = true;
             switch ($1.type)
             {
                 case List:
@@ -2450,6 +2517,7 @@ atom_expr:
         else if ($1.attributeName == "reverse") // reverse方法
         {
             $$.type = None;
+            $$.transparent = true;
             switch ($1.type)
             {
                 case List:
@@ -2486,6 +2554,7 @@ atom_expr:
         else if ($1.variableName == "print") // print函数
         {
             $$.type = None;
+            $$.transparent = true;
             cout << endl;
         }
         else if ($1.variableName == "range")
@@ -2973,6 +3042,9 @@ void Print(Value x)
 {
     switch(x.type)
     {
+        case None:
+            cout << "None";
+            break;
         case Integer:
             cout << x.integerValue;
             break;
@@ -3010,7 +3082,7 @@ string TypeString(Value x) // 将枚举类型返回字符串类型，用于错�
     switch (x.type)
     {
         case None:       // 赋值语句、列表方法等在python里没有输出
-            return "None";
+            return "NoneType";
         case Integer:    // 整型
             return "int";
         case Real:       // 浮点型
@@ -3026,7 +3098,7 @@ string TypeString(Value x) // 将枚举类型返回字符串类型，用于错�
         case ListItem:   // 列表元素
             return TypeString(*x.begin);
         default:
-            return "None";
+            return "NoneType";
     }
 }
 
