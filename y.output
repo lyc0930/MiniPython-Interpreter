@@ -2,7 +2,6 @@ State 19 conflicts: 2 shift/reduce
 State 21 conflicts: 2 shift/reduce
 State 24 conflicts: 2 shift/reduce
 State 30 conflicts: 1 shift/reduce
-State 45 conflicts: 2 shift/reduce
 
 
 Grammar
@@ -17,7 +16,7 @@ Grammar
 
     5 stat: assignExpr
 
-    6 assignExpr: atom_expr '=' atom_expr
+    6 assignExpr: atom_expr '=' assignExpr
     7           | add_expr
 
     8 number: INT
@@ -108,7 +107,7 @@ Lines (25)
 stat (26)
     on left: 5, on right: 2
 assignExpr (27)
-    on left: 6 7, on right: 5
+    on left: 6 7, on right: 5 6
 number (28)
     on left: 8 9, on right: 16
 factor (29)
@@ -361,7 +360,7 @@ State 18
 
 State 19
 
-    6 assignExpr: atom_expr . '=' atom_expr
+    6 assignExpr: atom_expr . '=' assignExpr
    12 factor: atom_expr .
    23 atom_expr: atom_expr . '[' sub_expr ':' sub_expr slice_op ']'
    24          | atom_expr . '[' add_expr ']'
@@ -511,18 +510,25 @@ State 30
 
 State 31
 
-    6 assignExpr: atom_expr '=' . atom_expr
+    6 assignExpr: atom_expr '=' . assignExpr
 
     ID              shift, and go to state 6
     INT             shift, and go to state 7
     REAL            shift, and go to state 8
     STRING_LITERAL  shift, and go to state 9
+    '+'             shift, and go to state 10
+    '-'             shift, and go to state 11
     '['             shift, and go to state 12
+    '('             shift, and go to state 13
 
-    number     go to state 16
-    atom       go to state 18
-    atom_expr  go to state 45
-    List       go to state 20
+    assignExpr  go to state 45
+    number      go to state 16
+    factor      go to state 17
+    atom        go to state 18
+    atom_expr   go to state 19
+    List        go to state 20
+    add_expr    go to state 21
+    mul_expr    go to state 22
 
 
 State 32
@@ -757,19 +763,8 @@ State 44
 
 State 45
 
-    6 assignExpr: atom_expr '=' atom_expr .
-   23 atom_expr: atom_expr . '[' sub_expr ':' sub_expr slice_op ']'
-   24          | atom_expr . '[' add_expr ']'
-   25          | atom_expr . '.' ID
-   26          | atom_expr . '(' arglist opt_comma ')'
-   27          | atom_expr . '(' ')'
+    6 assignExpr: atom_expr '=' assignExpr .
 
-    '['  shift, and go to state 32
-    '.'  shift, and go to state 33
-    '('  shift, and go to state 34
-
-    '['       [reduce using rule 6 (assignExpr)]
-    '('       [reduce using rule 6 (assignExpr)]
     $default  reduce using rule 6 (assignExpr)
 
 

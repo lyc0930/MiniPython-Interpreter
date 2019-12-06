@@ -26,7 +26,7 @@
         vector<struct value> listValue; /* value for list type */
         string variableName;            /* name of the Variable */
         string attributeName;           /* name of the attribute */
-
+        bool transparent;               /* display(false) or not */
         // slice or item of List
         vector<struct value>::iterator begin; // slice 起始位置 或 item 坐标
         vector<struct value>::iterator end;
@@ -100,11 +100,14 @@ Lines:
         Value temp;
         if ($2.type != None)
         {
-            if ($2.type == Variable) /* 单独的变量 */
-                Print(Symbol.at($2.variableName));
-            else
-                Print($2);
-            cout << endl;
+            if ($2.transparent == false)
+            {
+                if ($2.type == Variable) /* 单独的变量 */
+                    Print(Symbol.at($2.variableName));
+                else
+                    Print($2);
+                cout << endl;
+            }
         }
     } |
     /* empty production */ |
@@ -117,9 +120,8 @@ stat:
 ;
 
 assignExpr:
-    atom_expr '=' atom_expr
+    atom_expr '=' assignExpr
     {
-        $$.type = None;
         Value temp;
         if ($3.type == Variable)
             temp = Symbol.at($3.variableName);
@@ -219,6 +221,8 @@ assignExpr:
                 yyerror("SyntaxError: can't assign to literal");
                 YYERROR;
         }
+        $$ = $1;
+        $$.transparent = true;
     } |
     add_expr
 ;
@@ -1181,6 +1185,7 @@ atom_expr:
         if ($1.attributeName == "append") // append方法
         {
             $$.type = None;
+            $$.transparent = true;
             switch ($1.type)
             {
                 case List:
@@ -1376,6 +1381,7 @@ atom_expr:
         else if ($1.attributeName == "extend") // extend方法
         {
             $$.type = None;
+            $$.transparent = true;
             switch ($1.type)
             {
                 case List:
@@ -2038,6 +2044,7 @@ atom_expr:
         else if ($1.variableName == "print") // print函数
         {
             $$.type = None;
+            $$.transparent = true;
             for (vector<struct value>::iterator i = $3.listValue.begin(); i != $3.listValue.end(); i++)
             {
                 if ((*i).type == None)
@@ -2148,6 +2155,7 @@ atom_expr:
         else if ($1.variableName == "type") // type函数
         {
             $$.type = None;
+            $$.transparent = true;
             if ($3.listValue.size() == 1 || $3.listValue.size() == 3)
             {
                 if ($3.listValue.size() == 1)
@@ -2205,6 +2213,7 @@ atom_expr:
         else if ($1.attributeName == "append")
         {
             $$.type = None;
+            $$.transparent = true;
             switch ($1.type)
             {
                 case List:
@@ -2244,6 +2253,7 @@ atom_expr:
         else if ($1.attributeName == "count")
         {
             $$.type = None;
+            $$.transparent = true;
             switch ($1.type)
             {
                 case String:
@@ -2284,6 +2294,7 @@ atom_expr:
         else if ($1.attributeName == "extend")
         {
             $$.type = None;
+            $$.transparent = true;
             switch ($1.type)
             {
                 case List:
@@ -2323,6 +2334,7 @@ atom_expr:
         else if ($1.attributeName == "index")
         {
             $$.type = None;
+            $$.transparent = true;
             switch ($1.type)
             {
                 case String:
@@ -2363,6 +2375,7 @@ atom_expr:
         else if ($1.attributeName == "insert")
         {
             $$.type = None;
+            $$.transparent = true;
             switch ($1.type)
             {
                 case List:
@@ -2464,6 +2477,7 @@ atom_expr:
         else if ($1.attributeName == "remove")
         {
             $$.type = None;
+            $$.transparent = true;
             switch ($1.type)
             {
                 case List:
@@ -2503,6 +2517,7 @@ atom_expr:
         else if ($1.attributeName == "reverse") // reverse方法
         {
             $$.type = None;
+            $$.transparent = true;
             switch ($1.type)
             {
                 case List:
@@ -2539,6 +2554,7 @@ atom_expr:
         else if ($1.variableName == "print") // print函数
         {
             $$.type = None;
+            $$.transparent = true;
             cout << endl;
         }
         else if ($1.variableName == "range")
@@ -3026,6 +3042,9 @@ void Print(Value x)
 {
     switch(x.type)
     {
+        case None:
+            cout << "None";
+            break;
         case Integer:
             cout << x.integerValue;
             break;
@@ -3063,7 +3082,7 @@ string TypeString(Value x) // 将枚举类型返回字符串类型，用于错�
     switch (x.type)
     {
         case None:       // 赋值语句、列表方法等在python里没有输出
-            return "None";
+            return "NoneType";
         case Integer:    // 整型
             return "int";
         case Real:       // 浮点型
@@ -3079,7 +3098,7 @@ string TypeString(Value x) // 将枚举类型返回字符串类型，用于错�
         case ListItem:   // 列表元素
             return TypeString(*x.begin);
         default:
-            return "None";
+            return "NoneType";
     }
 }
 
