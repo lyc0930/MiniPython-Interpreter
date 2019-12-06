@@ -71,7 +71,7 @@
     #include "lex.yy.c"
     void yyerror(string);
     // extern yy_buffer_state * yy_scan_string(char *);
-    // extern void yy_delete_buffer(yy_buffer_state * buffer);
+    // extern void yy_delete_buffer(yy_buffer_state * Buffer);
 
     // 模仿conio的getch
     int getch(void);
@@ -2636,15 +2636,15 @@ add_expr:
                 $$.listValue = vector<struct value>($1.listValue);
                 switch($3.type)
                 {
-                    case Integer:
-                        $$.listValue.insert($$.listValue.end(), $3); // 在尾部插入
-                        break;
-                    case Real:
-                        $$.listValue.insert($$.listValue.end(), $3); // 在尾部插入
-                        break;
-                    case String:
-                        $$.listValue.insert($$.listValue.end(), $3); // 在尾部插入
-                        break;
+                    // case Integer:
+                    //     $$.listValue.insert($$.listValue.end(), $3); // 在尾部插入
+                    //     break;
+                    // case Real:
+                    //     $$.listValue.insert($$.listValue.end(), $3); // 在尾部插入
+                    //     break;
+                    // case String:
+                    //     $$.listValue.insert($$.listValue.end(), $3); // 在尾部插入
+                    //     break;
                     case List:
                         $$.listValue.insert($$.listValue.end(), $3.listValue.begin(), $3.listValue.end()); // 在尾部插入
                         break;
@@ -2862,8 +2862,10 @@ mul_expr:
 int main()
 {
     string KeyBoardStream;
+    vector<string> History;
+    int historyIndex; // 自下向上地存放输入历史位置
     int cursor = 0; // 光标位置
-    yy_buffer_state * buffer;
+    yy_buffer_state * Buffer;
     while (true)
     {
         int c;
@@ -2881,8 +2883,25 @@ int main()
                         switch(c = getch())
                         {
                             case 65: // Up
+                                historyIndex++;
+                                if (historyIndex > History.size())
+                                    historyIndex = History.size();
+                                else
+                                    KeyBoardStream = *(History.rbegin() + historyIndex - 1);
+                                if (cursor > KeyBoardStream.length())
+                                    cursor = KeyBoardStream.length(); // 防止光标溢出
                                 break;
                             case 66: // Down
+                                historyIndex--;
+                                if (historyIndex <= 0)
+                                {
+                                    historyIndex = 0;
+                                    KeyBoardStream = "";
+                                }
+                                else
+                                    KeyBoardStream = *(History.rbegin() + historyIndex - 1);
+                                if (cursor > KeyBoardStream.length())
+                                    cursor = KeyBoardStream.length(); // 防止光标溢出
                                 break;
                             case 67: // Right
                                 cursor++;
@@ -2905,7 +2924,7 @@ int main()
                 }
                 break;
             case 3: // Ctrl + C
-                // yy_flush_buffer(buffer); // 清空缓冲区
+                // yy_flush_buffer(Buffer); // 清空缓冲区
                 KeyBoardStream = ""; // 清空流
                 cursor = 0;
                 cout << endl << "KeyboardInterrupt" << endl;
@@ -2915,10 +2934,15 @@ int main()
                 break;
             case 13: // Enter
                 putchar('\n');
+
                 // KeyBoardStream += "\n";
-                buffer = yy_scan_string(KeyBoardStream.c_str());
+                Buffer = yy_scan_string(KeyBoardStream.c_str()); // 设置parse缓冲
                 yyparse();
-                yy_flush_buffer(buffer);
+                yy_flush_buffer(Buffer); // 清空parse缓冲
+
+                History.push_back(KeyBoardStream); // 历史入栈
+                historyIndex = 0; // 刷新栈顶
+
                 KeyBoardStream = "";
                 cursor = 0;
                 break;
@@ -2933,7 +2957,7 @@ int main()
                 KeyBoardStream.insert(cursor++, 1, (char)(c)); // 插入字符
         }
     }
-    yy_delete_buffer(buffer);
+    yy_delete_buffer(Buffer);
 
     return 0;
 }
