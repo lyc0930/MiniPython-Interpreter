@@ -3009,7 +3009,7 @@ int main()
                 {
                     cout << endl;
                     for (int i = 1; i < fillTable.size(); i++)
-                        cout << fillTable[0] << fillTable[i] << '\t';
+                        cout << fillTable[0] << fillTable[i] << "  ";
                     cout << endl;
                 }
             }
@@ -3162,18 +3162,18 @@ vector<string> Autofill(string s) // 根据字符串前缀返回自动补全
             switch (Symbol.at(var).type)
             {
                 case String:
-                    attribLib.push_back("count");
-                    attribLib.push_back("index");
+                    attribLib.push_back("count(");
+                    attribLib.push_back("index(");
                     break;
                 case List:
-                    attribLib.push_back("append");
-                    attribLib.push_back("count");
-                    attribLib.push_back("extend");
-                    attribLib.push_back("index");
-                    attribLib.push_back("insert");
-                    attribLib.push_back("pop");
-                    attribLib.push_back("remove");
-                    attribLib.push_back("reverse");
+                    attribLib.push_back("append(");
+                    attribLib.push_back("count(");
+                    attribLib.push_back("extend(");
+                    attribLib.push_back("index(");
+                    attribLib.push_back("insert(");
+                    attribLib.push_back("pop(");
+                    attribLib.push_back("remove(");
+                    attribLib.push_back("reverse(");
                     break;
             }
             for (vector<string>::iterator i = attribLib.begin(); i != attribLib.end(); i++)
