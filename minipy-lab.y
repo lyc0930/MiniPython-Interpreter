@@ -3009,7 +3009,7 @@ int main()
                 {
                     cout << endl;
                     for (int i = 1; i < fillTable.size(); i++)
-                        cout << fillTable[0] << fillTable[i] << "  ";
+                        cout << fillTable[0] << fillTable[i].append(10 - fillTable[i].length(), ' ') << (((i % 4 == 0) && i < fillTable.size() - 1) ? "\n" : "");
                     cout << endl;
                 }
             }
