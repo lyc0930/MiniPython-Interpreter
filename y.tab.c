@@ -94,8 +94,8 @@
         bool transparent;               /* display(false) or not */
         // slice or item of List
         vector<struct value>::iterator begin; // slice 起始位置 或 item 坐标
-        vector<struct value>::iterator end;
-        int step;
+        vector<struct value>::iterator end;   // slice 结束位置
+        int step;                             // slice 步长
 
         // Overload the operator
         bool operator==(const value that) const
@@ -147,7 +147,10 @@
     // 返回可迭代实体的长度
     int Length(Value);
 
-#line 151 "y.tab.c" /* yacc.c:339  */
+    // 返回自动补全表
+    vector<string> Autofill(string);
+
+#line 154 "y.tab.c" /* yacc.c:339  */
 
 # ifndef YY_NULLPTR
 #  if defined __cplusplus && 201103L <= __cplusplus
@@ -214,7 +217,7 @@ int yyparse (void);
 
 /* Copy the second part of user declarations.  */
 
-#line 218 "y.tab.c" /* yacc.c:358  */
+#line 221 "y.tab.c" /* yacc.c:358  */
 
 #ifdef short
 # undef short
@@ -512,11 +515,11 @@ static const yytype_uint8 yytranslate[] =
   /* YYRLINE[YYN] -- Source line where rule number YYN was defined.  */
 static const yytype_uint16 yyrline[] =
 {
-       0,    94,    94,    98,   112,   114,   119,   123,   227,   231,
-     232,   236,   249,   262,   296,   297,   298,   299,   303,   304,
-     305,   319,   320,   324,   325,   989,  1176,  1183,  2209,  2589,
-    2594,  2603,  2608,  2615,  2617,  2621,  2626,  2635,  2727,  2770,
-    2774,  2855,  2872,  2891,  2921,  2922,  2923
+       0,    97,    97,   101,   115,   117,   122,   126,   230,   234,
+     235,   239,   252,   265,   299,   300,   301,   302,   306,   307,
+     308,   322,   323,   327,   328,   992,  1179,  1185,  2211,  2591,
+    2596,  2605,  2610,  2617,  2619,  2623,  2628,  2637,  2729,  2772,
+    2776,  2857,  2874,  2893,  2923,  2924,  2925
 };
 #endif
 
@@ -1339,7 +1342,7 @@ yyreduce:
   switch (yyn)
     {
         case 3:
-#line 99 "minipy-lab.y" /* yacc.c:1646  */
+#line 102 "minipy-lab.y" /* yacc.c:1646  */
     {
         Value temp;
         if ((yyvsp[0]).type != None)
@@ -1354,17 +1357,17 @@ yyreduce:
             }
         }
     }
-#line 1358 "y.tab.c" /* yacc.c:1646  */
+#line 1361 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 5:
-#line 114 "minipy-lab.y" /* yacc.c:1646  */
+#line 117 "minipy-lab.y" /* yacc.c:1646  */
     { yyerrok; }
-#line 1364 "y.tab.c" /* yacc.c:1646  */
+#line 1367 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 7:
-#line 124 "minipy-lab.y" /* yacc.c:1646  */
+#line 127 "minipy-lab.y" /* yacc.c:1646  */
     {
         Value temp;
         if ((yyvsp[0]).type == Variable)
@@ -1468,11 +1471,11 @@ yyreduce:
         (yyval) = (yyvsp[-2]);
         (yyval).transparent = true;
     }
-#line 1472 "y.tab.c" /* yacc.c:1646  */
+#line 1475 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 11:
-#line 237 "minipy-lab.y" /* yacc.c:1646  */
+#line 240 "minipy-lab.y" /* yacc.c:1646  */
     {
         (yyval).type = (yyvsp[0]).type;
         if ((yyvsp[0]).type == Integer)
@@ -1485,11 +1488,11 @@ yyreduce:
             YYERROR;
         }
     }
-#line 1489 "y.tab.c" /* yacc.c:1646  */
+#line 1492 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 12:
-#line 250 "minipy-lab.y" /* yacc.c:1646  */
+#line 253 "minipy-lab.y" /* yacc.c:1646  */
     {
         (yyval).type = (yyvsp[0]).type;
         if ((yyvsp[0]).type == Integer)
@@ -1502,11 +1505,11 @@ yyreduce:
             YYERROR;
         }
     }
-#line 1506 "y.tab.c" /* yacc.c:1646  */
+#line 1509 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 13:
-#line 263 "minipy-lab.y" /* yacc.c:1646  */
+#line 266 "minipy-lab.y" /* yacc.c:1646  */
     {
         switch ((yyvsp[0]).type)
         {
@@ -1537,23 +1540,23 @@ yyreduce:
             //     YYERROR;
         }
     }
-#line 1541 "y.tab.c" /* yacc.c:1646  */
+#line 1544 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 18:
-#line 303 "minipy-lab.y" /* yacc.c:1646  */
+#line 306 "minipy-lab.y" /* yacc.c:1646  */
     { (yyval).type = None; }
-#line 1547 "y.tab.c" /* yacc.c:1646  */
+#line 1550 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 19:
-#line 304 "minipy-lab.y" /* yacc.c:1646  */
+#line 307 "minipy-lab.y" /* yacc.c:1646  */
     { (yyval).type = None; }
-#line 1553 "y.tab.c" /* yacc.c:1646  */
+#line 1556 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 20:
-#line 306 "minipy-lab.y" /* yacc.c:1646  */
+#line 309 "minipy-lab.y" /* yacc.c:1646  */
     {
         (yyval).type = Integer;
         if ((yyvsp[0]).type == Integer)
@@ -1564,17 +1567,17 @@ yyreduce:
             YYERROR;
         }
     }
-#line 1568 "y.tab.c" /* yacc.c:1646  */
+#line 1571 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 21:
-#line 319 "minipy-lab.y" /* yacc.c:1646  */
+#line 322 "minipy-lab.y" /* yacc.c:1646  */
     { (yyval).type = None; }
-#line 1574 "y.tab.c" /* yacc.c:1646  */
+#line 1577 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 24:
-#line 326 "minipy-lab.y" /* yacc.c:1646  */
+#line 329 "minipy-lab.y" /* yacc.c:1646  */
     {
         int begin, end;
 
@@ -2238,11 +2241,11 @@ yyreduce:
                 YYERROR;
         }
     }
-#line 2242 "y.tab.c" /* yacc.c:1646  */
+#line 2245 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 25:
-#line 990 "minipy-lab.y" /* yacc.c:1646  */
+#line 993 "minipy-lab.y" /* yacc.c:1646  */
     {
         switch ((yyvsp[-3]).type)
         {
@@ -2429,22 +2432,21 @@ yyreduce:
         }
 
     }
-#line 2433 "y.tab.c" /* yacc.c:1646  */
+#line 2436 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 26:
-#line 1177 "minipy-lab.y" /* yacc.c:1646  */
+#line 1180 "minipy-lab.y" /* yacc.c:1646  */
     {
         (yyval).type = (yyvsp[-2]).type;
-
         (yyval).variableName = (yyvsp[-2]).variableName; // 变量名
         (yyval).attributeName = (yyvsp[0]).variableName; // 属性或方法名
     }
-#line 2444 "y.tab.c" /* yacc.c:1646  */
+#line 2446 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 27:
-#line 1184 "minipy-lab.y" /* yacc.c:1646  */
+#line 1186 "minipy-lab.y" /* yacc.c:1646  */
     {
         if ((yyvsp[-4]).attributeName == "append") // append方法
         {
@@ -3470,11 +3472,11 @@ yyreduce:
         }
 
     }
-#line 3474 "y.tab.c" /* yacc.c:1646  */
+#line 3476 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 28:
-#line 2210 "minipy-lab.y" /* yacc.c:1646  */
+#line 2212 "minipy-lab.y" /* yacc.c:1646  */
     {
         if ((yyvsp[-2]).variableName == "quit") // quit函数
             exit(0);
@@ -3851,67 +3853,67 @@ yyreduce:
             YYERROR;
         }
     }
-#line 3855 "y.tab.c" /* yacc.c:1646  */
+#line 3857 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 29:
-#line 2590 "minipy-lab.y" /* yacc.c:1646  */
+#line 2592 "minipy-lab.y" /* yacc.c:1646  */
     {
         (yyval).type = List;
         (yyval).listValue = vector<struct value>(1, (yyvsp[0])); // 用列表“框柱”参数
     }
-#line 3864 "y.tab.c" /* yacc.c:1646  */
+#line 3866 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 30:
-#line 2595 "minipy-lab.y" /* yacc.c:1646  */
+#line 2597 "minipy-lab.y" /* yacc.c:1646  */
     {
         (yyval).type = List;
         (yyvsp[-2]).listValue.push_back((yyvsp[0]));
         (yyval).listValue = vector<struct value>((yyvsp[-2]).listValue);
     }
-#line 3874 "y.tab.c" /* yacc.c:1646  */
+#line 3876 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 31:
-#line 2604 "minipy-lab.y" /* yacc.c:1646  */
+#line 2606 "minipy-lab.y" /* yacc.c:1646  */
     {
         (yyval).type = List;
         (yyval).listValue = vector<struct value>();
     }
-#line 3883 "y.tab.c" /* yacc.c:1646  */
+#line 3885 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 32:
-#line 2609 "minipy-lab.y" /* yacc.c:1646  */
+#line 2611 "minipy-lab.y" /* yacc.c:1646  */
     {
         (yyval).type = List;
         (yyval).listValue = vector<struct value>((yyvsp[-2]).listValue);
     }
-#line 3892 "y.tab.c" /* yacc.c:1646  */
+#line 3894 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 35:
-#line 2622 "minipy-lab.y" /* yacc.c:1646  */
+#line 2624 "minipy-lab.y" /* yacc.c:1646  */
     {
         (yyval).type = List;
         (yyval).listValue = vector<struct value>(1, (yyvsp[0])); // 用列表“框柱”变量
     }
-#line 3901 "y.tab.c" /* yacc.c:1646  */
+#line 3903 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 36:
-#line 2627 "minipy-lab.y" /* yacc.c:1646  */
+#line 2629 "minipy-lab.y" /* yacc.c:1646  */
     {
         (yyval).type = List;
         (yyvsp[-2]).listValue.push_back((yyvsp[0]));
         (yyval).listValue = vector<struct value>((yyvsp[-2]).listValue);
     }
-#line 3911 "y.tab.c" /* yacc.c:1646  */
+#line 3913 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 37:
-#line 2636 "minipy-lab.y" /* yacc.c:1646  */
+#line 2638 "minipy-lab.y" /* yacc.c:1646  */
     {
         switch((yyvsp[-2]).type)
         {
@@ -4003,11 +4005,11 @@ yyreduce:
                 YYERROR;
         }
     }
-#line 4007 "y.tab.c" /* yacc.c:1646  */
+#line 4009 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 38:
-#line 2728 "minipy-lab.y" /* yacc.c:1646  */
+#line 2730 "minipy-lab.y" /* yacc.c:1646  */
     {
         switch((yyvsp[-2]).type)
         {
@@ -4050,11 +4052,11 @@ yyreduce:
                 YYERROR;
         }
     }
-#line 4054 "y.tab.c" /* yacc.c:1646  */
+#line 4056 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 40:
-#line 2775 "minipy-lab.y" /* yacc.c:1646  */
+#line 2777 "minipy-lab.y" /* yacc.c:1646  */
     {
         switch((yyvsp[-2]).type)
         {
@@ -4135,11 +4137,11 @@ yyreduce:
                 YYERROR;
         }
     }
-#line 4139 "y.tab.c" /* yacc.c:1646  */
+#line 4141 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 41:
-#line 2856 "minipy-lab.y" /* yacc.c:1646  */
+#line 2858 "minipy-lab.y" /* yacc.c:1646  */
     {
         (yyval).type = Real;
         if (((yyvsp[-2]).type == Integer || (yyvsp[-2]).type == Real) && ((yyvsp[0]).type == Integer || (yyvsp[0]).type == Real))
@@ -4156,11 +4158,11 @@ yyreduce:
             YYERROR;
         }
     }
-#line 4160 "y.tab.c" /* yacc.c:1646  */
+#line 4162 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 42:
-#line 2873 "minipy-lab.y" /* yacc.c:1646  */
+#line 2875 "minipy-lab.y" /* yacc.c:1646  */
     {
         // 整除
         (yyval).type = Integer;
@@ -4179,11 +4181,11 @@ yyreduce:
         }
 
     }
-#line 4183 "y.tab.c" /* yacc.c:1646  */
+#line 4185 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 43:
-#line 2892 "minipy-lab.y" /* yacc.c:1646  */
+#line 2894 "minipy-lab.y" /* yacc.c:1646  */
     {
         if (((yyvsp[-2]).type == Integer || (yyvsp[-2]).type == Real) && ((yyvsp[0]).type == Integer || (yyvsp[0]).type == Real))
         {
@@ -4213,23 +4215,23 @@ yyreduce:
             YYERROR;
         }
     }
-#line 4217 "y.tab.c" /* yacc.c:1646  */
+#line 4219 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 44:
-#line 2921 "minipy-lab.y" /* yacc.c:1646  */
+#line 2923 "minipy-lab.y" /* yacc.c:1646  */
     { (yyval) = (yyvsp[-1]); }
-#line 4223 "y.tab.c" /* yacc.c:1646  */
+#line 4225 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 45:
-#line 2922 "minipy-lab.y" /* yacc.c:1646  */
+#line 2924 "minipy-lab.y" /* yacc.c:1646  */
     { (yyval) = (yyvsp[-1]); }
-#line 4229 "y.tab.c" /* yacc.c:1646  */
+#line 4231 "y.tab.c" /* yacc.c:1646  */
     break;
 
 
-#line 4233 "y.tab.c" /* yacc.c:1646  */
+#line 4235 "y.tab.c" /* yacc.c:1646  */
       default: break;
     }
   /* User semantic actions sometimes alter yychar, and that requires
@@ -4457,7 +4459,7 @@ yyreturn:
 #endif
   return yyresult;
 }
-#line 2926 "minipy-lab.y" /* yacc.c:1906  */
+#line 2928 "minipy-lab.y" /* yacc.c:1906  */
 
 
 int main()
@@ -4531,7 +4533,21 @@ int main()
                 cout << endl << "KeyboardInterrupt" << endl;
                 break;
             case 9: // Tab
-                cout << "\t" << endl;
+            {
+                vector<string> fillTable = Autofill(KeyBoardStream.substr(0, cursor));
+                if (fillTable.size() == 2) // 仅一个补全建议
+                {
+                    KeyBoardStream.insert(cursor, fillTable[1]);
+                    cursor += fillTable[1].length();
+                }
+                else if (fillTable.size() > 2) // 多个补全建议
+                {
+                    cout << endl;
+                    for (int i = 1; i < fillTable.size(); i++)
+                        cout << fillTable[0] << fillTable[i] << '\t';
+                    cout << endl;
+                }
+            }
                 break;
             case 13: // Enter
                 putchar('\n');
@@ -4656,3 +4672,51 @@ int Length(Value x) // 将枚举类型返回实体长度，用于len(), insert()
     }
 }
 
+vector<string> Autofill(string s) // 根据字符串前缀返回自动补全
+{
+    vector<string> fillTable;
+    int pos = s.find_last_of(" +-*/%()[]");
+    string tail = (pos == string::npos) ? s : s.substr(pos + 1);
+    if ((pos = tail.find_last_of('.')) == string::npos) // 没有'.' -> 补全变量
+    {
+        fillTable.push_back(tail);
+        for (map<string, struct value>::iterator i = Symbol.begin(); i != Symbol.end(); i++)
+        {
+            if ((tail.length() < (i->first).length()) && (tail == (i->first).substr(0, tail.length())))
+                fillTable.push_back((i->first).substr(tail.length()));
+        }
+    }
+    else // 有'.' -> 补全属性方法
+    {
+        string var = tail.substr(0, pos); // 变量名
+        string attrib = tail.substr(pos + 1); // 属性名
+        vector<string> attribLib;   // 所有可能的属性
+        fillTable.push_back(tail);
+        if (Symbol.count(var) == 1) // 在变量表内
+        {
+            switch (Symbol.at(var).type)
+            {
+                case String:
+                    attribLib.push_back("count");
+                    attribLib.push_back("index");
+                    break;
+                case List:
+                    attribLib.push_back("append");
+                    attribLib.push_back("count");
+                    attribLib.push_back("extend");
+                    attribLib.push_back("index");
+                    attribLib.push_back("insert");
+                    attribLib.push_back("pop");
+                    attribLib.push_back("remove");
+                    attribLib.push_back("reverse");
+                    break;
+            }
+            for (vector<string>::iterator i = attribLib.begin(); i != attribLib.end(); i++)
+            {
+                if ((attrib.length() < (*i).length()) && (attrib == (*i).substr(0, attrib.length())))
+                    fillTable.push_back((*i).substr(attrib.length()));
+            }
+        }
+    }
+    return fillTable;
+}
