@@ -51,4 +51,7 @@ real        {number}"."{number}?|{number}?"."{number}
 \/\/                                    {
                                             return DIV;
                                         }
+\*\*                                    {
+                                            return POW;
+                                        }
 %%

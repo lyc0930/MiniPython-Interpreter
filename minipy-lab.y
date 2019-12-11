@@ -87,9 +87,9 @@
 %}
 
 %token ID INT REAL STRING_LITERAL
-%token DIV
+%token DIV POW
 %left  '+' '-'
-%left  '*' '/' '%' DIV
+%left  '*' '/' '%' DIV POW
 %right UMINUS
 
 %%
@@ -2853,6 +2853,33 @@ mul_expr:
                 yyerror("TypeError: not supported type");
                 YYERROR;
         }
+    } |
+    mul_expr POW mul_expr
+    {
+        // 幂乘
+        if (($1.type == Integer || $1.type == Real) && ($3.type == Integer || $3.type == Real))
+        {
+            if (($1.type == Integer) && ( $3.type == Integer ))
+            {
+                $$.type = Integer;
+                $$.integerValue = pow($1.integerValue, $3.integerValue);
+            }
+            else
+            {
+                $$.type = Real;
+                if ( $1.type == Integer )
+                    $1.realValue = (double) $1.integerValue;
+                if ( $3.type == Integer )
+                    $3.realValue = (double) $3.integerValue;
+                $$.realValue = pow($1.realValue, $3.realValue);
+            }
+        }
+        else
+        {
+            yyerror("TypeError: unsupported operand type(s) for //: '"+ TypeString($1) +"' and '" + TypeString($3) + "\'");
+            YYERROR;
+        }
+
     } |
     mul_expr '/' mul_expr
     {

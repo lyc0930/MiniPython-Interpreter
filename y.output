@@ -62,27 +62,28 @@ Grammar
    38         | mul_expr
 
    39 mul_expr: mul_expr '*' mul_expr
-   40         | mul_expr '/' mul_expr
-   41         | mul_expr DIV mul_expr
-   42         | mul_expr '%' mul_expr
-   43         | '(' add_expr ')'
-   44         | '(' mul_expr ')'
-   45         | factor
+   40         | mul_expr POW mul_expr
+   41         | mul_expr '/' mul_expr
+   42         | mul_expr DIV mul_expr
+   43         | mul_expr '%' mul_expr
+   44         | '(' add_expr ')'
+   45         | '(' mul_expr ')'
+   46         | factor
 
 
 Terminals, with rules where they appear
 
 $end (0) 0
 '\n' (10) 4
-'%' (37) 42
-'(' (40) 26 27 43 44
-')' (41) 26 27 43 44
+'%' (37) 43
+'(' (40) 26 27 44 45
+')' (41) 26 27 44 45
 '*' (42) 39
 '+' (43) 10 36
 ',' (44) 29 33 35
 '-' (45) 11 37
 '.' (46) 25
-'/' (47) 40
+'/' (47) 41
 ':' (58) 18 19 23
 '=' (61) 6
 '[' (91) 23 24 30 31
@@ -92,46 +93,48 @@ ID (258) 13 25
 INT (259) 8
 REAL (260) 9
 STRING_LITERAL (261) 14
-DIV (262) 41
-UMINUS (263)
+DIV (262) 42
+POW (263) 40
+UMINUS (264)
 
 
 Nonterminals, with rules where they appear
 
-$accept (23)
+$accept (24)
     on left: 0
-Start (24)
+Start (25)
     on left: 1, on right: 0
-Lines (25)
+Lines (26)
     on left: 2 3 4, on right: 1 2
-stat (26)
+stat (27)
     on left: 5, on right: 2
-assignExpr (27)
+assignExpr (28)
     on left: 6 7, on right: 5 6
-number (28)
+number (29)
     on left: 8 9, on right: 16
-factor (29)
-    on left: 10 11 12, on right: 10 11 45
-atom (30)
+factor (30)
+    on left: 10 11 12, on right: 10 11 46
+atom (31)
     on left: 13 14 15 16, on right: 22
-slice_op (31)
+slice_op (32)
     on left: 17 18 19, on right: 23
-sub_expr (32)
+sub_expr (33)
     on left: 20 21, on right: 23
-atom_expr (33)
+atom_expr (34)
     on left: 22 23 24 25 26 27, on right: 6 12 23 24 25 26 27
-arglist (34)
+arglist (35)
     on left: 28 29, on right: 26 29
-List (35)
+List (36)
     on left: 30 31, on right: 15
-opt_comma (36)
+opt_comma (37)
     on left: 32 33, on right: 26 31
-List_items (37)
+List_items (38)
     on left: 34 35, on right: 31 35
-add_expr (38)
-    on left: 36 37 38, on right: 7 19 21 24 28 29 34 35 36 37 43
-mul_expr (39)
-    on left: 39 40 41 42 43 44 45, on right: 36 37 38 39 40 41 42 44
+add_expr (39)
+    on left: 36 37 38, on right: 7 19 21 24 28 29 34 35 36 37 44
+mul_expr (40)
+    on left: 39 40 41 42 43 44 45 46, on right: 36 37 38 39 40 41 42
+    43 45
 
 
 State 0
@@ -302,8 +305,8 @@ State 12
 
 State 13
 
-   43 mul_expr: '(' . add_expr ')'
-   44         | '(' . mul_expr ')'
+   44 mul_expr: '(' . add_expr ')'
+   45         | '(' . mul_expr ')'
 
     ID              shift, and go to state 6
     INT             shift, and go to state 7
@@ -346,9 +349,9 @@ State 16
 
 State 17
 
-   45 mul_expr: factor .
+   46 mul_expr: factor .
 
-    $default  reduce using rule 45 (mul_expr)
+    $default  reduce using rule 46 (mul_expr)
 
 
 State 18
@@ -403,14 +406,16 @@ State 22
 
    38 add_expr: mul_expr .
    39 mul_expr: mul_expr . '*' mul_expr
-   40         | mul_expr . '/' mul_expr
-   41         | mul_expr . DIV mul_expr
-   42         | mul_expr . '%' mul_expr
+   40         | mul_expr . POW mul_expr
+   41         | mul_expr . '/' mul_expr
+   42         | mul_expr . DIV mul_expr
+   43         | mul_expr . '%' mul_expr
 
     DIV  shift, and go to state 37
-    '*'  shift, and go to state 38
-    '/'  shift, and go to state 39
-    '%'  shift, and go to state 40
+    POW  shift, and go to state 38
+    '*'  shift, and go to state 39
+    '/'  shift, and go to state 40
+    '%'  shift, and go to state 41
 
     $default  reduce using rule 38 (add_expr)
 
@@ -459,11 +464,11 @@ State 27
    31 List: '[' List_items . opt_comma ']'
    35 List_items: List_items . ',' add_expr
 
-    ','  shift, and go to state 41
+    ','  shift, and go to state 42
 
     $default  reduce using rule 32 (opt_comma)
 
-    opt_comma  go to state 42
+    opt_comma  go to state 43
 
 
 State 28
@@ -482,27 +487,29 @@ State 29
 
    36 add_expr: add_expr . '+' mul_expr
    37         | add_expr . '-' mul_expr
-   43 mul_expr: '(' add_expr . ')'
+   44 mul_expr: '(' add_expr . ')'
 
     '+'  shift, and go to state 35
     '-'  shift, and go to state 36
-    ')'  shift, and go to state 43
+    ')'  shift, and go to state 44
 
 
 State 30
 
    38 add_expr: mul_expr .
    39 mul_expr: mul_expr . '*' mul_expr
-   40         | mul_expr . '/' mul_expr
-   41         | mul_expr . DIV mul_expr
-   42         | mul_expr . '%' mul_expr
-   44         | '(' mul_expr . ')'
+   40         | mul_expr . POW mul_expr
+   41         | mul_expr . '/' mul_expr
+   42         | mul_expr . DIV mul_expr
+   43         | mul_expr . '%' mul_expr
+   45         | '(' mul_expr . ')'
 
     DIV  shift, and go to state 37
-    '*'  shift, and go to state 38
-    '/'  shift, and go to state 39
-    '%'  shift, and go to state 40
-    ')'  shift, and go to state 44
+    POW  shift, and go to state 38
+    '*'  shift, and go to state 39
+    '/'  shift, and go to state 40
+    '%'  shift, and go to state 41
+    ')'  shift, and go to state 45
 
     ')'       [reduce using rule 38 (add_expr)]
     $default  reduce using rule 38 (add_expr)
@@ -521,7 +528,7 @@ State 31
     '['             shift, and go to state 12
     '('             shift, and go to state 13
 
-    assignExpr  go to state 45
+    assignExpr  go to state 46
     number      go to state 16
     factor      go to state 17
     atom        go to state 18
@@ -550,10 +557,10 @@ State 32
     number     go to state 16
     factor     go to state 17
     atom       go to state 18
-    sub_expr   go to state 46
+    sub_expr   go to state 47
     atom_expr  go to state 24
     List       go to state 20
-    add_expr   go to state 47
+    add_expr   go to state 48
     mul_expr   go to state 22
 
 
@@ -561,7 +568,7 @@ State 33
 
    25 atom_expr: atom_expr '.' . ID
 
-    ID  shift, and go to state 48
+    ID  shift, and go to state 49
 
 
 State 34
@@ -577,15 +584,15 @@ State 34
     '-'             shift, and go to state 11
     '['             shift, and go to state 12
     '('             shift, and go to state 13
-    ')'             shift, and go to state 49
+    ')'             shift, and go to state 50
 
     number     go to state 16
     factor     go to state 17
     atom       go to state 18
     atom_expr  go to state 24
-    arglist    go to state 50
+    arglist    go to state 51
     List       go to state 20
-    add_expr   go to state 51
+    add_expr   go to state 52
     mul_expr   go to state 22
 
 
@@ -607,7 +614,7 @@ State 35
     atom       go to state 18
     atom_expr  go to state 24
     List       go to state 20
-    mul_expr   go to state 52
+    mul_expr   go to state 53
 
 
 State 36
@@ -628,33 +635,12 @@ State 36
     atom       go to state 18
     atom_expr  go to state 24
     List       go to state 20
-    mul_expr   go to state 53
+    mul_expr   go to state 54
 
 
 State 37
 
-   41 mul_expr: mul_expr DIV . mul_expr
-
-    ID              shift, and go to state 6
-    INT             shift, and go to state 7
-    REAL            shift, and go to state 8
-    STRING_LITERAL  shift, and go to state 9
-    '+'             shift, and go to state 10
-    '-'             shift, and go to state 11
-    '['             shift, and go to state 12
-    '('             shift, and go to state 13
-
-    number     go to state 16
-    factor     go to state 17
-    atom       go to state 18
-    atom_expr  go to state 24
-    List       go to state 20
-    mul_expr   go to state 54
-
-
-State 38
-
-   39 mul_expr: mul_expr '*' . mul_expr
+   42 mul_expr: mul_expr DIV . mul_expr
 
     ID              shift, and go to state 6
     INT             shift, and go to state 7
@@ -673,9 +659,9 @@ State 38
     mul_expr   go to state 55
 
 
-State 39
+State 38
 
-   40 mul_expr: mul_expr '/' . mul_expr
+   40 mul_expr: mul_expr POW . mul_expr
 
     ID              shift, and go to state 6
     INT             shift, and go to state 7
@@ -694,9 +680,9 @@ State 39
     mul_expr   go to state 56
 
 
-State 40
+State 39
 
-   42 mul_expr: mul_expr '%' . mul_expr
+   39 mul_expr: mul_expr '*' . mul_expr
 
     ID              shift, and go to state 6
     INT             shift, and go to state 7
@@ -715,7 +701,49 @@ State 40
     mul_expr   go to state 57
 
 
+State 40
+
+   41 mul_expr: mul_expr '/' . mul_expr
+
+    ID              shift, and go to state 6
+    INT             shift, and go to state 7
+    REAL            shift, and go to state 8
+    STRING_LITERAL  shift, and go to state 9
+    '+'             shift, and go to state 10
+    '-'             shift, and go to state 11
+    '['             shift, and go to state 12
+    '('             shift, and go to state 13
+
+    number     go to state 16
+    factor     go to state 17
+    atom       go to state 18
+    atom_expr  go to state 24
+    List       go to state 20
+    mul_expr   go to state 58
+
+
 State 41
+
+   43 mul_expr: mul_expr '%' . mul_expr
+
+    ID              shift, and go to state 6
+    INT             shift, and go to state 7
+    REAL            shift, and go to state 8
+    STRING_LITERAL  shift, and go to state 9
+    '+'             shift, and go to state 10
+    '-'             shift, and go to state 11
+    '['             shift, and go to state 12
+    '('             shift, and go to state 13
+
+    number     go to state 16
+    factor     go to state 17
+    atom       go to state 18
+    atom_expr  go to state 24
+    List       go to state 20
+    mul_expr   go to state 59
+
+
+State 42
 
    33 opt_comma: ',' .
    35 List_items: List_items ',' . add_expr
@@ -736,46 +764,46 @@ State 41
     atom       go to state 18
     atom_expr  go to state 24
     List       go to state 20
-    add_expr   go to state 58
+    add_expr   go to state 60
     mul_expr   go to state 22
-
-
-State 42
-
-   31 List: '[' List_items opt_comma . ']'
-
-    ']'  shift, and go to state 59
 
 
 State 43
 
-   43 mul_expr: '(' add_expr ')' .
+   31 List: '[' List_items opt_comma . ']'
 
-    $default  reduce using rule 43 (mul_expr)
+    ']'  shift, and go to state 61
 
 
 State 44
 
-   44 mul_expr: '(' mul_expr ')' .
+   44 mul_expr: '(' add_expr ')' .
 
     $default  reduce using rule 44 (mul_expr)
 
 
 State 45
 
+   45 mul_expr: '(' mul_expr ')' .
+
+    $default  reduce using rule 45 (mul_expr)
+
+
+State 46
+
     6 assignExpr: atom_expr '=' assignExpr .
 
     $default  reduce using rule 6 (assignExpr)
 
 
-State 46
+State 47
 
    23 atom_expr: atom_expr '[' sub_expr . ':' sub_expr slice_op ']'
 
-    ':'  shift, and go to state 60
+    ':'  shift, and go to state 62
 
 
-State 47
+State 48
 
    21 sub_expr: add_expr .
    24 atom_expr: atom_expr '[' add_expr . ']'
@@ -784,38 +812,38 @@ State 47
 
     '+'  shift, and go to state 35
     '-'  shift, and go to state 36
-    ']'  shift, and go to state 61
+    ']'  shift, and go to state 63
 
     $default  reduce using rule 21 (sub_expr)
 
 
-State 48
+State 49
 
    25 atom_expr: atom_expr '.' ID .
 
     $default  reduce using rule 25 (atom_expr)
 
 
-State 49
+State 50
 
    27 atom_expr: atom_expr '(' ')' .
 
     $default  reduce using rule 27 (atom_expr)
 
 
-State 50
+State 51
 
    26 atom_expr: atom_expr '(' arglist . opt_comma ')'
    29 arglist: arglist . ',' add_expr
 
-    ','  shift, and go to state 62
+    ','  shift, and go to state 64
 
     $default  reduce using rule 32 (opt_comma)
 
-    opt_comma  go to state 63
+    opt_comma  go to state 65
 
 
-State 51
+State 52
 
    28 arglist: add_expr .
    36 add_expr: add_expr . '+' mul_expr
@@ -827,67 +855,62 @@ State 51
     $default  reduce using rule 28 (arglist)
 
 
-State 52
+State 53
 
    36 add_expr: add_expr '+' mul_expr .
    39 mul_expr: mul_expr . '*' mul_expr
-   40         | mul_expr . '/' mul_expr
-   41         | mul_expr . DIV mul_expr
-   42         | mul_expr . '%' mul_expr
+   40         | mul_expr . POW mul_expr
+   41         | mul_expr . '/' mul_expr
+   42         | mul_expr . DIV mul_expr
+   43         | mul_expr . '%' mul_expr
 
     DIV  shift, and go to state 37
-    '*'  shift, and go to state 38
-    '/'  shift, and go to state 39
-    '%'  shift, and go to state 40
+    POW  shift, and go to state 38
+    '*'  shift, and go to state 39
+    '/'  shift, and go to state 40
+    '%'  shift, and go to state 41
 
     $default  reduce using rule 36 (add_expr)
 
 
-State 53
+State 54
 
    37 add_expr: add_expr '-' mul_expr .
    39 mul_expr: mul_expr . '*' mul_expr
-   40         | mul_expr . '/' mul_expr
-   41         | mul_expr . DIV mul_expr
-   42         | mul_expr . '%' mul_expr
+   40         | mul_expr . POW mul_expr
+   41         | mul_expr . '/' mul_expr
+   42         | mul_expr . DIV mul_expr
+   43         | mul_expr . '%' mul_expr
 
     DIV  shift, and go to state 37
-    '*'  shift, and go to state 38
-    '/'  shift, and go to state 39
-    '%'  shift, and go to state 40
+    POW  shift, and go to state 38
+    '*'  shift, and go to state 39
+    '/'  shift, and go to state 40
+    '%'  shift, and go to state 41
 
     $default  reduce using rule 37 (add_expr)
-
-
-State 54
-
-   39 mul_expr: mul_expr . '*' mul_expr
-   40         | mul_expr . '/' mul_expr
-   41         | mul_expr . DIV mul_expr
-   41         | mul_expr DIV mul_expr .
-   42         | mul_expr . '%' mul_expr
-
-    $default  reduce using rule 41 (mul_expr)
 
 
 State 55
 
    39 mul_expr: mul_expr . '*' mul_expr
-   39         | mul_expr '*' mul_expr .
-   40         | mul_expr . '/' mul_expr
-   41         | mul_expr . DIV mul_expr
-   42         | mul_expr . '%' mul_expr
+   40         | mul_expr . POW mul_expr
+   41         | mul_expr . '/' mul_expr
+   42         | mul_expr . DIV mul_expr
+   42         | mul_expr DIV mul_expr .
+   43         | mul_expr . '%' mul_expr
 
-    $default  reduce using rule 39 (mul_expr)
+    $default  reduce using rule 42 (mul_expr)
 
 
 State 56
 
    39 mul_expr: mul_expr . '*' mul_expr
-   40         | mul_expr . '/' mul_expr
-   40         | mul_expr '/' mul_expr .
-   41         | mul_expr . DIV mul_expr
-   42         | mul_expr . '%' mul_expr
+   40         | mul_expr . POW mul_expr
+   40         | mul_expr POW mul_expr .
+   41         | mul_expr . '/' mul_expr
+   42         | mul_expr . DIV mul_expr
+   43         | mul_expr . '%' mul_expr
 
     $default  reduce using rule 40 (mul_expr)
 
@@ -895,15 +918,40 @@ State 56
 State 57
 
    39 mul_expr: mul_expr . '*' mul_expr
-   40         | mul_expr . '/' mul_expr
-   41         | mul_expr . DIV mul_expr
-   42         | mul_expr . '%' mul_expr
-   42         | mul_expr '%' mul_expr .
+   39         | mul_expr '*' mul_expr .
+   40         | mul_expr . POW mul_expr
+   41         | mul_expr . '/' mul_expr
+   42         | mul_expr . DIV mul_expr
+   43         | mul_expr . '%' mul_expr
 
-    $default  reduce using rule 42 (mul_expr)
+    $default  reduce using rule 39 (mul_expr)
 
 
 State 58
+
+   39 mul_expr: mul_expr . '*' mul_expr
+   40         | mul_expr . POW mul_expr
+   41         | mul_expr . '/' mul_expr
+   41         | mul_expr '/' mul_expr .
+   42         | mul_expr . DIV mul_expr
+   43         | mul_expr . '%' mul_expr
+
+    $default  reduce using rule 41 (mul_expr)
+
+
+State 59
+
+   39 mul_expr: mul_expr . '*' mul_expr
+   40         | mul_expr . POW mul_expr
+   41         | mul_expr . '/' mul_expr
+   42         | mul_expr . DIV mul_expr
+   43         | mul_expr . '%' mul_expr
+   43         | mul_expr '%' mul_expr .
+
+    $default  reduce using rule 43 (mul_expr)
+
+
+State 60
 
    35 List_items: List_items ',' add_expr .
    36 add_expr: add_expr . '+' mul_expr
@@ -915,14 +963,14 @@ State 58
     $default  reduce using rule 35 (List_items)
 
 
-State 59
+State 61
 
    31 List: '[' List_items opt_comma ']' .
 
     $default  reduce using rule 31 (List)
 
 
-State 60
+State 62
 
    23 atom_expr: atom_expr '[' sub_expr ':' . sub_expr slice_op ']'
 
@@ -940,21 +988,21 @@ State 60
     number     go to state 16
     factor     go to state 17
     atom       go to state 18
-    sub_expr   go to state 64
+    sub_expr   go to state 66
     atom_expr  go to state 24
     List       go to state 20
-    add_expr   go to state 65
+    add_expr   go to state 67
     mul_expr   go to state 22
 
 
-State 61
+State 63
 
    24 atom_expr: atom_expr '[' add_expr ']' .
 
     $default  reduce using rule 24 (atom_expr)
 
 
-State 62
+State 64
 
    29 arglist: arglist ',' . add_expr
    33 opt_comma: ',' .
@@ -975,29 +1023,29 @@ State 62
     atom       go to state 18
     atom_expr  go to state 24
     List       go to state 20
-    add_expr   go to state 66
+    add_expr   go to state 68
     mul_expr   go to state 22
 
 
-State 63
+State 65
 
    26 atom_expr: atom_expr '(' arglist opt_comma . ')'
 
-    ')'  shift, and go to state 67
+    ')'  shift, and go to state 69
 
 
-State 64
+State 66
 
    23 atom_expr: atom_expr '[' sub_expr ':' sub_expr . slice_op ']'
 
-    ':'  shift, and go to state 68
+    ':'  shift, and go to state 70
 
     $default  reduce using rule 17 (slice_op)
 
-    slice_op  go to state 69
+    slice_op  go to state 71
 
 
-State 65
+State 67
 
    21 sub_expr: add_expr .
    36 add_expr: add_expr . '+' mul_expr
@@ -1009,7 +1057,7 @@ State 65
     $default  reduce using rule 21 (sub_expr)
 
 
-State 66
+State 68
 
    29 arglist: arglist ',' add_expr .
    36 add_expr: add_expr . '+' mul_expr
@@ -1021,14 +1069,14 @@ State 66
     $default  reduce using rule 29 (arglist)
 
 
-State 67
+State 69
 
    26 atom_expr: atom_expr '(' arglist opt_comma ')' .
 
     $default  reduce using rule 26 (atom_expr)
 
 
-State 68
+State 70
 
    18 slice_op: ':' .
    19         | ':' . add_expr
@@ -1049,18 +1097,18 @@ State 68
     atom       go to state 18
     atom_expr  go to state 24
     List       go to state 20
-    add_expr   go to state 70
+    add_expr   go to state 72
     mul_expr   go to state 22
 
 
-State 69
+State 71
 
    23 atom_expr: atom_expr '[' sub_expr ':' sub_expr slice_op . ']'
 
-    ']'  shift, and go to state 71
+    ']'  shift, and go to state 73
 
 
-State 70
+State 72
 
    19 slice_op: ':' add_expr .
    36 add_expr: add_expr . '+' mul_expr
@@ -1072,7 +1120,7 @@ State 70
     $default  reduce using rule 19 (slice_op)
 
 
-State 71
+State 73
 
    23 atom_expr: atom_expr '[' sub_expr ':' sub_expr slice_op ']' .
 
