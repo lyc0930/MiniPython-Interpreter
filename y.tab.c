@@ -4148,7 +4148,7 @@ yyreduce:
         // 幂乘
         if (((yyvsp[-2]).type == Integer || (yyvsp[-2]).type == Real) && ((yyvsp[0]).type == Integer || (yyvsp[0]).type == Real))
         {
-            if (((yyvsp[-2]).type == Integer) && ( (yyvsp[0]).type == Integer ))
+            if (((yyvsp[-2]).type == Integer) && ( (yyvsp[0]).type == Integer ) && ((yyvsp[0]).integerValue >= 0))
             {
                 (yyval).type = Integer;
                 (yyval).integerValue = pow((yyvsp[-2]).integerValue, (yyvsp[0]).integerValue);
@@ -4165,7 +4165,7 @@ yyreduce:
         }
         else
         {
-            yyerror("TypeError: unsupported operand type(s) for //: '"+ TypeString((yyvsp[-2])) +"' and '" + TypeString((yyvsp[0])) + "\'");
+            yyerror("TypeError: unsupported operand type(s) for **: '"+ TypeString((yyvsp[-2])) +"' and '" + TypeString((yyvsp[0])) + "\'");
             YYERROR;
         }
 

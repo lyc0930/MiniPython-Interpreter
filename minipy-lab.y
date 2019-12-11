@@ -2859,7 +2859,7 @@ mul_expr:
         // 幂乘
         if (($1.type == Integer || $1.type == Real) && ($3.type == Integer || $3.type == Real))
         {
-            if (($1.type == Integer) && ( $3.type == Integer ))
+            if (($1.type == Integer) && ( $3.type == Integer ) && ($3.integerValue >= 0))
             {
                 $$.type = Integer;
                 $$.integerValue = pow($1.integerValue, $3.integerValue);
@@ -2876,7 +2876,7 @@ mul_expr:
         }
         else
         {
-            yyerror("TypeError: unsupported operand type(s) for //: '"+ TypeString($1) +"' and '" + TypeString($3) + "\'");
+            yyerror("TypeError: unsupported operand type(s) for **: '"+ TypeString($1) +"' and '" + TypeString($3) + "\'");
             YYERROR;
         }
 
