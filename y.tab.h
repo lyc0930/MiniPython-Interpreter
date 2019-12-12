@@ -50,7 +50,8 @@ extern int yydebug;
     REAL = 260,
     STRING_LITERAL = 261,
     DIV = 262,
-    UMINUS = 263
+    POW = 263,
+    UMINUS = 264
   };
 #endif
 /* Tokens.  */
@@ -59,7 +60,8 @@ extern int yydebug;
 #define REAL 260
 #define STRING_LITERAL 261
 #define DIV 262
-#define UMINUS 263
+#define POW 263
+#define UMINUS 264
 
 /* Value type.  */
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED

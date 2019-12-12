@@ -29,8 +29,8 @@
         bool transparent;               /* display(false) or not */
         // slice or item of List
         vector<struct value>::iterator begin; // slice 起始位置 或 item 坐标
-        vector<struct value>::iterator end;
-        int step;
+        vector<struct value>::iterator end;   // slice 结束位置
+        int step;                             // slice 步长
 
         // Overload the operator
         bool operator==(const value that) const
@@ -81,12 +81,15 @@
 
     // 返回可迭代实体的长度
     int Length(Value);
+
+    // 返回自动补全表
+    vector<string> Autofill(string);
 %}
 
 %token ID INT REAL STRING_LITERAL
-%token DIV
+%token DIV POW
 %left  '+' '-'
-%left  '*' '/' '%' DIV
+%left  '*' '/' '%' DIV POW
 %right UMINUS
 
 %%
@@ -1176,7 +1179,6 @@ atom_expr:
     atom_expr '.' ID
     {
         $$.type = $1.type;
-
         $$.variableName = $1.variableName; // 变量名
         $$.attributeName = $3.variableName; // 属性或方法名
     } |
@@ -2852,6 +2854,33 @@ mul_expr:
                 YYERROR;
         }
     } |
+    mul_expr POW mul_expr
+    {
+        // 幂乘
+        if (($1.type == Integer || $1.type == Real) && ($3.type == Integer || $3.type == Real))
+        {
+            if (($1.type == Integer) && ( $3.type == Integer ) && ($3.integerValue >= 0))
+            {
+                $$.type = Integer;
+                $$.integerValue = pow($1.integerValue, $3.integerValue);
+            }
+            else
+            {
+                $$.type = Real;
+                if ( $1.type == Integer )
+                    $1.realValue = (double) $1.integerValue;
+                if ( $3.type == Integer )
+                    $3.realValue = (double) $3.integerValue;
+                $$.realValue = pow($1.realValue, $3.realValue);
+            }
+        }
+        else
+        {
+            yyerror("TypeError: unsupported operand type(s) for **: '"+ TypeString($1) +"' and '" + TypeString($3) + "\'");
+            YYERROR;
+        }
+
+    } |
     mul_expr '/' mul_expr
     {
         $$.type = Real;
@@ -2996,7 +3025,21 @@ int main()
                 cout << endl << "KeyboardInterrupt" << endl;
                 break;
             case 9: // Tab
-                cout << "\t" << endl;
+            {
+                vector<string> fillTable = Autofill(KeyBoardStream.substr(0, cursor));
+                if (fillTable.size() == 2) // 仅一个补全建议
+                {
+                    KeyBoardStream.insert(cursor, fillTable[1]);
+                    cursor += fillTable[1].length();
+                }
+                else if (fillTable.size() > 2) // 多个补全建议
+                {
+                    cout << endl;
+                    for (int i = 1; i < fillTable.size(); i++)
+                        cout << fillTable[0] << fillTable[i].append(10 - fillTable[i].length(), ' ') << (((i % 4 == 0) && i < fillTable.size() - 1) ? "\n" : "");
+                    cout << endl;
+                }
+            }
                 break;
             case 13: // Enter
                 putchar('\n');
@@ -3121,3 +3164,51 @@ int Length(Value x) // 将枚举类型返回实体长度，用于len(), insert()
     }
 }
 
+vector<string> Autofill(string s) // 根据字符串前缀返回自动补全
+{
+    vector<string> fillTable;
+    int pos = s.find_last_of(" +-*/%()[]");
+    string tail = (pos == string::npos) ? s : s.substr(pos + 1);
+    if ((pos = tail.find_last_of('.')) == string::npos) // 没有'.' -> 补全变量
+    {
+        fillTable.push_back(tail);
+        for (map<string, struct value>::iterator i = Symbol.begin(); i != Symbol.end(); i++)
+        {
+            if ((tail.length() < (i->first).length()) && (tail == (i->first).substr(0, tail.length())))
+                fillTable.push_back((i->first).substr(tail.length()));
+        }
+    }
+    else // 有'.' -> 补全属性方法
+    {
+        string var = tail.substr(0, pos); // 变量名
+        string attrib = tail.substr(pos + 1); // 属性名
+        vector<string> attribLib;   // 所有可能的属性
+        fillTable.push_back(tail);
+        if (Symbol.count(var) == 1) // 在变量表内
+        {
+            switch (Symbol.at(var).type)
+            {
+                case String:
+                    attribLib.push_back("count(");
+                    attribLib.push_back("index(");
+                    break;
+                case List:
+                    attribLib.push_back("append(");
+                    attribLib.push_back("count(");
+                    attribLib.push_back("extend(");
+                    attribLib.push_back("index(");
+                    attribLib.push_back("insert(");
+                    attribLib.push_back("pop(");
+                    attribLib.push_back("remove(");
+                    attribLib.push_back("reverse(");
+                    break;
+            }
+            for (vector<string>::iterator i = attribLib.begin(); i != attribLib.end(); i++)
+            {
+                if ((attrib.length() < (*i).length()) && (attrib == (*i).substr(0, attrib.length())))
+                    fillTable.push_back((*i).substr(attrib.length()));
+            }
+        }
+    }
+    return fillTable;
+}
